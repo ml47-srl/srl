@@ -1,0 +1,8 @@
+#!../srl.py
+
+# comment
+ok.
+lol. # comment
+@import("imported.srl").#another comment
+@print(lol).	# tab comment
+

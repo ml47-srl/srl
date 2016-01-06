@@ -7,11 +7,10 @@ usage="srl.py <file>"
 
 def uncommentSRL(lines):
 	result=""
-	for line in lines.split("\n"):
-		if line.find("#") != -1:
-			line = line[:line.find("#")]
-		else:
-			line = line.strip("\n")
+	for line in lines:
+		if line.find("#") != -1: # if a comment exists
+			line = line[:line.find("#")] # clear it
+		line = line.strip() # removes whitespaces tabs and endlines from beginning and end of line
 		result += line
 	return result
 
@@ -27,8 +26,5 @@ else:
 	except:
 		print("file " + sys.argv[1] + " not found")
 		sys.exit()
-	lines=""
-	for line in openfile.readlines():
-		lines += line
+	parseSRL(openfile.readlines())
 	openfile.close()
-	parseSRL(lines)
