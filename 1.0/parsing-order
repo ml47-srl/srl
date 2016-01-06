@@ -1,0 +1,7 @@
+# parsing order
+
+- comments
+- @import("file.srl"). (goto comments) # important because of '.'-char
+- rules-split # count parens, throw errors
+- check conflicts # if found throw errors
+- find @prints -> print # rules-order must not be changed!

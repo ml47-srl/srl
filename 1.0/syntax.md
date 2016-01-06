@@ -20,7 +20,6 @@ To define a one-line-comment use the '#' symbol.<br />
 Keywords have to end with a dot.<br />
 - The `@import(?filename)`-keyword substitutes itself by the content of the file `?filename`.<br />
 - The `@print(?str)`-keyword prints `?str` and anything equal to it to stdout.<br />
-- The `@printconflicts`-keyword finds rules which except each other and prints them.
 
 #### Built-in Cells
 Built-in cells are pretty self-explaining.<br />
