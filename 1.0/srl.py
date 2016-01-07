@@ -45,7 +45,7 @@ class SRLParser:
 		elif re.match(r'^@print\(.*\)\.', code) != None: # TODO
 			return SRLParser.__parsePrintKeyword(code, rules)
 		else:
-			print("invalid keyword \"" + code + "\"") # make better
+			print("invalid keyword \"" + code + "\"") # TODO
 			sys.exit()
 
 	@staticmethod
@@ -56,7 +56,7 @@ class SRLParser:
 			if code.startswith("@"):
 				code = SRLParser.__parseKeyword(code, rules)
 			else:
-				print("Can't parse code \"" + code + "\"")
+				print("Can't parse code \"" + code + "\"") # TODO
 				sys.exit()
 		return rules
 
@@ -71,5 +71,5 @@ else:
 		sys.exit()
 	root=os.path.dirname(sys.argv[1])
 	rules=SRLParser.parse(openfile.readlines())
-	print(rules) # remove
+	print(rules) # TODO remove
 	openfile.close()
