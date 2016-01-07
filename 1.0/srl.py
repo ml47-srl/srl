@@ -20,7 +20,7 @@ class SRLParser:
 	@staticmethod
 	def __parseImportKeyword(code, rules):
 		filename = re.match(r'^@import\("([^"]|\\")+"\)\.', code).group()[9:-3]
-		filepath = os.path.dirname(sys.argv[1]) + "/" + filename
+		filepath = root + "/" + filename
 		try:
 			importfile=open(filepath)
 		except:
@@ -69,6 +69,7 @@ else:
 	except:
 		print("file " + sys.argv[1] + " not found")
 		sys.exit()
+	root=os.path.dirname(sys.argv[1])
 	rules=SRLParser.parse(openfile.readlines())
 	print(rules) # remove
 	openfile.close()
