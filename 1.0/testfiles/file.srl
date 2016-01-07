@@ -1,3 +1,0 @@
-#!../srl.py
-
-@import("imported.srl").
