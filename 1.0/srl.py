@@ -18,7 +18,7 @@ class SRLParser:
 		return result
 
 	@staticmethod
-	def __parseImportKeyword(code, rules):
+	def __parseImportKeyword(code, rules, root):
 		match = re.match(r'^@import\("([^"]|\\")+"\)\.', code)
 		if match == None:
 			print("Can't parse code (@import) \"" + code + "\"") # TODO
@@ -30,7 +30,7 @@ class SRLParser:
 		except:
 			print("Can't import file \"" + filepath + "\"")
 			sys.exit()
-		importrules = SRLParser.parse(importfile.readlines())
+		importrules = SRLParser.parse(importfile.readlines(), os.path.dirname(filepath))
 		importfile.close()
 
 		for rule in importrules:
@@ -43,22 +43,18 @@ class SRLParser:
 		return code
 
 	@staticmethod
-	def __parseKeyword(code, rules):
-		if code.startswith("@import("):
-			return SRLParser.__parseImportKeyword(code, rules)
-		elif code.startswith("@print("):
-			return SRLParser.__parsePrintKeyword(code, rules)
-		else:
-			print("invalid keyword \"" + code + "\"") # TODO
-			sys.exit()
-
-	@staticmethod
-	def parse(code): # returns list() of rules
+	def parse(code, root): # returns list() of rules
 		rules=list()
 		code = SRLParser.__uncomment(code)
 		while code != "": # as long as code has to be converted to a rule
 			if code.startswith("@"):
-				code = SRLParser.__parseKeyword(code, rules)
+				if code.startswith("@import("):
+					return SRLParser.__parseImportKeyword(code, rules, root)
+				elif code.startswith("@print("):
+					return SRLParser.__parsePrintKeyword(code, rules)
+				else:
+					print("invalid keyword \"" + code + "\"") # TODO
+					sys.exit()
 			else:
 				print("Can't parse code \"" + code + "\"") # TODO
 				sys.exit()
@@ -73,7 +69,6 @@ else:
 	except:
 		print("file \"" + sys.argv[1] + "\" not found")
 		sys.exit()
-	root=os.path.dirname(sys.argv[1])
-	rules=SRLParser.parse(openfile.readlines())
+	rules=SRLParser.parse(openfile.readlines(), os.path.dirname(sys.argv[1]))
 	print(rules) # TODO remove
 	openfile.close()
