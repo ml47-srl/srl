@@ -24,7 +24,7 @@ class SRLParser:
 			print("Can't parse code (@import) \"" + code + "\"") # TODO
 			sys.exit()
 		filename = match.group()[9:-3]
-		filepath = root + "/" + filename # TODO is not always right (root)
+		filepath = root + "/" + filename
 		try:
 			importfile=open(filepath)
 		except:
