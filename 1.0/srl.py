@@ -28,7 +28,7 @@ class SRLParser:
 		try:
 			importfile=open(filepath)
 		except:
-			print("Can't import file \"" + filepath + "\"")
+			print("Can't import file \"" + os.path.realpath(filepath) + "\"")
 			sys.exit()
 		importrules = SRLParser.parse(importfile.readlines(), os.path.dirname(filepath))
 		importfile.close()
