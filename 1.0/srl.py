@@ -19,12 +19,16 @@ class SRLParser:
 
 	@staticmethod
 	def __parseImportKeyword(code, rules):
-		filename = re.match(r'^@import\("([^"]|\\")+"\)\.', code).group()[9:-3]
+		match = re.match(r'^@import\("([^"]|\\")+"\)\.', code)
+		if match == None:
+			print("Can't parse code (@import) \"" + code + "\"") # TODO
+			sys.exit()
+		filename = match.group()[9:-3]
 		filepath = root + "/" + filename
 		try:
 			importfile=open(filepath)
 		except:
-			print("Can't import file " + filepath)
+			print("Can't import file \"" + filepath + "\"")
 			sys.exit()
 		importrules = SRLParser.parse(importfile.readlines())
 		importfile.close()
@@ -40,9 +44,9 @@ class SRLParser:
 
 	@staticmethod
 	def __parseKeyword(code, rules):
-		if re.match(r'^@import\("([^"]|\\")+"\)\.', code) != None:
+		if code.startswith("@import("):
 			return SRLParser.__parseImportKeyword(code, rules)
-		elif re.match(r'^@print\(.*\)\.', code) != None: # TODO
+		elif code.startswith("@print("):
 			return SRLParser.__parsePrintKeyword(code, rules)
 		else:
 			print("invalid keyword \"" + code + "\"") # TODO
@@ -67,7 +71,7 @@ else:
 	try:
 		openfile = open(sys.argv[1])
 	except:
-		print("file " + sys.argv[1] + " not found")
+		print("file \"" + sys.argv[1] + "\" not found")
 		sys.exit()
 	root=os.path.dirname(sys.argv[1])
 	rules=SRLParser.parse(openfile.readlines())
