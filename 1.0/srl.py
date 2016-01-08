@@ -8,6 +8,10 @@ usage="srl.py <file>"
 
 class SRLParser:
 	@staticmethod
+	def __checkConflicts(rules): # TODO
+		return
+
+	@staticmethod
 	def __uncomment(code): # uncomments; strips
 		result=""
 		for line in code:
@@ -30,7 +34,7 @@ class SRLParser:
 		except:
 			print("Can't import file \"" + os.path.realpath(filepath) + "\"")
 			sys.exit()
-		importrules = SRLParser.parse(importfile.readlines(), os.path.dirname(filepath))
+		importrules = SRLParser.__parse(importfile.readlines(), os.path.dirname(filepath))
 		importfile.close()
 
 		for rule in importrules:
@@ -60,7 +64,7 @@ class SRLParser:
 
 
 	@staticmethod
-	def parse(code, root): # returns list() of rules
+	def __parse(code, root):
 		rules=list()
 		code = SRLParser.__uncomment(code)
 		while code != "": # as long as code has to be converted to a rule
@@ -76,6 +80,21 @@ class SRLParser:
 				code = SRLParser.__parseRule(code, rules)
 		return rules
 
+	@staticmethod
+	def parse(code, root): # returns list() of rules
+		rules = SRLParser.__parse(code, root)
+		nonkeywordrules=list()
+		for rule in rules:
+			if (not rule.startswith("@")):
+				nonkeywordrules.append(rule)
+		SRLParser.__checkConflicts(nonkeywordrules)
+		return rules
+
+class SRLExecutor:
+	@staticmethod
+	def execute(rules): # TODO
+		print(rules)
+
 if len(sys.argv) != 2:
 	print(usage)
 	sys.exit()
@@ -85,6 +104,5 @@ else:
 	except:
 		print("file \"" + sys.argv[1] + "\" not found")
 		sys.exit()
-	rules=SRLParser.parse(openfile.readlines(), os.path.dirname(sys.argv[1]))
-	print(rules) # TODO remove
+	SRLExecutor.execute(SRLParser.parse(openfile.readlines(), os.path.dirname(sys.argv[1])))
 	openfile.close()
