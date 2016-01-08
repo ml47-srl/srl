@@ -43,21 +43,31 @@ class SRLParser:
 		return code
 
 	@staticmethod
+	def __parseRule(code, rules):
+		dotpos = code.find(".")
+		if dotpos != -1:
+			rules.append(code[:dotpos+1])
+			return code[dotpos+1:]
+		else:
+			print("Can't find end of Rule\"" + code + "\"")
+			sys.exit()
+
+
+	@staticmethod
 	def parse(code, root): # returns list() of rules
 		rules=list()
 		code = SRLParser.__uncomment(code)
 		while code != "": # as long as code has to be converted to a rule
 			if code.startswith("@"):
 				if code.startswith("@import("):
-					return SRLParser.__parseImportKeyword(code, rules, root)
+					code = SRLParser.__parseImportKeyword(code, rules, root)
 				elif code.startswith("@print("):
-					return SRLParser.__parsePrintKeyword(code, rules)
+					code = SRLParser.__parsePrintKeyword(code, rules)
 				else:
 					print("invalid keyword \"" + code + "\"") # TODO
 					sys.exit()
 			else:
-				print("Can't parse code \"" + code + "\"") # TODO
-				sys.exit()
+				code = SRLParser.__parseRule(code, rules)
 		return rules
 
 if len(sys.argv) != 2:
