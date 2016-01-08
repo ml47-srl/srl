@@ -92,8 +92,20 @@ class SRLParser:
 
 class SRLExecutor:
 	@staticmethod
+	def __executePrint(rules, argument):
+		results=list()
+		results.append(argument)
+		# TODO find other results
+		print("(" + ", ".join(results) + ")")
+
+	@staticmethod
 	def execute(rules): # TODO
-		print(rules)
+		newrules=list()
+		for rule in rules:
+			if rule.startswith("@print("):
+				SRLExecutor.__executePrint(newrules, rule[7:-2])
+			else:
+				newrules.append(rule)
 
 if len(sys.argv) != 2:
 	print(usage)
