@@ -1,9 +1,0 @@
-# parsing order
-
-- comments
-- @import("file.srl"). (goto comments) # important because of '.'-char
-	- anywhere save filenames+pathes of already imported files (circular reference!)
-- split rules-string to rules-list
-	- check if rules are syntactically valid # count parens, throw errors
-- check conflicts # if found throw errors
-- find @prints -> print # rules-order must not be changed!
