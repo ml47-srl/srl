@@ -39,17 +39,23 @@ class SRLParser:
 		return code[len(filename)+12:]
 
 	@staticmethod
-	def __parsePrintKeyword(code, rules):
-		return code
-
-	@staticmethod
-	def __parseRule(code, rules):
+	def __parsePrintKeyword(code, rules): # TODO
 		dotpos = code.find(".")
 		if dotpos != -1:
 			rules.append(code[:dotpos+1])
 			return code[dotpos+1:]
 		else:
-			print("Can't find end of Rule\"" + code + "\"")
+			print("Can't find end of Rule (@print) \"" + code + "\"")
+			sys.exit()
+
+	@staticmethod
+	def __parseRule(code, rules): # TODO
+		dotpos = code.find(".")
+		if dotpos != -1:
+			rules.append(code[:dotpos+1])
+			return code[dotpos+1:]
+		else:
+			print("Can't find end of Rule \"" + code + "\"")
 			sys.exit()
 
 
