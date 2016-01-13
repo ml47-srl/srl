@@ -1,0 +1,30 @@
+# example
+
+@import("../lib/family.srl").
+
+male(karsten).
+female(germaine).
+male(rudi).
+male(bruno).
+
+child(germaine rudi).
+child(germaine bruno).
+child(karsten rudi).
+child(karsten bruno).
+
+@print(son(germaine bruno)).
+
+# have to find something that means son(germaine bruno):
+# equals(and(male(bruno) child(germaine bruno)) son(germaine bruno)).
+# -> means(and(male(bruno) child(germaine bruno)) son(germaine bruno)).
+
+# have to find something that means male(bruno):
+# male(bruno)
+# -> means(and(true child(germaine bruno)) son(germaine bruno)).
+
+# have to find something that means child(germaine bruno):
+# child(germaine bruno)
+# -> means(and(true true) son(germaine bruno)).
+
+# and(true true) -> true
+# -> means(true son(germaine bruno)).

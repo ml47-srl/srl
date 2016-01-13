@@ -6,7 +6,9 @@ means(implies(true ?arg) means(?arg true)).
 equals(not(true) false).
 equals(not(false) true).
 means(and(?a ?b) and(?b ?a)).
+means(and(true true) true).
 means(or(?a ?b) or(?b ?a)).
+means(or(true ?a) true).
 equals(unknown not(unknown)).
 implies(and(?a ?b) ?a).
 implies(?a or(?a ?b)).
