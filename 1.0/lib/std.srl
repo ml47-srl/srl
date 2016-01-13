@@ -1,0 +1,12 @@
+# std.srl
+
+means(equals(?a ?b) equals(?b ?a)).
+means(equals(?a ?b) means(?a ?b)).
+means(implies(true ?arg) means(?arg true)).
+equals(not(true) false).
+equals(not(false) true).
+means(and(?a ?b) and(?b ?a)).
+means(or(?a ?b) or(?b ?a)).
+equals(unknown not(unknown)).
+implies(and(?a ?b) ?a).
+implies(?a or(?a ?b)).
