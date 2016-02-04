@@ -7,5 +7,4 @@ DONE
 TODO
 	- split rules-string to rules-list
 		- check if rules are syntactically valid # count parens, throw errors
-	- check conflicts # if found throw errors
 	- find @prints -> print # rules-order must not be changed!
