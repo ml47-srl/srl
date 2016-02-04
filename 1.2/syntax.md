@@ -1,4 +1,4 @@
-## Syntax of SRL 1.1
+## Syntax of SRL 1.2
 #### In General
 The code consists of **cells**: `cellname`<br />
 Cells can be *objects* or *relations* or simply what you want them to be.<br />
