@@ -9,8 +9,8 @@ Rules commonly display relations between cells.<br />
 Rules have to end with a dot.<br />
 A **system** is just a set of rules.<br />
 
-#### The means-cell
-The `means(?a ?b)`-cell gives the information to the interpreter, that ?a is subsitutable by ?b.
+#### The equals-cell
+The `equals(?a ?b)`-cell gives the information to the interpreter, that ?a is the same as ?b.
 
 #### Wildcards
 To insert *wildcards* into rules insert a question-mark before the argument: `is_something(?x).`<br />

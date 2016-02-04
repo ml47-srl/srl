@@ -1,0 +1,14 @@
+# std.srl
+
+equals(implies(true ?arg) equals(?arg true)).
+equals(not(true) false).
+equals(not(false) true).
+equals(and(?a ?b) and(?b ?a)).
+equals(and(true true) true).
+equals(or(?a ?b) or(?b ?a)).
+equals(or(true ?a) true).
+equals(unknown not(unknown)).
+implies(and(?a ?b) ?a).
+implies(?a or(?a ?b)).
+
+implies(equals(true false) @error("ERROR: true = false")).

@@ -1,0 +1,16 @@
+# family.srl
+
+# parent(?a ?b) --> the parent of ?a is ?b
+
+@import("std.srl").
+
+equals(female(?a) not(male(?a))).
+equals(male(?a) not(female(?a))).
+
+equals(parent(?a ?b) child(?b ?a)).
+
+equals(father(?a ?b) and(male(?b) parent(?a ?b))).
+equals(mother(?a ?b) and(female(?b) parent(?a ?b))).
+
+equals(son(?a ?b) and(male(?b) child(?a ?b))).
+equals(daughter(?a ?b) and(female(?b) child(?a ?b))).
