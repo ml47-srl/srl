@@ -11,4 +11,4 @@ equals(or(true ?a) true).
 implies(and(?a ?b) ?a).
 implies(?a or(?a ?b)).
 
-implies(equals(true false) @error("ERROR: true = false")).
+implies(false @error("ERROR: true = false")).

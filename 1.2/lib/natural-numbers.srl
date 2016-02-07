@@ -1,0 +1,59 @@
+# natural-numbers
+
+@import("std.srl").
+
+equals
+(
+	is-digit(?a)
+	or
+	(
+		equals(?a 0)
+		equals(?a 1)
+	)
+).
+
+#equals
+#(
+#	is-number(?a)
+#	or
+#	(
+#		and
+#		(
+#			and
+#			(
+#				is-digit(?d) # ?d is wrong, because ?d means that the rule works with every cell, but it really only works with one cell
+#				is-number(?n) # ?n is wrong, ..
+#			)
+#			equals
+#			(
+#				?a
+#				next-to(?d ?n)
+#			)
+#		)
+#		is-digit(?a)
+#	)
+#).
+
+implies
+(
+	is-number(?a)
+	equals
+	(
+		plus(?a 0)
+		?a
+	)
+).
+
+implies
+(
+	and
+	(
+		is-number(?a)
+		is-number(?b)
+	)
+	equals
+	(
+		plus(?a ?b)
+		plus(?b ?a)
+	)
+)
