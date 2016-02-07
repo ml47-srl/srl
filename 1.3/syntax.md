@@ -28,4 +28,4 @@ To define a one-line-comment use the '#' symbol.<br />
 Keywords have to end with a dot.<br />
 - The `@import(<filename>)`-keyword substitutes itself by the content of the file `<filename>`.<br />
 - The `@error(<str>)`-keyword stops the program and prints `<str>` to stdout.<br />
-It is commonly used for finding logical conflicts: eg. `implies(equals(false true) @error("ERROR: false is true")).`<br />
+It is commonly used for finding logical conflicts: eg. `implies(false, @error("ERROR: false is true")).`<br />
