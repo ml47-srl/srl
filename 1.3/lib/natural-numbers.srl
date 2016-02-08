@@ -34,6 +34,12 @@ equals
 	)
 ).
 
+equals
+(
+	next-to(?a, next-to(?b, ?c)),
+	next-to(next-to(?a, ?b), ?c)
+).
+
 implies
 (
 	is-number(?a),
@@ -57,3 +63,17 @@ implies
 		plus(?b ?a)
 	)
 )
+
+implies
+(
+	and
+	(
+		is-number(?a),
+		is-number(?b)
+	),
+	equals
+	(
+		plus(?a ?b),
+		plus(?b ?a)
+	)
+).
