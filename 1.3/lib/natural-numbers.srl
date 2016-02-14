@@ -77,3 +77,45 @@ implies
 		plus(?b ?a)
 	)
 ).
+
+implies
+(
+	is-number(?a),
+	equals
+	(
+		times(?a, 0),
+		0
+	)
+).
+
+implies
+(
+	and
+	(
+		is-number(?a),
+		is-number(?b)
+	),
+	equals
+	(
+		times(?a, ?b),
+		times(?b, ?a)
+	)
+).
+
+implies
+(
+	and
+	(
+		is-number(?a),
+		is-number(?b)
+	),
+	equals
+	(
+		times(?a, ?b),
+		plus
+		(
+			times(minus(?a, 1), ?b),
+			?b
+		)
+	)
+).
