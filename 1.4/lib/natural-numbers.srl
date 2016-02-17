@@ -1,0 +1,107 @@
+# binary natural-numbers
+
+@import("std.srl").
+
+@equals
+(
+	is-digit(?a),
+	or
+	(
+		@equals(?a, 0),
+		@equals(?a, 1)
+	)
+).
+
+@equals
+(
+	is-number(?a),
+	or
+	(
+		and
+		(
+			and
+			(
+				is-digit(!d),
+				is-number(!n)
+			),
+			@equals
+			(
+				?a,
+				next-to(!d, !n)
+			)
+		),
+		is-digit(?a)
+	)
+).
+
+@equals
+(
+	next-to(?a, next-to(?b, ?c)),
+	next-to(next-to(?a, ?b), ?c)
+).
+
+implies
+(
+	is-number(?a),
+	@equals
+	(
+		plus(?a 0),
+		?a
+	)
+).
+
+implies
+(
+	and
+	(
+		is-number(?a),
+		is-number(?b)
+	),
+	@equals
+	(
+		plus(?a, ?b),
+		plus(?b, ?a)
+	)
+)
+
+implies
+(
+	is-number(?a),
+	@equals
+	(
+		times(?a, 0),
+		0
+	)
+).
+
+implies
+(
+	and
+	(
+		is-number(?a),
+		is-number(?b)
+	),
+	@equals
+	(
+		times(?a, ?b),
+		times(?b, ?a)
+	)
+).
+
+implies
+(
+	and
+	(
+		is-number(?a),
+		is-number(?b)
+	),
+	@equals
+	(
+		times(?a, ?b),
+		plus
+		(
+			times(minus(?a, 1), ?b),
+			?b
+		)
+	)
+).
