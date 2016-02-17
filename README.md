@@ -7,6 +7,7 @@ SRL = System Representing Language
 
 ## Requirements:
 - accurately specify any system
+- every statement has to be possible
 - no chance of misunderstandings when read or spoken
 - simple syntax (only contain a tiny amount of built-ins/keywords)
 	- easy to learn
