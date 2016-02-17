@@ -66,20 +66,6 @@ implies
 
 implies
 (
-	and
-	(
-		is-number(?a),
-		is-number(?b)
-	),
-	equals
-	(
-		plus(?a, ?b),
-		plus(?b, ?a)
-	)
-).
-
-implies
-(
 	is-number(?a),
 	equals
 	(
