@@ -7,8 +7,8 @@ equals
 	is-digit(?a),
 	or
 	(
-		equals(?a 0),
-		equals(?a 1)
+		equals(?a, 0),
+		equals(?a, 1)
 	)
 ).
 
@@ -27,7 +27,7 @@ equals
 			equals
 			(
 				?a,
-				next-to(!d !n)
+				next-to(!d, !n)
 			)
 		),
 		is-digit(?a)
@@ -59,8 +59,8 @@ implies
 	),
 	equals
 	(
-		plus(?a ?b),
-		plus(?b ?a)
+		plus(?a, ?b),
+		plus(?b, ?a)
 	)
 )
 
@@ -73,8 +73,8 @@ implies
 	),
 	equals
 	(
-		plus(?a ?b),
-		plus(?b ?a)
+		plus(?a, ?b),
+		plus(?b, ?a)
 	)
 ).
 
