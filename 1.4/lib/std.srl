@@ -1,6 +1,5 @@
 # std.srl
 
-@equals(?x, ?x).
 @equals(implies(true, ?arg), @equals(?arg, true)).
 @equals(not(true), false).
 @equals(not(false), true).
