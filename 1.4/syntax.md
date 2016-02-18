@@ -22,9 +22,11 @@ A **system** is just a set of rules.<br />
 To insert For-all-cells into rules: insert a question mark before the for-all-cell: `is_something(?x).`<br />
 This means you could substitute the For-all-cell by any other cell and the rule stays valid.<br />
 To insert For-one-cells into rules: insert an exclamation mark before the for-one-cell: `is_a_dog(!dog).`<br />
-This means that there is at least one cell you could substitute the for-one-cell with, so that the rule stays valid.<br />
+This means that there is at least one cell you could substitute the for-one-cell with, so that the rule stays valid<br />
+and you could substitute any cell with a for-one-cell.<br />
 
-For-all / For-one-cells can not have arguments: `?foo(bar).` would be invalid.<br />
+Remember: If you do any of these substitutions you have to substitute every occurence of the substituted cell in a rule.<br />
+Remember: For-all / For-one-cells can not have arguments: `?foo(bar).` would be invalid.<br />
 
 #### Comments
 To define a one-line-comment use the '#' symbol.<br />
