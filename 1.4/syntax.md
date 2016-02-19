@@ -12,11 +12,11 @@ A **system** is just a set of rules.<br />
 
 #### Keywords
 - The `@import(<filename>)`-keyword substitutes itself by the content of the file `<filename>`.<br />
-- The `@equals(<a>, <b>)`-keyword displays that it is possible to substitute a by b or b by a and the rule stays valid.<br />
+- The `equals(<a>, <b>)`-keyword displays that it is possible to substitute a by b or b by a and the rule stays valid.<br />
 
 #### Predefined cells
 - The `true`-cell: for every rule applies, that it is equal to `true`.<br />
-- The `false`-cell: if `false` equals `true` (equality per `@equals`) you know that a conflict exists.<br />
+- The `false`-cell: if `false` equals `true` (equality per `equals`) you know that a conflict exists.<br />
 
 #### For all / For one-cells
 To insert For-all-cells into rules: insert a question mark before the for-all-cell: `is_something(?x).`<br />

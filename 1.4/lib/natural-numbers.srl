@@ -2,17 +2,17 @@
 
 @import("std.srl").
 
-@equals
+equals
 (
 	is-digit(?a),
 	or
 	(
-		@equals(?a, 0),
-		@equals(?a, 1)
+		equals(?a, 0),
+		equals(?a, 1)
 	)
 ).
 
-@equals
+equals
 (
 	is-number(?a),
 	or
@@ -24,7 +24,7 @@
 				is-digit(!d),
 				is-number(!n)
 			),
-			@equals
+			equals
 			(
 				?a,
 				next-to(!d, !n)
@@ -34,7 +34,7 @@
 	)
 ).
 
-@equals
+equals
 (
 	next-to(?a, next-to(?b, ?c)),
 	next-to(next-to(?a, ?b), ?c)
@@ -43,7 +43,7 @@
 implies
 (
 	is-number(?a),
-	@equals
+	equals
 	(
 		plus(?a 0),
 		?a
@@ -57,7 +57,7 @@ implies
 		is-number(?a),
 		is-number(?b)
 	),
-	@equals
+	equals
 	(
 		plus(?a, ?b),
 		plus(?b, ?a)
@@ -67,7 +67,7 @@ implies
 implies
 (
 	is-number(?a),
-	@equals
+	equals
 	(
 		times(?a, 0),
 		0
@@ -81,7 +81,7 @@ implies
 		is-number(?a),
 		is-number(?b)
 	),
-	@equals
+	equals
 	(
 		times(?a, ?b),
 		times(?b, ?a)
@@ -95,7 +95,7 @@ implies
 		is-number(?a),
 		is-number(?b)
 	),
-	@equals
+	equals
 	(
 		times(?a, ?b),
 		plus
