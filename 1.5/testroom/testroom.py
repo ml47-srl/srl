@@ -2,12 +2,15 @@
 
 from curses import *
 import sys
+import re
 
 # init
 filename=sys.argv[1]
 fh = open(filename)
 rules=list(fh.readlines())
 fh.close()
+for x in range(len(rules)):
+	rules[x] = rules[x].strip("\n").replace(" ", "")
 screen = initscr()
 screen.keypad(True)
 noecho()
@@ -30,7 +33,7 @@ def findNextCellIndex(rule, pos):
 			return pos
 	return tmp
 
-def findPreviousCellIndex(rule, pos): # example: next-cell(a, b).
+def findPreviousCellIndex(rule, pos):
 	if pos == 0:
 		return pos
 	tmp = pos-1
@@ -41,6 +44,54 @@ def findPreviousCellIndex(rule, pos): # example: next-cell(a, b).
 	while rule[tmp-1] != "," and rule[tmp-1] != "(" and rule[tmp-1] != ")" and rule[tmp-1] != " " and tmp > 0:
 		tmp -= 1
 	return tmp
+
+def isTrueEqualsCell(cell):
+	"""
+	a1 = 7
+	a2 = 7+(len(cell)-9)/2
+	b1 = len(cell) - (len(cell)-9)/2
+	b2 = len(cell) - 1
+	# open("debug", "w").write(str(cell) + "; a1 = " + str(a1) + "; a2 = " + str(a2) + "; b1 = " + str(b1) + "; b2 = " + str(b2))
+	return cell.startswith("equals(") and cell[a1:a2] == cell[b1:b2] # if cell is equals(cell, cell)
+	"""
+	return False
+
+def isWrongConstantEqualsCell(cell):
+	"""
+	return re.match(cell, r"equals\(\"{[a-zA-Z]\?}*\"\, *\"{[a-zA-Z]\?}*\"\)") # if cell is 'equals(<constant>, <other-constant>)'
+	"""
+	return False
+
+def getCellAt(index, cell):
+	cellname = ""
+	openparens = 0
+	while True:
+		cellname += cell[index]
+		index += 1
+		if cell[index] == "(":
+			openparens += 1
+		elif cell[index] == ")":
+			openparens -= 1
+		elif openparens == 0 and cell[index] == ",":
+			return cellname
+		elif cell[index] == ".":
+			return cellname
+
+
+def substituteCellAt(index, cell, sub):
+	rmcell = getCellAt(index, cell)
+	cell = cell[0:index] + cell[len(rmcell)+index:]
+	cell = cell[0:index] + sub + cell[index:]
+	return cell
+
+def findSubstitutions(cell):
+	substitutions=list()
+	if isTrueEqualsCell(cell):
+		substitutions.append("\"true\"")
+	elif isWrongConstantEqualsCell(cell):
+		substitutions.append("\"false\"")
+	substitutions.append("same-as-everything") # TODO remove
+	return substitutions
 
 def repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIndex):
 	screen.clear()
@@ -53,11 +104,10 @@ def repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIn
 
 def handleRule(rule):
 	global rules
-	substitutions=list()
-	substitutions.append("first sub")
 	targetSubstitutionIndex=0
 	targetCellIndex=0
 	while True:
+		substitutions=findSubstitutions(getCellAt(targetCellIndex, rule))
 		repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIndex)
 		key = screen.getch()
 		
@@ -72,7 +122,7 @@ def handleRule(rule):
 		elif str(key) == str(KEY_RIGHT):
 				targetCellIndex = findNextCellIndex(rule, targetCellIndex)
 		elif key == ord('\n'):
-			rules.append("ok, thats the new rule")
+			rules.append(substituteCellAt(targetCellIndex, rule, substitutions[targetSubstitutionIndex]))
 			break
 		else:
 			msg="wrong key"
@@ -104,7 +154,7 @@ def main():
 		else:
 			msg="wrong key"
 main()
-screen.getch()
 
 # uninit
+screen.getch()
 endwin()
