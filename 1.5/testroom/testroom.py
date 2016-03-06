@@ -5,8 +5,14 @@ import sys
 import re
 
 # init
+if len(sys.argv) != 2:
+	print("Bad amount of arguments")
+	sys.exit()
 filename=sys.argv[1]
-fh = open(filename)
+try:
+	fh = open(filename)
+except:
+	print("Couldn't load " + filename)
 rules=list(fh.readlines())
 fh.close()
 for x in range(len(rules)):
@@ -86,14 +92,14 @@ def findSubstitutions(cell):
 		substitutions.append("\"true\"")
 	elif isWrongConstantEqualsCell(cell):
 		substitutions.append("\"false\"")
-	substitutions.append("same-as-everything") # TODO remove
 	return substitutions
 
 def repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIndex):
 	screen.clear()
 	screen.addstr(0, 2, rule)
 	screen.addstr(1, targetCellIndex+2, "^")
-	screen.addstr(targetSubstitutionIndex+2, 0, ">")
+	if len(substitutions) > 0:
+		screen.addstr(targetSubstitutionIndex+2, 0, ">")
 	for x in range(len(substitutions)):
 		screen.addstr(x+2, 2, substitutions[x])
 	screen.addstr(maxY-1, 0, msg)
@@ -119,9 +125,10 @@ def handleRule(rule):
 		elif str(key) == str(KEY_RIGHT):
 				targetCellIndex = findNextCellIndex(rule, targetCellIndex)
 		elif key == ord('q'):
-			running=False
+			break
 		elif key == ord('\n'):
-			rules.append(substituteCellAt(targetCellIndex, rule, substitutions[targetSubstitutionIndex]))
+			if len(substitutions) > 0:
+				rules.append(substituteCellAt(targetCellIndex, rule, substitutions[targetSubstitutionIndex]))
 			break
 		else:
 			msg="wrong key"
