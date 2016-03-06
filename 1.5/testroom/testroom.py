@@ -14,7 +14,6 @@ for x in range(len(rules)):
 screen = initscr()
 screen.keypad(True)
 noecho()
-SPACE=3
 msg=""
 maxY, maxX = screen.getmaxyx()
 running = True
@@ -47,15 +46,11 @@ def findPreviousCellIndex(rule, pos):
 	return tmp
 
 def isTrueEqualsCell(cell):
-	"""
-	a1 = 7
-	a2 = 7+(len(cell)-9)/2
-	b1 = len(cell) - (len(cell)-9)/2
-	b2 = len(cell) - 1
-	# open("debug", "w").write(str(cell) + "; a1 = " + str(a1) + "; a2 = " + str(a2) + "; b1 = " + str(b1) + "; b2 = " + str(b2))
-	return cell.startswith("equals(") and cell[a1:a2] == cell[b1:b2] # if cell is equals(cell, cell)
-	"""
-	return False
+	if not cell.startswith("equals("):
+		return False
+	argument1=getCellAt(7, cell)
+	argument2=getCellAt(7+len(argument1)+1, cell)
+	return argument1 == argument2 # if cell is equals(cell, cell)
 
 def isWrongConstantEqualsCell(cell):
 	"""
