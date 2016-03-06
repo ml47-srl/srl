@@ -1,0 +1,5 @@
+equals("abcdefg", "abcdefg").
+equals("false", "true").
+rule1.
+next-rule(a, b).
+for-all-rule(?a).

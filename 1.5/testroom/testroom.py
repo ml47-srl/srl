@@ -53,10 +53,11 @@ def isTrueEqualsCell(cell):
 	return argument1 == argument2 # if cell is equals(cell, cell)
 
 def isWrongConstantEqualsCell(cell):
-	"""
-	return re.match(cell, r"equals\(\"{[a-zA-Z]\?}*\"\, *\"{[a-zA-Z]\?}*\"\)") # if cell is 'equals(<constant>, <other-constant>)'
-	"""
-	return False
+	if not cell.startswith("equals("):
+		return False
+	argument1=getCellAt(7, cell)
+	argument2=getCellAt(7+len(argument1)+1, cell)
+	return (argument1.startswith("\"") and argument1.endswith("\"") and argument2.startswith("\"") and argument2.endswith("\"") and argument1 != argument2) # if cell is equals("a", "b")
 
 def getCellAt(index, cell):
 	cellname = ""
