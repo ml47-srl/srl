@@ -17,6 +17,7 @@ noecho()
 SPACE=3
 msg=""
 maxY, maxX = screen.getmaxyx()
+running = True
 
 # main
 def findNextCellIndex(rule, pos):
@@ -66,17 +67,16 @@ def getCellAt(index, cell):
 	cellname = ""
 	openparens = 0
 	while True:
-		cellname += cell[index]
-		index += 1
 		if cell[index] == "(":
 			openparens += 1
 		elif cell[index] == ")":
 			openparens -= 1
-		elif openparens == 0 and cell[index] == ",":
+		cellname += cell[index]
+		index += 1
+		if len(cell) < index+1:
 			return cellname
-		elif cell[index] == ".":
+		elif openparens == 0 and (cell[index] == "," or cell[index] == ")" or cell[index] == "."):
 			return cellname
-
 
 def substituteCellAt(index, cell, sub):
 	rmcell = getCellAt(index, cell)
@@ -104,9 +104,10 @@ def repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIn
 
 def handleRule(rule):
 	global rules
+	global running
 	targetSubstitutionIndex=0
 	targetCellIndex=0
-	while True:
+	while running:
 		substitutions=findSubstitutions(getCellAt(targetCellIndex, rule))
 		repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIndex)
 		key = screen.getch()
@@ -121,6 +122,8 @@ def handleRule(rule):
 				targetCellIndex = findPreviousCellIndex(rule, targetCellIndex)
 		elif str(key) == str(KEY_RIGHT):
 				targetCellIndex = findNextCellIndex(rule, targetCellIndex)
+		elif key == ord('q'):
+			running=False
 		elif key == ord('\n'):
 			rules.append(substituteCellAt(targetCellIndex, rule, substitutions[targetSubstitutionIndex]))
 			break
@@ -138,8 +141,10 @@ def repaintMain(targetRuleIndex):
 
 def main():
 	global rules
+	global msg
+	global running
 	targetRuleIndex=0
-	while True:
+	while running:
 		repaintMain(targetRuleIndex)
 		key = screen.getch()
 
@@ -149,12 +154,14 @@ def main():
 		elif str(key) == str(KEY_UP):
 			if targetRuleIndex > 0:
 				targetRuleIndex -= 1
+		elif key == ord('q'):
+			running=False
 		elif key == ord('\n'):
 			handleRule(rules[targetRuleIndex])
 		else:
 			msg="wrong key"
-main()
+if __name__ == "__main__":
+	main()
 
 # uninit
-screen.getch()
 endwin()
