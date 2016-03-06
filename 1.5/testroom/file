@@ -3,3 +3,5 @@ equals("false", "true").
 rule1.
 next-rule(a, b).
 for-all-rule(?a).
+for-all-rules(?a,?a).
+for-all-ruleseses(?a,?a, ?a, ?a, m, ?a).

@@ -125,6 +125,7 @@ def repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIn
 	screen.addstr(maxY-1, 0, msg)
 
 def handleRule(rule):
+	global msg
 	global rules
 	global running
 	targetSubstitutionIndex=0
@@ -148,7 +149,15 @@ def handleRule(rule):
 			break
 		elif key == ord('\n'):
 			if len(substitutions) > 0:
-				rules.append(substituteCellAt(targetCellIndex, rule, substitutions[targetSubstitutionIndex]))
+				if rule[targetCellIndex] == "?":
+					old = getCellAt(targetCellIndex, rule)
+					new = substitutions[targetSubstitutionIndex]
+					rule = rule.replace(old + ",", new + ",")
+					rule = rule.replace(old + ")", new + ")")
+					rule = rule.replace(old + ".", new + ".")
+					rules.append(rule)
+				else:
+					rules.append(substituteCellAt(targetCellIndex, rule, substitutions[targetSubstitutionIndex]))
 			break
 		else:
 			msg="wrong key"
