@@ -86,12 +86,32 @@ def substituteCellAt(index, cell, sub):
 	cell = cell[0:index] + sub + cell[index:]
 	return cell
 
+def findAllCells():
+	cells=list()
+	for rule in rules:
+		while rule != "":
+			if not getCellAt(0, rule) in cells:
+				cells.append(getCellAt(0, rule))
+			if rule.find(",") != -1 and rule.find("(") != -1:
+				rule = rule[1+min(rule.find(","), rule.find("(")):]
+			elif rule.find(",") != -1 and rule.find("(") == -1:
+				rule = rule[1+rule.find(","):]
+			elif rule.find(",") == -1 and rule.find("(") != -1:
+				rule = rule[1+rule.find("("):]
+			else:
+				break
+	return cells
+
 def findSubstitutions(cell):
 	substitutions=list()
-	if isTrueEqualsCell(cell):
-		substitutions.append("\"true\"")
-	elif isWrongConstantEqualsCell(cell):
-		substitutions.append("\"false\"")
+	if cell.startswith("?"):
+		for cell in findAllCells():
+			substitutions.append(cell)
+	else:
+		if isTrueEqualsCell(cell):
+			substitutions.append("\"true\"")
+		elif isWrongConstantEqualsCell(cell):
+			substitutions.append("\"false\"")
 	return substitutions
 
 def repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIndex):
