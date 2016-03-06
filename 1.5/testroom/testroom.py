@@ -16,6 +16,32 @@ msg=""
 maxY, maxX = screen.getmaxyx()
 
 # main
+def findNextCellIndex(rule, pos):
+	tmp = pos
+	# bis zum nxten bedeutungsvollen Zeichen
+	while rule[tmp] != "," and rule[tmp] != "(" and rule[tmp] != ")":
+		tmp += 1
+		if len(rule)-2 < tmp:
+			return pos
+	# bis zur nxten Cell
+	while rule[tmp] == "," or rule[tmp] == "(" or rule[tmp] == ")" or rule[tmp] == " " or rule[tmp] == ".":
+		tmp += 1
+		if len(rule)-2 < tmp:
+			return pos
+	return tmp
+
+def findPreviousCellIndex(rule, pos): # example: next-cell(a, b).
+	if pos == 0:
+		return pos
+	tmp = pos-1
+	# bis zum Ende der vorherigen Cell
+	while rule[tmp] == "," or rule[tmp] == "(" or rule[tmp] == ")" or rule[tmp] == " ":
+		tmp -= 1
+	# bis zum Anfang der vorherigen Cell
+	while rule[tmp-1] != "," and rule[tmp-1] != "(" and rule[tmp-1] != ")" and rule[tmp-1] != " " and tmp > 0:
+		tmp -= 1
+	return tmp
+
 def repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIndex):
 	screen.clear()
 	screen.addstr(0, 2, rule)
@@ -42,11 +68,9 @@ def handleRule(rule):
 			if targetSubstitutionIndex > 0:
 				targetSubstitutionIndex -= 1
 		elif str(key) == str(KEY_LEFT):
-			if targetCellIndex > 0:
-				targetCellIndex -= 1
+				targetCellIndex = findPreviousCellIndex(rule, targetCellIndex)
 		elif str(key) == str(KEY_RIGHT):
-			if targetCellIndex+2 < len(rule):
-				targetCellIndex += 1
+				targetCellIndex = findNextCellIndex(rule, targetCellIndex)
 		elif key == ord('\n'):
 			rules.append("ok, thats the new rule")
 			break
