@@ -103,6 +103,7 @@ def findAllCells():
 	return cells
 
 def findSubstitutions(cell):
+	global msg
 	substitutions=list()
 	if cell.startswith("?"):
 		for cell in findAllCells():
@@ -112,6 +113,15 @@ def findSubstitutions(cell):
 			substitutions.append("\"true\"")
 		elif isWrongConstantEqualsCell(cell):
 			substitutions.append("\"false\"")
+		for rule in rules:
+			if rule.startswith("equals(" + cell + ","):
+				sub = getCellAt(len(cell) + 8, rule)
+				if sub not in substitutions and sub != cell:
+					substitutions.append(sub)
+			elif rule.startswith("equals(") and rule.endswith("," + cell + ")."):
+				sub = getCellAt(7, rule)
+				if sub not in substitutions and sub != cell:
+					substitutions.append(sub)
 	return substitutions
 
 def repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIndex):
