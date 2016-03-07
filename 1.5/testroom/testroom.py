@@ -108,7 +108,7 @@ def findSubstitutions(cell):
 		for cell in findAllCells():
 			substitutions.append(cell)
 	else:
-		if isTrueEqualsCell(cell):
+		if isTrueEqualsCell(cell) or cell + "." in rules:
 			substitutions.append("\"true\"")
 		elif isWrongConstantEqualsCell(cell):
 			substitutions.append("\"false\"")
