@@ -13,10 +13,12 @@ try:
 	fh = open(filename)
 except:
 	print("Couldn't load " + filename)
-rules=list(fh.readlines())
+lines=fh.readlines()
+rules=list()
+rules.append("equals(?a,?a).")
 fh.close()
-for x in range(len(rules)):
-	rules[x] = rules[x].strip("\n").replace(" ", "")
+for line in lines:
+	rules.append(line.strip("\n").replace(" ", ""))
 screen = initscr()
 screen.keypad(True)
 noecho()
