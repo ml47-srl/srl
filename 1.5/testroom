@@ -30,6 +30,7 @@ screen = initscr()
 screen.keypad(True)
 noecho()
 msg=""
+scroll=0
 maxY, maxX = screen.getmaxyx()
 running = True
 
@@ -140,6 +141,7 @@ def findSubstitutions(cell):
 	return substitutions
 
 def repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIndex):
+	global scroll
 	screen.clear()
 	try:
 		screen.addstr(0, 2, rule)
@@ -151,13 +153,12 @@ def repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIn
 		die("screen.addstr(1, targetCellIndex+2, \"^\")")
 	if len(substitutions) > 0:
 		try:
-			screen.addstr(targetSubstitutionIndex+2, 0, ">")
+			screen.addstr(targetSubstitutionIndex+2-scroll, 0, ">")
 		except:
 			die("screen.addstr(targetSubstitutionIndex+2, 0, \">\")")
-		for x in range(len(substitutions)):
+		for x in range(scroll, min(len(substitutions), maxY-4+scroll)):
 			try:
-				if x < 40:
-					screen.addstr(x+2, 2, substitutions[x])
+				screen.addstr(x+2-scroll, 2, substitutions[x])
 			except:
 				die("screen.addstr(x+2, 2, substitutions[x]), with x=" + str(x) + " & substitutions[x]=" + substitutions[x])
 	try:
@@ -166,6 +167,7 @@ def repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIn
 		die("screen.addstr(maxY-1, 0, msg)")
 
 def handleRule(rule):
+	global scroll
 	global msg
 	global rules
 	global running
@@ -179,9 +181,12 @@ def handleRule(rule):
 		if str(key) == str(KEY_DOWN):
 			if targetSubstitutionIndex < len(substitutions)-1:
 				targetSubstitutionIndex += 1
+				if targetSubstitutionIndex > maxY-scroll-5:
+					scroll += 1
 		elif str(key) == str(KEY_UP):
 			if targetSubstitutionIndex > 0:
 				targetSubstitutionIndex -= 1
+			scroll = max(scroll-1, 0)
 		elif str(key) == str(KEY_LEFT):
 				targetCellIndex = findPreviousCellIndex(rule, targetCellIndex)
 		elif str(key) == str(KEY_RIGHT):
@@ -204,23 +209,25 @@ def handleRule(rule):
 			msg="wrong key"
 
 def repaintMain(targetRuleIndex):
+	global scroll
 	global rules
 	screen.clear()
 	try:
-		screen.addstr(targetRuleIndex, 0, ">")
+		screen.addstr(targetRuleIndex-scroll, 0, ">")
 	except:
-		die("screen.addstr(targetRuleIndex, 0, ">")")
-	for x in range(len(rules)):
+		die("screen.addstr(targetRuleIndex-scroll, 0, \">\")")
+	for x in range(scroll, min(len(rules), maxY-2+scroll)):
 		try:
-			screen.addstr(x, 2, rules[x])
+			screen.addstr(x-scroll, 2, rules[x])
 		except:
-			die("screen.addstr(x, 2, rules[x])")
+			die("screen.addstr(x-scroll, 2, rules[x])")
 	try:
 		screen.addstr(maxY-1, 0, msg)
 	except:
 		die("screen.addstr(maxY-1, 0, msg)")
 
 def main():
+	global scroll
 	global rules
 	global msg
 	global running
@@ -232,9 +239,12 @@ def main():
 		if str(key) == str(KEY_DOWN):
 			if targetRuleIndex < len(rules)-1:
 				targetRuleIndex += 1
+				if targetRuleIndex > maxY-scroll-3:
+					scroll += 1
 		elif str(key) == str(KEY_UP):
 			if targetRuleIndex > 0:
 				targetRuleIndex -= 1
+			scroll = max(scroll-1, 0)
 		elif key == ord('q'):
 			running=False
 		elif key == ord('\n'):

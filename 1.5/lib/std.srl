@@ -1,6 +1,5 @@
 # std.srl
 
-not(equals("true", "false")).
 equals(implies("true", ?arg), equals(?arg, "true")).
 equals(not(?a), equals(?a, "false")).
 equals(and(?a, ?b), and(?b, ?a)).
