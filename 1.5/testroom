@@ -20,7 +20,7 @@ alllines=""
 for line in lines:
 	if line.find("#") != -1:
 		line = line[0:line.find("#")]
-	alllines += line.strip("\n").replace(" ", "")
+	alllines += line.strip("\n").replace(" ", "").replace("\t", "")
 rules=list()
 rules.append("equals(?a,?a).")
 while alllines.find(".") != -1:
