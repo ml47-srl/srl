@@ -23,6 +23,7 @@ for line in lines:
 	alllines += line.strip("\n").replace(" ", "").replace("\t", "")
 rules=list()
 rules.append("equals(?a,?a).")
+rules.append("\"true\".")
 while alllines.find(".") != -1:
 	rules.append(alllines[:alllines.find(".")+1])
 	alllines = alllines[alllines.find(".")+1:]
@@ -230,6 +231,7 @@ def handleRule(rule):
 					rules.append(rule)
 				else:
 					rules.append(substituteCellAt(targetCellIndex, rule, substitutions[targetSubstitutionIndex]))
+			scroll = 0
 			break
 		else:
 			msg="wrong key"
