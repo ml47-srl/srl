@@ -13,12 +13,19 @@ try:
 	fh = open(filename)
 except:
 	print("Couldn't load " + filename)
+	sys.exit()
 lines=fh.readlines()
+fh.close()
+alllines=""
+for line in lines:
+	if line.find("#") != -1:
+		line = line[0:line.find("#")]
+	alllines += line.strip("\n").replace(" ", "")
 rules=list()
 rules.append("equals(?a,?a).")
-fh.close()
-for line in lines:
-	rules.append(line.strip("\n").replace(" ", ""))
+while alllines.find(".") != -1:
+	rules.append(alllines[:alllines.find(".")+1])
+	alllines = alllines[alllines.find(".")+1:]
 screen = initscr()
 screen.keypad(True)
 noecho()
