@@ -34,6 +34,12 @@ maxY, maxX = screen.getmaxyx()
 running = True
 
 # main
+def die(where):
+	if screen != None:
+		endwin()
+	print("CRASH@ " + where)
+	sys.exit()
+
 def findNextCellIndex(rule, pos):
 	tmp = pos
 	# bis zum nxten bedeutungsvollen Zeichen
@@ -135,13 +141,28 @@ def findSubstitutions(cell):
 
 def repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIndex):
 	screen.clear()
-	screen.addstr(0, 2, rule)
-	screen.addstr(1, targetCellIndex+2, "^")
+	try:
+		screen.addstr(0, 2, rule)
+	except:
+		die("screen.addstr(0, 2, rule)")
+	try:
+		screen.addstr(1, targetCellIndex+2, "^")
+	except:
+		die("screen.addstr(1, targetCellIndex+2, \"^\")")
 	if len(substitutions) > 0:
-		screen.addstr(targetSubstitutionIndex+2, 0, ">")
+		try:
+			screen.addstr(targetSubstitutionIndex+2, 0, ">")
+		except:
+			die("screen.addstr(targetSubstitutionIndex+2, 0, \">\")")
 	for x in range(len(substitutions)):
-		screen.addstr(x+2, 2, substitutions[x])
-	screen.addstr(maxY-1, 0, msg)
+		try:
+			screen.addstr(x+2, 2, substitutions[x])
+		except:
+			die("screen.addstr(x+2, 2, substitutions[x])")
+	try:
+		screen.addstr(maxY-1, 0, msg)
+	except:
+		die("screen.addstr(maxY-1, 0, msg)")
 
 def handleRule(rule):
 	global msg
@@ -184,11 +205,19 @@ def handleRule(rule):
 def repaintMain(targetRuleIndex):
 	global rules
 	screen.clear()
-	screen.addstr(targetRuleIndex, 0, ">")
+	try:
+		screen.addstr(targetRuleIndex, 0, ">")
+	except:
+		die("screen.addstr(targetRuleIndex, 0, ">")")
 	for x in range(len(rules)):
-		screen.addstr(x, 2, rules[x])
-	screen.addstr(maxY-1, 0, msg)
-
+		try:
+			screen.addstr(x, 2, rules[x])
+		except:
+			die("screen.addstr(x, 2, rules[x])")
+	try:
+		screen.addstr(maxY-1, 0, msg)
+	except:
+		die("screen.addstr(maxY-1, 0, msg)")
 
 def main():
 	global rules
