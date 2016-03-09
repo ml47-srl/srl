@@ -258,7 +258,7 @@ def main():
 		if str(key) == str(KEY_DOWN):
 			if targetRuleIndex < len(rules)-1:
 				targetRuleIndex += 1
-				if targetRuleIndex > maxY-scroll-3:
+				if targetRuleIndex > maxY-scroll-3 and targetRuleIndex - scroll == maxY-2:
 					scroll += 1
 		elif str(key) == str(KEY_UP):
 			if targetRuleIndex > 0:
