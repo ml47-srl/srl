@@ -235,9 +235,16 @@ def repaintMain(targetRuleIndex):
 		screen.addstr(targetRuleIndex-scroll, 0, ">")
 	except:
 		die("screen.addstr(targetRuleIndex-scroll, 0, \">\")")
+	folding=0
 	for x in range(scroll, min(len(rules), maxY-2+scroll)):
 		try:
-			screen.addstr(x-scroll, 2, rules[x])
+			if x == targetRuleIndex:
+				screen.addstr(x-scroll+folding, 2, rules[x])
+				folding = int(len(rules[x])/(maxX-2))
+				if folding > 0:
+					folding = folding+1
+			else:
+				screen.addstr(x-scroll+folding, 2, rules[x][:maxX-2])
 		except:
 			die("screen.addstr(x-scroll, 2, rules[x])")
 	try:
