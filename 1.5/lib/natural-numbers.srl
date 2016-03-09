@@ -22,7 +22,7 @@ equals
 		(
 			is-number(first(?a)),
 			is-number(second(?a))
-		)
+		),
 		is-digit(?a)
 	)
 ).
