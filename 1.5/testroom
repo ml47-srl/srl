@@ -31,7 +31,6 @@ screen.keypad(True)
 noecho()
 msg=""
 scroll=0
-maxY, maxX = screen.getmaxyx()
 running = True
 
 # main
@@ -40,6 +39,14 @@ def die(where):
 		endwin()
 	print("CRASH @ " + where)
 	sys.exit()
+
+def maxX():
+	maxY, maxX = screen.getmaxyx()
+	return maxX
+
+def maxY():
+	maxY, maxX = screen.getmaxyx()
+	return maxY
 
 def findNextCellIndex(rule, pos):
 	tmp = pos
@@ -165,16 +172,16 @@ def repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIn
 			# the last substitution is:
 				# the last possible substitution in substitutions
 				# or the last renderable substitution
-		for x in range(scroll, min(len(substitutions), maxY-4+scroll)):
+		for x in range(scroll, min(len(substitutions), maxY()-4+scroll)):
 			try:
 				# render substitution at x + 2(beginning-lines) - scroll(the more you scroll, the more the text goes up)
 				screen.addstr(x+2-scroll, 2, substitutions[x])
 			except:
 				die("screen.addstr(x+2-scroll, 2, substitutions[x])")
 	try:
-		screen.addstr(maxY-1, 0, msg)
+		screen.addstr(maxY()-1, 0, msg)
 	except:
-		die("screen.addstr(maxY-1, 0, msg)")
+		die("screen.addstr(maxY()-1, 0, msg)")
 
 def handleRule(rule):
 	global scroll
@@ -194,7 +201,7 @@ def handleRule(rule):
 			if targetSubstitutionIndex < len(substitutions)-1:
 				targetSubstitutionIndex += 1
 				# if targetSubstitutionIndex is under the list of substitutions
-				if targetSubstitutionIndex >= maxY-4-scroll and targetSubstitutionIndex+2-scroll == maxY-2:
+				if targetSubstitutionIndex >= maxY()-4-scroll and targetSubstitutionIndex+2-scroll == maxY()-2:
 					scroll += 1
 		elif str(key) == str(KEY_UP):
 			if targetSubstitutionIndex > 0:
@@ -236,21 +243,21 @@ def repaintMain(targetRuleIndex):
 	except:
 		die("screen.addstr(targetRuleIndex-scroll, 0, \">\")")
 	folding=0
-	for x in range(scroll, min(len(rules), maxY-2+scroll)):
+	for x in range(scroll, min(len(rules), maxY()-2+scroll)):
 		try:
 			if x == targetRuleIndex:
 				screen.addstr(x-scroll+folding, 2, rules[x])
-				folding = int(len(rules[x])/(maxX-2))
+				folding = int(len(rules[x])/(maxX()-2))
 				if folding > 0:
 					folding = folding+1
 			else:
-				screen.addstr(x-scroll+folding, 2, rules[x][:maxX-2])
+				screen.addstr(x-scroll+folding, 2, rules[x][:maxX()-2])
 		except:
 			die("screen.addstr(x-scroll, 2, rules[x])")
 	try:
-		screen.addstr(maxY-1, 0, msg)
+		screen.addstr(maxY()-1, 0, msg)
 	except:
-		die("screen.addstr(maxY-1, 0, msg)")
+		die("screen.addstr(maxY()-1, 0, msg)")
 
 def main():
 	global scroll
@@ -265,7 +272,7 @@ def main():
 		if str(key) == str(KEY_DOWN):
 			if targetRuleIndex < len(rules)-1:
 				targetRuleIndex += 1
-				if targetRuleIndex > maxY-scroll-3 and targetRuleIndex - scroll == maxY-2:
+				if targetRuleIndex > maxY()-scroll-3 and targetRuleIndex - scroll == maxY()-2:
 					scroll += 1
 		elif str(key) == str(KEY_UP):
 			if targetRuleIndex > 0:
