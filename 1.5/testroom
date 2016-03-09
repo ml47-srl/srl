@@ -144,23 +144,33 @@ def repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIn
 	global scroll
 	screen.clear()
 	try:
+		# render handled rule
 		screen.addstr(0, 2, rule)
 	except:
 		die("screen.addstr(0, 2, rule)")
 	try:
+		# render targetCellIndex-marker
 		screen.addstr(1, targetCellIndex+2, "^")
 	except:
 		die("screen.addstr(1, targetCellIndex+2, \"^\")")
+	# if there are substitutions
 	if len(substitutions) > 0:
 		try:
+			# render the targetSubstitutionIndex-marker
 			screen.addstr(targetSubstitutionIndex+2-scroll, 0, ">")
 		except:
 			die("screen.addstr(targetSubstitutionIndex+2, 0, \">\")")
+		# render all substitutions (x = index of substitutions)
+			# leave <scroll> substitutions at the beginning out
+			# the last substitution is:
+				# the last possible substitution in substitutions
+				# or the last renderable substitution
 		for x in range(scroll, min(len(substitutions), maxY-4+scroll)):
 			try:
+				# render substitution at x + 2(beginning-lines) - scroll(the more you scroll, the more the text goes up)
 				screen.addstr(x+2-scroll, 2, substitutions[x])
 			except:
-				die("screen.addstr(x+2, 2, substitutions[x]), with x=" + str(x) + " & substitutions[x]=" + substitutions[x])
+				die("screen.addstr(x+2-scroll, 2, substitutions[x])")
 	try:
 		screen.addstr(maxY-1, 0, msg)
 	except:
@@ -173,25 +183,34 @@ def handleRule(rule):
 	global running
 	targetSubstitutionIndex=0
 	targetCellIndex=0
+	scroll = 0
 	while running:
 		substitutions=findSubstitutions(getCellAt(targetCellIndex, rule))
 		repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIndex)
 		key = screen.getch()
 		
 		if str(key) == str(KEY_DOWN):
+			# if targetSubstitutionIndex is a valid index for substitutions (for targetSubstitutionIndex > -1)
 			if targetSubstitutionIndex < len(substitutions)-1:
 				targetSubstitutionIndex += 1
-				if targetSubstitutionIndex > maxY-scroll-5:
+				# if targetSubstitutionIndex is under the list of substitutions
+				if targetSubstitutionIndex >= maxY-4-scroll and targetSubstitutionIndex+2-scroll == maxY-2:
 					scroll += 1
 		elif str(key) == str(KEY_UP):
 			if targetSubstitutionIndex > 0:
 				targetSubstitutionIndex -= 1
-			scroll = max(scroll-1, 0)
+				if targetSubstitutionIndex < scroll:
+					scroll -= 1
 		elif str(key) == str(KEY_LEFT):
 				targetCellIndex = findPreviousCellIndex(rule, targetCellIndex)
+				targetSubstitutionIndex = 0
+				scroll = 0
 		elif str(key) == str(KEY_RIGHT):
 				targetCellIndex = findNextCellIndex(rule, targetCellIndex)
+				targetSubstitutionIndex = 0
+				scroll = 0
 		elif key == ord('q'):
+			scroll = 0
 			break
 		elif key == ord('\n'):
 			if len(substitutions) > 0:
@@ -244,7 +263,8 @@ def main():
 		elif str(key) == str(KEY_UP):
 			if targetRuleIndex > 0:
 				targetRuleIndex -= 1
-			scroll = max(scroll-1, 0)
+				if targetRuleIndex < scroll:
+					scroll -= 1
 		elif key == ord('q'):
 			running=False
 		elif key == ord('\n'):
