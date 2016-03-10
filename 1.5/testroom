@@ -151,6 +151,7 @@ def findSubstitutions(cell):
 def repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIndex):
 	global scroll
 	screen.clear()
+	folding=0
 	try:
 		# render handled rule
 		screen.addstr(0, 2, rule)
@@ -174,11 +175,26 @@ def repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIn
 				# the last possible substitution in substitutions
 				# or the last renderable substitution
 		for x in range(scroll, min(len(substitutions), maxY()-4+scroll)):
-			try:
-				# render substitution at x + 2(beginning-lines) - scroll(the more you scroll, the more the text goes up)
-				screen.addstr(x+2-scroll, 2, substitutions[x])
-			except:
-				die("screen.addstr(x+2-scroll, 2, substitutions[x])")
+			# render substitution at x + 2(beginning-lines) - scroll(the more you scroll, the more the text goes up)
+			if x == targetSubstitutionIndex:
+				try:
+					screen.addstr(x+2-scroll, 2, substitutions[x])
+				except:
+					die("screen.addstr(x+2-scroll, 2, substitutions[x])")
+				folding = int(len(substitutions[x])/(maxX()-2))
+				if folding > 0:
+					folding += 1
+			else:
+				if len(substitutions[x]) > maxX()-2:
+					try:
+						screen.addstr(x+2-scroll+folding, 2, substitutions[x][:maxX()-2-3] + "...")
+					except:
+						die("screen.addstr(x+2-scroll+folding, 2, substitutions[x][:maxX()-2-3] + \"...\")")
+				else:
+					try:
+						screen.addstr(x+2-scroll+folding, 2, substitutions[x][:maxX()-2])
+					except:
+						die("screen.addstr(x+2-scroll+folding, 2, substitutions[x][:maxX()-2])")
 	try:
 		screen.addstr(maxY()-1, 0, msg)
 	except:
