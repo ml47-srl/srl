@@ -154,12 +154,15 @@ def repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIn
 	folding=0
 	try:
 		# render handled rule
-		screen.addstr(0, 2, rule)
+		if targetCellIndex < 20:
+			screen.addstr(0, 20-targetCellIndex, rule[:targetCellIndex-20+maxX()])
+		else:
+			screen.addstr(0, 0, rule[targetCellIndex-20:targetCellIndex-20+maxX()])
 	except:
 		die("screen.addstr(0, 2, rule)")
 	try:
 		# render targetCellIndex-marker
-		screen.addstr(1, targetCellIndex+2, "^")
+		screen.addstr(1, 20, "^")
 	except:
 		die("screen.addstr(1, targetCellIndex+2, \"^\")")
 	# if there are substitutions
