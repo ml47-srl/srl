@@ -135,7 +135,7 @@ def findSubstitutions(cell):
 	else:
 		if isTrueEqualsCell(cell) or cell + "." in rules:
 			substitutions.append("\"true\"")
-		elif isWrongConstantEqualsCell(cell):
+		if isWrongConstantEqualsCell(cell):
 			substitutions.append("\"false\"")
 		for rule in rules:
 			if rule.startswith("equals(" + cell + ","):
