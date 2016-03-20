@@ -6,7 +6,8 @@ import re
 
 # init
 if len(sys.argv) != 2:
-	die("Bad amount of arguments")
+	print("Bad amount of arguments")
+	sys.exit()
 filename=sys.argv[1]
 try:
 	fh = open(filename)
