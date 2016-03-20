@@ -1,0 +1,11 @@
+# required improvements
+
+Vielleicht geht es in 1.5 schon; wir kriegen es nur nicht hin
+- Mengen erstellen: `size-of(<set>)` und `contains(<set>, <element>)`
+- Arbeiten mit Zahlen ist unhandlich (`plus(plus("1", "1"), "1")` entspricht 3)
+
+Brauchen wir das überhaupt?
+- Komplexe Konstanten: `plus(<number>, <number>)` sollte eine Konstante sein
+
+Das wäre nicht schlecht
+- Unbestimmte Mengen von Argumenten verarbeiten: `and(a, b, c, d, e, f)`
