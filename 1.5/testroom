@@ -6,14 +6,12 @@ import re
 
 # init
 if len(sys.argv) != 2:
-	print("Bad amount of arguments")
-	sys.exit()
+	die("Bad amount of arguments")
 filename=sys.argv[1]
 try:
 	fh = open(filename)
 except:
-	print("Couldn't load " + filename)
-	sys.exit()
+	die("Couldn't load " + filename)
 lines=fh.readlines()
 fh.close()
 alllines=""
@@ -35,11 +33,22 @@ scroll=0
 running = True
 
 # main
-def die(where):
+def die(errormsg=""):
 	if screen != None:
 		endwin()
-	print("CRASH @ " + where)
+	print(errormsg)
 	sys.exit()
+
+def renderString(line, x, s):
+	global screen
+	if x > maxX():
+		print("renderString(): x{" + str(x) + "} > maxX(){" + str(maxX()) + "}")
+	if line > maxY():
+		print("renderString(): line{" + str(line) + "} > maxY(){" + str(maxY()) + "}")
+	try:
+		screen.addstr(line, x, s)
+	except:
+		die("failed to render:\nstring{" + s + "}\nline{" + str(line) + "}\nx{" + str(x) + "}\nmaxX(){" + str(maxX()) + "}\nmaxY(){" + str(maxY()) + "}")
 
 def maxX():
 	maxY, maxX = screen.getmaxyx()
@@ -152,26 +161,17 @@ def repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIn
 	global scroll
 	screen.clear()
 	folding=0
-	try:
-		# render handled rule
-		if targetCellIndex < 20:
-			screen.addstr(0, 20-targetCellIndex, rule[:targetCellIndex-20+maxX()])
-		else:
-			screen.addstr(0, 0, rule[targetCellIndex-20:targetCellIndex-20+maxX()])
-	except:
-		die("screen.addstr(0, 2, rule)")
-	try:
-		# render targetCellIndex-marker
-		screen.addstr(1, 20, "^")
-	except:
-		die("screen.addstr(1, targetCellIndex+2, \"^\")")
+	# render handled rule
+	if targetCellIndex < 20:
+		renderString(0, 20-targetCellIndex, rule[:targetCellIndex-20+maxX()])
+	else:
+		renderString(0, 0, rule[targetCellIndex-20:targetCellIndex-20+maxX()])
+	# render targetCellIndex-marker
+	renderString(1, 20, "^")
 	# if there are substitutions
 	if len(substitutions) > 0:
-		try:
-			# render the targetSubstitutionIndex-marker
-			screen.addstr(targetSubstitutionIndex+2-scroll, 0, ">")
-		except:
-			die("screen.addstr(targetSubstitutionIndex+2, 0, \">\")")
+		# render the targetSubstitutionIndex-marker
+		renderString(targetSubstitutionIndex+2-scroll, 0, ">")
 		# render all substitutions (x = index of substitutions)
 			# leave <scroll> substitutions at the beginning out
 			# the last substitution is:
@@ -180,28 +180,16 @@ def repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIn
 		for x in range(scroll, min(len(substitutions), maxY()-4+scroll)):
 			# render substitution at x + 2(beginning-lines) - scroll(the more you scroll, the more the text goes up)
 			if x == targetSubstitutionIndex:
-				try:
-					screen.addstr(x+2-scroll, 2, substitutions[x])
-				except:
-					die("screen.addstr(x+2-scroll, 2, substitutions[x])")
+				renderString(x+2-scroll, 2, substitutions[x])
 				folding = int(len(substitutions[x])/(maxX()-2))
 				if folding > 0:
 					folding += 1
 			else:
 				if len(substitutions[x]) > maxX()-2:
-					try:
-						screen.addstr(x+2-scroll+folding, 2, substitutions[x][:maxX()-2-3] + "...")
-					except:
-						die("screen.addstr(x+2-scroll+folding, 2, substitutions[x][:maxX()-2-3] + \"...\")")
+					renderString(x+2-scroll+folding, 2, substitutions[x][:maxX()-2-3] + "...")
 				else:
-					try:
-						screen.addstr(x+2-scroll+folding, 2, substitutions[x][:maxX()-2])
-					except:
-						die("screen.addstr(x+2-scroll+folding, 2, substitutions[x][:maxX()-2])")
-	try:
-		screen.addstr(maxY()-1, 0, msg)
-	except:
-		die("screen.addstr(maxY()-1, 0, msg)")
+					renderString(x+2-scroll+folding, 2, substitutions[x][:maxX()-2])
+	renderString(maxY()-1, 0, msg)
 
 def handleRule(rule):
 	global scroll
@@ -259,29 +247,20 @@ def repaintMain(targetRuleIndex):
 	global scroll
 	global rules
 	screen.clear()
-	try:
-		screen.addstr(targetRuleIndex-scroll, 0, ">")
-	except:
-		die("screen.addstr(targetRuleIndex-scroll, 0, \">\")")
+	renderString(targetRuleIndex-scroll, 0, ">")
 	folding=0
 	for x in range(scroll, min(len(rules), maxY()-2+scroll)):
-		try:
-			if x == targetRuleIndex:
-				screen.addstr(x-scroll+folding, 2, rules[x])
-				folding = int(len(rules[x])/(maxX()-2))
-				if folding > 0:
-					folding = folding+1
+		if x == targetRuleIndex:
+			renderString(x-scroll+folding, 2, rules[x])
+			folding = int(len(rules[x])/(maxX()-2))
+			if folding > 0:
+				folding = folding+1
+		else:
+			if len(rules[x]) > maxX()-2:
+				renderString(x-scroll+folding, 2, rules[x][:maxX()-2-3] + "...")
 			else:
-				if len(rules[x]) > maxX()-2:
-					screen.addstr(x-scroll+folding, 2, rules[x][:maxX()-2-3] + "...")
-				else:
-					screen.addstr(x-scroll+folding, 2, rules[x][:maxX()-2])
-		except:
-			die("screen.addstr(x-scroll, 2, rules[x])")
-	try:
-		screen.addstr(maxY()-1, 0, msg)
-	except:
-		die("screen.addstr(maxY()-1, 0, msg)")
+				renderString(x-scroll+folding, 2, rules[x][:maxX()-2])
+		renderString(maxY()-1, 0, msg)
 
 def main():
 	global scroll
