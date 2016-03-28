@@ -3,6 +3,7 @@
 Vielleicht geht es in 1.5 schon; wir kriegen es nur nicht hin
 - Mengen erstellen: `size-of(<set>)` und `contains(<set>, <element>)`
 - Arbeiten mit Zahlen ist unhandlich (`plus(plus("1", "1"), "1")` entspricht 3)
+- neue for-all Regeln erstellen
 
 Brauchen wir das überhaupt?
 - Komplexe Konstanten: `plus(<number>, <number>)` sollte eine Konstante sein
