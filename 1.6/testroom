@@ -35,6 +35,9 @@ def die(errormsg=""):
 
 def setMsg(info):
 	global msg
+	f = open("debug", "a")
+	f.write(info + "\n")
+	f.close()
 	msg=info
 
 class Rule:
@@ -232,7 +235,6 @@ def findPreviousCellIndex(rule, pos):
 
 def handleRule(rule):
 	global scroll
-	global msg
 	global rules
 	global running
 	targetSubstitutionIndex=0
@@ -291,7 +293,7 @@ def handleRule(rule):
 			scroll = 0
 			break
 		else:
-			msg="wrong key"
+			setMsg("wrong key")
 
 def repaintMain(targetRuleIndex):
 	global scroll
@@ -315,7 +317,6 @@ def repaintMain(targetRuleIndex):
 def main():
 	global scroll
 	global rules
-	global msg
 	global running
 	targetRuleIndex=0
 	while running:
@@ -337,12 +338,9 @@ def main():
 		elif key == ord('\n'):
 			handleRule(rules[targetRuleIndex])
 		else:
-			msg="wrong key"
+			setMsg("wrong key")
 if __name__ == "__main__":
 	try:
 		main()
 	finally:
 		endwin()
-
-# uninit
-endwin()
