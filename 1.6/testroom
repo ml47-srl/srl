@@ -25,6 +25,7 @@ noecho()
 msg=""
 scroll=0
 running = True
+open("debug", "w").close() # clear Debugfile
 
 def die(errormsg=""):
 	global screen
@@ -57,7 +58,7 @@ class Cell:
 			return
 		self.body = string[:string.find("(")]
 		string = string[string.find("(")+1:].strip(")")
-		while string.find(",") == -1:
+		while string.find(",") != -1:
 			parens=0
 			for i in range(len(string)):
 				if string[i] == "," and parens == 0:
