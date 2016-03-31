@@ -175,17 +175,26 @@ class Cell:
 		by = Cell(by)
 		by.incrementID(self.getMaxID())
 		by = by.toString()
-		self.replaceAllRecursively(what, by)
+
+		tmp = self.toString()
+		tmp = tmp.replace(what + ",", by + ",")
+		tmp = tmp.replace(what + ".", by + ".")
+		tmp = tmp.replace(what + ")", by + ")")
+		self.set(tmp)
+
 		self.normalizeID()
-	def replaceAllRecursively(self, what, by):
-		for i in range(len(self.args)):
-			if self.args[i].toString() == what:
-				self.setArg(i, Cell(by))
-			else:
-				self.args[i].replaceAllRecursively(what, by)
 	def replaceAt(self, where, by):
-			argpos = self.stringPosToArgPos(where)
-			self.args[argpos] = Cell(by)
+		setMsg("replaceAt: " + self.toString())
+		what = self.getCellAt(where).toString()
+		tmp = self.toString()[:where] + by + self.toString()[where+len(what):]
+		self.set(tmp)
+		setMsg("replaceAt: -> " + tmp)
+	def index(self, cell):
+		for i in range(len(self.args)):
+			if cell.toString() == self.args[i].toString():
+				return i
+		die("index: nothing found.")
+		return None
 alllines=""
 for line in lines:
 	if line.find("#") != -1:
