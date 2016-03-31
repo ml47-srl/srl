@@ -3,7 +3,7 @@ Regeln
 - Konstanten, for-all und for-one-Zellen dürfen keine Argumente haben
 - vordefinierte Regeln:
 	"true".
-	equals(?a, ?a).
+	equals(?1, ?1).
 
 Tauschgesetze:
 - Im Zweifelsfall entscheidet die Regel mit der kleineren ID.
