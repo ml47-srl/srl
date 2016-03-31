@@ -133,6 +133,26 @@ class Cell:
 				tmp += arg.toString() + ","
 			tmp = tmp.strip(",") + ")"
 			return tmp
+	def getID(self):
+		if not (self.isAny() or self.isSpecific()):
+			die("getID() called even if self isn't any/specific")
+		return int(self.body[1:])
+	def getMaxAnyID(self):
+		if self.isAny:
+			return getID()
+		tmp = 0
+		for arg in self.args:
+			if arg.isAny:
+				tmp = max(tmp, arg.getID())
+		return tmp
+	def getMaxSpecificID(self):
+		if self.isSpecific:
+			return getID()
+		tmp = 0
+		for arg in self.args:
+			if arg.isSpecific:
+				tmp = max(tmp, arg.getID())
+		return tmp
 
 alllines=""
 for line in lines:
