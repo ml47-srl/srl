@@ -55,6 +55,8 @@ class Cell:
 		self.body=""
 		self.set(arg)
 	def set(self, string):
+		self.args=list()
+		self.body=""
 		if isinstance(string, Cell):
 			set(string.toString())
 			return
