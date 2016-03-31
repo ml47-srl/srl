@@ -1,0 +1,16 @@
+Regeln
+
+- Konstanten, for-all und for-one-Zellen dürfen keine Argumente haben
+- vordefinierte Regeln:
+	"true".
+	equals(?a, ?a).
+
+Tauschgesetze:
+- Im Zweifelsfall entscheidet die Regel mit der kleineren ID.
+
+1. komplexe Zellen, die for-all oder for-one-Zellen enthalten, darf man nirgends einsetzen
+2. Man kann jede Zelle mit einer for-one-Zelle ersetzen (Ersetzung in gesamter Regel)
+3. Man kann eine for-all-Zelle mit jeder Zelle ersetzen (Ersetzung in gesamter Regel)
+4. Definierte Zellen (Zellen, die als Regel gelten), darf man mit "true" austauschen
+5. Zellen, dessen Gleichheit als Regel gilt, darf man austauschen
+6. Konstantenungleichheit (equals("a", "b") -> "false")
