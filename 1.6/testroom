@@ -70,6 +70,8 @@ class Cell:
 				elif string[i] == ")":
 					parens -= 1
 		self.args.append(Cell(string))
+	def setArg(self, argID, newArg):
+		self.args[argID] = newArg
 	def isRule(self):
 		global rules
 		for rule in rules:
@@ -92,19 +94,22 @@ class Cell:
 		return self.isEqualsCell() and self.getArgs()[0].isConstant() and self.getArgs()[1].isConstant() and (self.getArgs()[0].toString() != self.getArgs()[1].toString())
 	def isEqualsCell(self):
 		return self.body == "equals" and len(self.args) == 2
+	def stringPosToArgPos(self, pos):
+		spos = len(self.body)+1
+		for i in range(len(self.args)):
+			if spos == pos:
+				return i
+			spos += len(self.args[i].toString()) + 1
+	def argPosToStringPos(self, pos):
+		spos = len(self.body)+1
+		for i in range(pos):
+			spos += len(self.args[i].toString()) + 1
+		return spos
 	def getCellAt(self, spot):
 		parens=0
 		if spot==0:
 			return Cell(self.toString())
-		for i in range(spot, len(self.toString())):
-			if (self.toString()[i] == "," or self.toString()[i] == ")") and parens == 0:
-				return Cell(self.toString()[spot:i])
-			if self.toString()[i] == "(":
-				parens += 1
-			elif self.toString()[i] == ")":
-				parens -= 1
-		die("getCellAt(): no arg @ " + str(spot) + " with " + self.toString())
-		return None
+		return self.args[self.stringPosToArgPos(spot)]
 	def getNormalCellSubstitutions(self):
 		global rules
 		subs=list()
@@ -290,7 +295,9 @@ def handleRule(rule):
 					tmp = rule.toString().replace(old + ",", new + ",").replace(old + ")", new + ")").replace(old + ".", new + ".")
 					rules.append(Rule(tmp))
 				else:
-					rules.append(substituteCellAt(targetCellIndex, rule, substitutions[targetSubstitutionIndex]))
+					tmp = Rule(rule.toString())
+					tmp.getCell().setArg(tmp.getCell().stringPosToArgPos(targetCellIndex), Cell(substitutions[targetSubstitutionIndex]))
+					rules.append(tmp)
 			scroll = 0
 			break
 		else:
