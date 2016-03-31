@@ -96,13 +96,13 @@ class Cell:
 		parens=0
 		if spot==0:
 			return Cell(self.toString())
-		for i in range(len(self.toString())):
+		for i in range(spot, len(self.toString())):
+			if (self.toString()[i] == "," or self.toString()[i] == ")") and parens == 0:
+				return Cell(self.toString()[spot:i])
 			if self.toString()[i] == "(":
 				parens += 1
 			elif self.toString()[i] == ")":
 				parens -= 1
-			if (self.toString()[i] == "," or self.toString()[i] == ")") and parens == 0:
-				return Cell(self.toString()[spot:i])
 		die("getCellAt(): no arg @ " + str(spot) + " with " + self.toString())
 		return None
 	def getNormalCellSubstitutions(self):
