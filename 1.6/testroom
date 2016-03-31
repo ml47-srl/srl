@@ -340,7 +340,11 @@ def handleRule(rule):
 				while True:
 					while newkey != ord("\n"):
 						newkey=screen.getch()
-						string += chr(newkey)
+						if str(newkey) == str(KEY_BACKSPACE):
+							string = string[:len(string)-1]
+						else:
+							string += chr(newkey)
+						renderString(2, 2, " "*(maxX()-2))
 						renderString(2, 2, string)
 					c = Cell(string)
 					if c.valid:
