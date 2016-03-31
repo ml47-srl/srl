@@ -43,17 +43,23 @@ def setMsg(info):
 
 class Rule:
 	def __init__(self, string):
-		self.cell = Cell(string.strip("."))
+		self.cell = Cell(string.strip("\n").strip("."))
 	def getCell(self):
 		return self.cell
 	def toString(self):
 		return self.cell.toString() + "."
 
 class Cell:
-	def __init__(self, string):
+	def __init__(self, arg):
+		self.args=list()
+		self.body=""
+		self.set(arg)
+	def set(self, string):
+		if isinstance(string, Cell):
+			set(string.toString())
+			return
 		string = string.strip("\n")
 		setMsg("str="+string)
-		self.args=list()
 		self.valid = True # TODO sometimes False
 		if string.find("(") == -1:
 			self.body=string
