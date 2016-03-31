@@ -1,0 +1,48 @@
+# sets
+
+is-set(set).
+
+equals
+(
+	equals(size-of(set), 0),
+	equals(contains(set, ?1), "false")
+).
+
+equals
+(
+	equals(size-of(set), 1),
+	equals(contains(set, ?1), equals(?1, !1))
+).
+
+and
+(
+	differs(!1, !2),
+	equals
+	(
+		equals(size-of(set), 2),
+		equals(contains(set, ?1), or(equals(?1, !1), equals(?1, !2)))
+	)
+).
+
+and
+(
+	differs(!1, !2, !3),
+	equals
+	(
+		equals(size-of(set), 3),
+		equals(contains(set, ?1), or(equals(?1, !1), equals(?1, !2), equals(?1, !3)))
+	)
+).
+
+and
+(
+	differs(!1, !2, !3, ...),
+	equals
+	(
+		equals(size-of(set), ...),
+		equals(contains(set, ?1), or(equals(?1, !1), equals(?1, !2), equals(?1, !3), ...))
+	)
+).
+
+# differs(a, b) == not(equals(a, b))
+# differs(a, b, c) == and(differs(a, b), differs(b, c), differs(a, c))
