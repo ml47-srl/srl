@@ -104,12 +104,13 @@ class Cell:
 		return self.isEqualsCell() and self.getArgs()[0].isConstant() and self.getArgs()[1].isConstant() and (self.getArgs()[0].toString() != self.getArgs()[1].toString())
 	def isEqualsCell(self):
 		return self.body == "equals" and len(self.args) == 2
-	def stringPosToArgPos(self, pos):
+	def stringPosToArgPos(self, pos): # TODO doesn't work
 		spos = len(self.body)+1
 		for i in range(len(self.args)):
 			if spos == pos:
 				return i
 			spos += len(self.args[i].toString()) + 1
+		die("stringPosToArgPos(" + self.toString() + ", " + str(pos) + ") doesn't return anything")
 	def argPosToStringPos(self, pos):
 		spos = len(self.body)+1
 		for i in range(pos):
@@ -117,7 +118,7 @@ class Cell:
 		return spos
 	def getCellAt(self, spot):
 		parens=0
-		if spot==0:
+		if spot == 0:
 			return Cell(self.toString())
 		return self.args[self.stringPosToArgPos(spot)]
 	def getNormalCellSubstitutions(self):
@@ -177,7 +178,8 @@ class Cell:
 			else:
 				self.args[i].replaceAllRecursively(what, by)
 	def replaceAt(self, where, by):
-			self.args[self.stringPosToArgPos(where)] = Cell(by)
+			argpos = self.stringPosToArgPos(where)
+			self.args[argpos] = Cell(by)
 alllines=""
 for line in lines:
 	if line.find("#") != -1:
