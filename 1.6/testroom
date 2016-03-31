@@ -61,7 +61,6 @@ class Cell:
 			set(string.toString())
 			return
 		string = string.strip("\n")
-		setMsg("str="+string)
 		self.valid = True # TODO sometimes False
 		if string.find("(") == -1:
 			self.body=string
@@ -184,11 +183,9 @@ class Cell:
 
 		self.normalizeID()
 	def replaceAt(self, where, by):
-		setMsg("replaceAt: " + self.toString())
 		what = self.getCellAt(where).toString()
 		tmp = self.toString()[:where] + by + self.toString()[where+len(what):]
 		self.set(tmp)
-		setMsg("replaceAt: -> " + tmp)
 	def index(self, cell):
 		for i in range(len(self.args)):
 			if cell.toString() == self.args[i].toString():

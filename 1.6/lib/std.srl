@@ -1,12 +1,12 @@
 # std.srl
 
-equals(implies("true", ?arg), equals(?arg, "true")).
-equals(not(?a), equals(?a, "false")).
-equals(and(?a, ?b), and(?b, ?a)).
+equals(implies("true", ?1), equals(?1, "true")).
+equals(not(?1), equals(?1, "false")).
+equals(and(?1, ?2), and(?2, ?1)).
 equals(and("true", "true"), "true").
-equals(and("false", ?a), "false").
-equals(or(?a, ?b), or(?b, ?a)).
-equals(or("true", ?a), "true").
+equals(and("false", ?1), "false").
+equals(or(?1, ?2), or(?2, ?1)).
+equals(or("true", ?1), "true").
 equals(or("false", "false"), "false").
-implies(and(?a, ?b), ?a).
-implies(?a, or(?a, ?b)).
+implies(and(?1, ?2), ?1).
+implies(?1, or(?1, ?2)).

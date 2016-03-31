@@ -2,48 +2,38 @@
 
 @import("std.srl").
 
-equals
-(
-	is-digit(?a),
-	or
-	(
-		equals(?a, "0"),
-		equals(?a, "1")
-	)
-).
-
 # is-number
 equals
 (
-	is-number(?a),
+	is-number(?1),
 	or
 	(
 		and
 		(
-			is-number(first(?a)),
-			is-number(second(?a))
+			is-number(first(?1)),
+			is-number(second(?1))
 		),
-		is-digit(?a)
+		equals(?1, "1")
 	)
 ).
 
 # first
 equals
 (
-	first(next-to(?a, ?b)),
-	?a
+	first(next-to(?1, ?2)),
+	?1
 ).
 
 # second
 equals
 (
-	second(next-to(?a, ?b)),
-	?b
+	second(next-to(?1, ?2)),
+	?2
 ).
 
 # Assoziativgesetz für next-to
 equals
 (
-	next-to(?a, next-to(?b, ?c)),
-	next-to(next-to(?a, ?b), ?c)
+	next-to(?1, next-to(?2, ?3)),
+	next-to(next-to(?1, ?2), ?3)
 ).
