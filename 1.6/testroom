@@ -33,6 +33,10 @@ def die(errormsg=""):
 	print(errormsg)
 	sys.exit()
 
+def setMsg(info):
+	global msg
+	msg=info
+
 class Rule:
 	def __init__(self, string):
 		self.cell = Cell(string.strip("."))
@@ -97,16 +101,6 @@ class Cell:
 				return Cell(self.toString()[spot:i])
 		die("getCellAt(): no arg @ " + str(spot) + " with " + self.toString())
 		return None
-	"""
-	def getArgumentStringIndex(id):
-		tmp = len(self.body) + 1
-		for i in range(len(self.args)):
-			if i == id:
-				break
-			else:
-				tmp += len(self.args[i].toString()) + 1 # 1: comma
-		return tmp
-	"""
 	def getNormalCellSubstitutions(self):
 		global rules
 		subs=list()
@@ -345,7 +339,10 @@ def main():
 		else:
 			msg="wrong key"
 if __name__ == "__main__":
-	main()
+	try:
+		main()
+	finally:
+		endwin()
 
 # uninit
 endwin()
