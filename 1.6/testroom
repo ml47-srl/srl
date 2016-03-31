@@ -129,6 +129,7 @@ class Cell:
 	def getNormalCellSubstitutions(self):
 		global rules
 		subs=list()
+		subs.append("!1")
 		if (self.isStringEqualsCell() or self.isRule()) and self.toString() != "\"true\"":
 			subs.append("\"true\"")
 		if self.isWrongConstantEqualsCell() and self.toString() != "\"false\"":
