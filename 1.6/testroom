@@ -51,25 +51,35 @@ class Rule:
 
 class Cell:
 	def __init__(self, string):
+		string = string.strip("\n")
+		setMsg("str="+string)
 		self.args=list()
 		self.valid = True # TODO sometimes False
 		if string.find("(") == -1:
 			self.body=string
 			return
 		self.body = string[:string.find("(")]
-		string = string[string.find("(")+1:].strip(")")
-		while string.find(",") != -1:
-			parens=0
-			for i in range(len(string)):
-				if string[i] == "," and parens == 0:
-					self.args.append(Cell(string[:i].strip(",")))
-					string = string[i:].strip(",")
+		while string != self.body + "()":
+			# getCellAt
+			index = string.find("(")+1
+			cellname = ""
+			openparens = 0
+			while True:
+				if string[index] == "(":
+					openparens += 1
+				elif string[index] == ")":
+					openparens -= 1
+				cellname += string[index]
+				index += 1
+				if len(string) < index+1:
+					argstr = cellname
 					break
-				elif string[i] == "(":
-					parens += 1
-				elif string[i] == ")":
-					parens -= 1
-		self.args.append(Cell(string))
+				elif openparens == 0 and (string[index] == "," or string[index] == ")" or string[index] == "."):
+					argstr = cellname
+					break
+			# /getCellAt
+			string = (string[:string.find("(")+1] + string[string.find("(")+1+len(argstr):]).replace("(,", "(")
+			self.args.append(Cell(argstr))
 	def setArg(self, argID, newArg):
 		self.args[argID] = newArg
 	def isRule(self):
@@ -137,24 +147,35 @@ class Cell:
 		if not (self.isAny() or self.isSpecific()):
 			die("getID() called even if self isn't any/specific")
 		return int(self.body[1:])
-	def getMaxAnyID(self):
-		if self.isAny:
-			return getID()
-		tmp = 0
+	def getMaxID(self):
+		if self.isAny() or self.isSpecific():
+			return self.getID()
+		tmp = 1
 		for arg in self.args:
-			if arg.isAny:
-				tmp = max(tmp, arg.getID())
+			tmp = max(tmp, arg.getMaxID())
 		return tmp
-	def getMaxSpecificID(self):
-		if self.isSpecific:
-			return getID()
-		tmp = 0
-		for arg in self.args:
-			if arg.isSpecific:
-				tmp = max(tmp, arg.getID())
-		return tmp
+	def normalizeID(self):
+		self.asdfasd = "ok" # TODO remove
+	def incrementID(self, by): 
+		if self.isAny():
+			self.body = "?" + str(self.getID() + by)
+		elif self.isSpecific():
+			self.body = "!" + str(self.getID() + by)
+		elif self.isNormal():
+			for arg in self.args:
+				arg.incrementID(by)
 	def replaceAll(self, what, by):
-		print("no")
+		by = Cell(by)
+		by.incrementID(self.getMaxID())
+		by = by.toString()
+		self.replaceAllRecursively(what, by)
+		self.normalizeID()
+	def replaceAllRecursively(self, what, by):
+		for i in range(len(self.args)):
+			if self.args[i].toString() == what:
+				self.setArg(i, Cell(by))
+			else:
+				self.args[i].replaceAllRecursively(what, by)
 	def replaceAt(self, where, by):
 			self.args[self.stringPosToArgPos(where)] = Cell(by)
 alllines=""
@@ -162,7 +183,7 @@ for line in lines:
 	if line.find("#") != -1:
 		line = line[0:line.find("#")]
 	alllines += line.strip("\n").replace(" ", "").replace("\t", "")
-rules.append(Rule("equals(?a,?a)."))
+rules.append(Rule("equals(?1,?1)."))
 rules.append(Rule("\"true\"."))
 while alllines.find(".") != -1:
 	rules.append(Rule(alllines[:alllines.find(".")+1]))
@@ -314,7 +335,7 @@ def handleRule(rule):
 			if len(substitutions) > 0:
 				if rule.toString()[targetCellIndex] == "?" or rule.toString()[targetCellIndex] == "!":
 					c = Cell(rule.getCell().toString())
-					c.replaceAll(rule.getCell().getCellAt(targetCellIndex), substitutions[targetSubstitutionIndex])
+					c.replaceAll(rule.getCell().getCellAt(targetCellIndex).toString(), substitutions[targetSubstitutionIndex])
 					rules.append(Rule(c.toString() + "."))
 				else:
 					c = Cell(rule.getCell().toString())
