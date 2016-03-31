@@ -8,7 +8,7 @@ Regeln
 Tauschgesetze:
 - Im Zweifelsfall entscheidet die Regel mit der kleineren ID.
 
-1. komplexe Zellen, die for-all oder for-one-Zellen enthalten, darf man nirgends einsetzen
+1. Falls eine for-all-cell/for-one-cell in eine Regel hinzugefügt wird, wird ihr Index auf einen gesetzt, der in dieser Regel noch nicht vorkommt
 2. Man kann jede Zelle mit einer for-one-Zelle ersetzen (Ersetzung in gesamter Regel)
 3. Man kann eine for-all-Zelle mit jeder Zelle ersetzen (Ersetzung in gesamter Regel)
 4. Definierte Zellen (Zellen, die als Regel gelten), darf man mit "true" austauschen

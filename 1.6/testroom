@@ -1,0 +1,351 @@
+#!/usr/bin/env python
+
+from curses import *
+import sys
+import re
+
+
+# init
+if len(sys.argv) != 2:
+	print("Bad amount of arguments")
+	sys.exit()
+filename=sys.argv[1]
+try:
+	fh = open(filename)
+except:
+	print("Couldn't load " + filename)
+	sys.exit()
+lines=fh.readlines()
+fh.close()
+
+screen = initscr()
+rules=list()
+screen.keypad(True)
+noecho()
+msg=""
+scroll=0
+running = True
+
+def die(errormsg=""):
+	global screen
+	if screen != None:
+		endwin()
+	print(errormsg)
+	sys.exit()
+
+class Rule:
+	def __init__(self, string):
+		self.cell = Cell(string.strip("."))
+	def getCell(self):
+		return self.cell
+	def toString(self):
+		return self.cell.toString() + "."
+
+class Cell:
+	def __init__(self, string):
+		self.args=list()
+		self.valid = True # TODO sometimes False
+		if string.find("(") == -1:
+			self.body=string
+			return
+		self.body = string[:string.find("(")]
+		string = string[string.find("(")+1:].strip(")")
+		while string.find(",") == -1:
+			parens=0
+			for i in range(len(string)):
+				if string[i] == "," and parens == 0:
+					self.args.append(Cell(string[:i].strip(",")))
+					string = string[i:].strip(",")
+					break
+				elif string[i] == "(":
+					parens += 1
+				elif string[i] == ")":
+					parens -= 1
+		self.args.append(Cell(string))
+	def isRule(self):
+		global rules
+		for rule in rules:
+			if rule.getCell().toString() == self.toString():
+				return True
+		return False
+	def isAny(self):
+		return self.body.startswith("?")
+	def isSpecific(self):
+		return self.body.startswith("!")
+	def isConstant(self):
+		return self.body.startswith("\"") and self.body.endswith("\"")
+	def isNormal(self):
+		return not (self.isConstant() or self.isSpecific() or self.isAny())
+	def getArgs(self):
+		return self.args
+	def isStringEqualsCell(self):
+		return self.isEqualsCell() and self.args[0].toString() == self.args[1].toString()
+	def isWrongConstantEqualsCell(self):
+		return self.isEqualsCell() and self.getArgs()[0].isConstant() and self.getArgs()[1].isConstant() and (self.getArgs()[0].toString() != self.getArgs()[1].toString())
+	def isEqualsCell(self):
+		return self.body == "equals" and len(self.args) == 2
+	def getCellAt(self, spot):
+		parens=0
+		if spot==0:
+			return Cell(self.toString())
+		for i in range(len(self.toString())):
+			if self.toString()[i] == "(":
+				parens += 1
+			elif self.toString()[i] == ")":
+				parens -= 1
+			if (self.toString()[i] == "," or self.toString()[i] == ")") and parens == 0:
+				return Cell(self.toString()[spot:i])
+		die("getCellAt(): no arg @ " + str(spot) + " with " + self.toString())
+		return None
+	"""
+	def getArgumentStringIndex(id):
+		tmp = len(self.body) + 1
+		for i in range(len(self.args)):
+			if i == id:
+				break
+			else:
+				tmp += len(self.args[i].toString()) + 1 # 1: comma
+		return tmp
+	"""
+	def getNormalCellSubstitutions(self):
+		global rules
+		subs=list()
+		if (self.isStringEqualsCell() or self.isRule()) and self.toString() != "\"true\"":
+			subs.append("\"true\"")
+		if self.isWrongConstantEqualsCell() and self.toString() != "\"false\"":
+			subs.append("\"false\"")
+		for rule in rules:
+			if rule.getCell().isEqualsCell():
+				if rule.getCell().args[0].toString() == self.toString() and (not rule.getCell().args[1].toString() in subs) and rule.getCell().args[1].toString() != self.toString():
+					subs.append(rule.getCell().args[1].toString())
+				if rule.getCell().args[1].toString() == self.toString() and (not rule.getCell().args[0].toString() in subs) and rule.getCell().args[0].toString() != self.toString():
+					subs.append(rule.getCell().args[0].toString())
+		return subs
+	def toString(self):
+		if len(self.args) == 0:
+			return self.body
+		else:
+			tmp = self.body + "("
+			for arg in self.args:
+				tmp += arg.toString() + ","
+			tmp = tmp.strip(",") + ")"
+			return tmp
+
+alllines=""
+for line in lines:
+	if line.find("#") != -1:
+		line = line[0:line.find("#")]
+	alllines += line.strip("\n").replace(" ", "").replace("\t", "")
+rules.append(Rule("equals(?a,?a)."))
+rules.append(Rule("\"true\"."))
+while alllines.find(".") != -1:
+	rules.append(Rule(alllines[:alllines.find(".")+1]))
+	alllines = alllines[alllines.find(".")+1:]
+
+# main
+
+def renderString(line, x, s):
+	global screen
+	if x > maxX():
+		print("renderString(): x{" + str(x) + "} > maxX(){" + str(maxX()) + "}")
+	if line > maxY():
+		print("renderString(): line{" + str(line) + "} > maxY(){" + str(maxY()) + "}")
+	try:
+		screen.addstr(line, x, s)
+	except:
+		die("failed to render:\nstring{" + s + "}\nline{" + str(line) + "}\nx{" + str(x) + "}\nmaxX(){" + str(maxX()) + "}\nmaxY(){" + str(maxY()) + "}")
+
+def maxX():
+	maxY, maxX = screen.getmaxyx()
+	return maxX
+
+def maxY():
+	maxY, maxX = screen.getmaxyx()
+	return maxY
+
+def repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIndex):
+	global scroll
+	screen.clear()
+	folding=0
+	# render handled rule
+	if targetCellIndex < 20:
+		renderString(0, 20-targetCellIndex, rule.toString()[:targetCellIndex-20+maxX()])
+	else:
+		renderString(0, 0, rule.toString()[targetCellIndex-20:targetCellIndex-20+maxX()])
+	# render targetCellIndex-marker
+	renderString(1, 20, "^")
+	# if there are substitutions
+	if len(substitutions) > 0:
+		# render the targetSubstitutionIndex-marker
+		renderString(targetSubstitutionIndex+2-scroll, 0, ">")
+		# render all substitutions (x = index of substitutions)
+			# leave <scroll> substitutions at the beginning out
+			# the last substitution is:
+				# the last possible substitution in substitutions
+				# or the last renderable substitution
+		for x in range(scroll, min(len(substitutions), maxY()-4+scroll)):
+			# render substitution at x + 2(beginning-lines) - scroll(the more you scroll, the more the text goes up)
+			if x == targetSubstitutionIndex:
+				renderString(x+2-scroll, 2, substitutions[x])
+				folding = int(len(substitutions[x])/(maxX()-2))
+				if folding > 0:
+					folding += 1
+			else:
+				if len(substitutions[x]) > maxX()-2:
+					renderString(x+2-scroll+folding, 2, substitutions[x][:maxX()-2-3] + "...")
+				else:
+					renderString(x+2-scroll+folding, 2, substitutions[x][:maxX()-2])
+	renderString(maxY()-1, 0, msg)
+
+def findSubstitutions(cell, rule):
+	global screen
+	if cell.isNormal() or cell.isConstant():
+		return cell.getNormalCellSubstitutions()
+	elif cell.isAny():
+		l=list()
+		l.append("...")
+		return l
+	elif cell.isSpecific():
+		return list()
+	else:
+		print("what?")
+
+def findNextCellIndex(rule, pos):
+	tmp = pos
+	# bis zum nxten bedeutungsvollen Zeichen
+	while rule[tmp] != "," and rule[tmp] != "(" and rule[tmp] != ")":
+		tmp += 1
+		if len(rule)-2 < tmp:
+			return pos
+	# bis zur nxten Cell
+	while rule[tmp] == "," or rule[tmp] == "(" or rule[tmp] == ")" or rule[tmp] == " " or rule[tmp] == ".":
+		tmp += 1
+		if len(rule)-2 < tmp:
+			return pos
+	return tmp
+
+def findPreviousCellIndex(rule, pos):
+	if pos == 0:
+		return pos
+	tmp = pos-1
+	# bis zum Ende der vorherigen Cell
+	while rule[tmp] == "," or rule[tmp] == "(" or rule[tmp] == ")" or rule[tmp] == " ":
+		tmp -= 1
+	# bis zum Anfang der vorherigen Cell
+	while rule[tmp-1] != "," and rule[tmp-1] != "(" and rule[tmp-1] != ")" and rule[tmp-1] != " " and tmp > 0:
+		tmp -= 1
+	return tmp
+
+def handleRule(rule):
+	global scroll
+	global msg
+	global rules
+	global running
+	targetSubstitutionIndex=0
+	targetCellIndex=0
+	scroll = 0
+	while running:
+		substitutions=findSubstitutions(rule.getCell().getCellAt(targetCellIndex), rule)
+		repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIndex)
+		key = screen.getch()
+		
+		if str(key) == str(KEY_DOWN):
+			# if targetSubstitutionIndex is a valid index for substitutions (for targetSubstitutionIndex > -1)
+			if targetSubstitutionIndex < len(substitutions)-1:
+				targetSubstitutionIndex += 1
+				# if targetSubstitutionIndex is under the list of substitutions
+				if targetSubstitutionIndex >= maxY()-4-scroll and targetSubstitutionIndex+2-scroll == maxY()-2:
+					scroll += 1
+		elif str(key) == str(KEY_UP):
+			if targetSubstitutionIndex > 0:
+				targetSubstitutionIndex -= 1
+				if targetSubstitutionIndex < scroll:
+					scroll -= 1
+		elif str(key) == str(KEY_LEFT):
+				targetCellIndex = findPreviousCellIndex(rule.toString(), targetCellIndex)
+				targetSubstitutionIndex = 0
+				scroll = 0
+		elif str(key) == str(KEY_RIGHT):
+				targetCellIndex = findNextCellIndex(rule.toString(), targetCellIndex)
+				targetSubstitutionIndex = 0
+				scroll = 0
+		elif key == ord('q'):
+			scroll = 0
+			break
+		elif key == ord('\n'):
+			if substitutions[targetSubstitutionIndex] == "...":
+				newkey="a"
+				string=""
+				while True:
+					while newkey != ord("\n"):
+						newkey=screen.getch()
+						string += chr(newkey)
+						renderString(2, 2, string)
+					c = Cell(string)
+					if c.valid:
+						substitutions[targetSubstitutionIndex] = string.strip("\n")
+						break
+
+			if len(substitutions) > 0:
+				if rule.toString()[targetCellIndex] == "?" or rule.toString()[targetCellIndex] == "!":
+					old = rule.getCell().getCellAt(targetCellIndex).toString()
+					new = substitutions[targetSubstitutionIndex]
+					tmp = rule.toString().replace(old + ",", new + ",").replace(old + ")", new + ")").replace(old + ".", new + ".")
+					rules.append(Rule(tmp))
+				else:
+					rules.append(substituteCellAt(targetCellIndex, rule, substitutions[targetSubstitutionIndex]))
+			scroll = 0
+			break
+		else:
+			msg="wrong key"
+
+def repaintMain(targetRuleIndex):
+	global scroll
+	global rules
+	screen.clear()
+	renderString(targetRuleIndex-scroll, 0, ">")
+	folding=0
+	for x in range(scroll, min(len(rules), maxY()-2+scroll)):
+		if x == targetRuleIndex:
+			renderString(x-scroll+folding, 2, rules[x].toString())
+			folding = int(len(rules[x].toString())/(maxX()-2))
+			if folding > 0:
+				folding = folding+1
+		else:
+			if len(rules[x].toString()) > maxX()-2:
+				renderString(x-scroll+folding, 2, rules[x].toString()[:maxX()-2-3] + "...")
+			else:
+				renderString(x-scroll+folding, 2, rules[x].toString()[:maxX()-2])
+		renderString(maxY()-1, 0, msg)
+
+def main():
+	global scroll
+	global rules
+	global msg
+	global running
+	targetRuleIndex=0
+	while running:
+		repaintMain(targetRuleIndex)
+		key = screen.getch()
+
+		if str(key) == str(KEY_DOWN):
+			if targetRuleIndex < len(rules)-1:
+				targetRuleIndex += 1
+				if targetRuleIndex > maxY()-scroll-3 and targetRuleIndex - scroll == maxY()-2:
+					scroll += 1
+		elif str(key) == str(KEY_UP):
+			if targetRuleIndex > 0:
+				targetRuleIndex -= 1
+				if targetRuleIndex < scroll:
+					scroll -= 1
+		elif key == ord('q'):
+			running=False
+		elif key == ord('\n'):
+			handleRule(rules[targetRuleIndex])
+		else:
+			msg="wrong key"
+if __name__ == "__main__":
+	main()
+
+# uninit
+endwin()

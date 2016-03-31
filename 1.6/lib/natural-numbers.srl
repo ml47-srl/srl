@@ -1,0 +1,49 @@
+# binary natural-numbers
+
+@import("std.srl").
+
+equals
+(
+	is-digit(?a),
+	or
+	(
+		equals(?a, "0"),
+		equals(?a, "1")
+	)
+).
+
+# is-number
+equals
+(
+	is-number(?a),
+	or
+	(
+		and
+		(
+			is-number(first(?a)),
+			is-number(second(?a))
+		),
+		is-digit(?a)
+	)
+).
+
+# first
+equals
+(
+	first(next-to(?a, ?b)),
+	?a
+).
+
+# second
+equals
+(
+	second(next-to(?a, ?b)),
+	?b
+).
+
+# Assoziativgesetz für next-to
+equals
+(
+	next-to(?a, next-to(?b, ?c)),
+	next-to(next-to(?a, ?b), ?c)
+).
