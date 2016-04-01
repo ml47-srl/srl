@@ -2,7 +2,7 @@
 
 from curses import *
 import sys
-
+import os
 
 def die(errormsg=""):
 	global screen
@@ -419,16 +419,40 @@ def main():
 		else:
 			setMsg("wrong key")
 
-def linesToRules(lines):
+def fileToRules(filename, pwd):
+	global importedfiles
+	if os.path.realpath(pwd + "/" + filename) in importedfiles:
+		return
 	rules=list()
+	# load file
+	try:
+		fh = open(os.path.realpath(pwd + "/" + filename))
+	except:
+		die("Couldn't load \"" + os.path.realpath(pwd + "/" + filename) + "\"")
+	importedfiles.append(os.path.realpath(pwd + "/" + filename))
+	lines=fh.readlines()
+	fh.close()
+	# 
+
+	# concat all lines
 	alllines=""
 	for line in lines:
 		if line.find("#") != -1:
 			line = line[0:line.find("#")]
 		alllines += line.strip("\n").replace(" ", "").replace("\t", "")
-	rules.append(Rule("equals(?1,?1)."))
-	rules.append(Rule("\"true\"."))
-	while alllines.find(".") != -1:
+	# check for imports
+	while "@import(" in alllines:
+		start = alllines.find("@import(\"")
+		for i in range(start+9, len(alllines)):
+			if alllines[i] == "\"" and alllines[i-1] != "\\":
+				end=i
+				break
+		newfile = alllines[start+9:end]
+		for rule in fileToRules(newfile, os.path.realpath(os.path.dirname(filename))):
+			rules.append(rule)
+		alllines = alllines[:start] + alllines[end+3:]
+	# check for rules
+	while "." in alllines:
 		rules.append(Rule(alllines[:alllines.find(".")+1]))
 		alllines = alllines[alllines.find(".")+1:]
 	return rules
@@ -439,31 +463,32 @@ def init():
 	global screen
 	global msg
 	global scroll
+	global importedfiles
+	importedfiles=list()
+	screen=None
 	if len(sys.argv) != 2:
-		print("Bad amount of arguments")
-		sys.exit()
+		die("Bad amount of arguments")
 	filename=sys.argv[1]
-	try:
-		fh = open(filename)
-	except:
-		print("Couldn't load " + filename)
-		sys.exit()
-	lines=fh.readlines()
-	fh.close()
-
+	rules=list()
+	rules.append(Rule("equals(?1,?1)."))
+	rules.append(Rule("\"true\"."))
+	for rule in fileToRules(filename, sys.path[0]):
+		rules.append(rule)
+	# screen init
 	screen = initscr()
 	curs_set(0)
-	rules=linesToRules(lines)
 	screen.keypad(True)
 	noecho()
+	# 
+
 	msg=""
 	scroll=0
 	running = True
 	open("debug", "w").close() # clear Debugfile
 
 if __name__ == "__main__":
+	init()
 	try:
-		init()
 		main()
 	finally:
 		endwin()
