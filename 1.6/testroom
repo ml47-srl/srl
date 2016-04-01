@@ -38,6 +38,13 @@ def setMsg(info):
 	f.write(info + "\n")
 	f.close()
 	msg=info
+	renderString(maxY()-1, 0, msg)
+
+def clearScreen():
+	global screen
+	global msg
+	screen.clear()
+	renderString(maxY()-1, 0, msg)
 
 class Rule:
 	def __init__(self, string):
@@ -258,7 +265,7 @@ def maxY():
 
 def repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIndex):
 	global scroll
-	screen.clear()
+	clearScreen()
 	folding=0
 	# render handled rule
 	if targetCellIndex < 20:
@@ -288,7 +295,6 @@ def repaintHandleRule(rule, targetCellIndex, substitutions, targetSubstitutionIn
 					renderString(x+2-scroll+folding, 2, substitutions[x][:maxX()-2-3] + "...")
 				else:
 					renderString(x+2-scroll+folding, 2, substitutions[x][:maxX()-2])
-	renderString(maxY()-1, 0, msg)
 
 def findSubstitutions(cell, rule):
 	global screen
@@ -374,7 +380,10 @@ def handleRule(rule):
 						if str(newkey) == str(KEY_BACKSPACE):
 							string = string[:len(string)-1]
 						else:
-							string += chr(newkey)
+							try:
+								string += chr(newkey)
+							except:
+								setMsg("invalid key")
 						renderString(2, 2, " "*(maxX()-2))
 						renderString(2, 2, string)
 					c = Cell(string)
@@ -399,7 +408,7 @@ def handleRule(rule):
 def repaintMain(targetRuleIndex):
 	global scroll
 	global rules
-	screen.clear()
+	clearScreen()
 	renderString(targetRuleIndex-scroll, 0, ">")
 	folding=0
 	for x in range(scroll, min(len(rules), maxY()-2+scroll)):
@@ -413,7 +422,6 @@ def repaintMain(targetRuleIndex):
 				renderString(x-scroll+folding, 2, rules[x].toString()[:maxX()-2-3] + "...")
 			else:
 				renderString(x-scroll+folding, 2, rules[x].toString()[:maxX()-2])
-		renderString(maxY()-1, 0, msg)
 
 def main():
 	global scroll
