@@ -17,6 +17,7 @@ lines=fh.readlines()
 fh.close()
 
 screen = initscr()
+curs_set(0)
 rules=list()
 screen.keypad(True)
 noecho()
