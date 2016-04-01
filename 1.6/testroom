@@ -2,8 +2,6 @@
 
 from curses import *
 import sys
-import re
-
 
 # init
 if len(sys.argv) != 2:
@@ -162,7 +160,16 @@ class Cell:
 			tmp = max(tmp, arg.getMaxID())
 		return tmp
 	def normalizeID(self):
-		self.asdfasd = "ok" # TODO remove
+		self.incrementID(self.getMaxID())
+		anys=self.getAnyIDs()
+		specifics=self.getSpecificIDs()
+		setMsg("anys=" + str(self.getAnyIDs()))
+		for i in range(len(anys)):
+			setMsg("replacing ?" + str(anys[i]) + " with ?" + str(i+1))
+			self.justReplaceAll("?" + str(anys[i]), "?" + str(i+1))
+		for i in range(len(specifics)):
+			self.justReplaceAll("!" + str(specifics[i]), "!" + str(i+1))
+		setMsg("anys4=" + str(self.getAnyIDs()))
 	def incrementID(self, by): 
 		if self.isAny():
 			self.body = "?" + str(self.getID() + by)
@@ -171,6 +178,33 @@ class Cell:
 		elif self.isNormal():
 			for arg in self.args:
 				arg.incrementID(by)
+	def getAnyIDs(self):
+		tmp=list()
+		if self.isAny():
+			tmp.append(self.getID())
+		elif self.isNormal():
+			for arg in self.args:
+				for id in arg.getAnyIDs():
+					if id not in tmp:
+						tmp.append(id)
+		return tmp
+	def getSpecificIDs(self):
+		tmp=list()
+		if self.isSpecific():
+			tmp.append(self.getID())
+		elif self.isNormal():
+			for arg in self.args:
+				for id in arg.getSpecificIDs():
+					if id not in tmp:
+						tmp.append(id)
+		return tmp
+	def justReplaceAll(self, what, by):
+		tmp = self.toString()
+		tmp = tmp.replace(what + ",", by + ",")
+		tmp = tmp.replace(what + ".", by + ".")
+		tmp = tmp.replace(what + ")", by + ")")
+		self.set(tmp)
+
 	def replaceAll(self, what, by):
 		by = Cell(by)
 		by.incrementID(self.getMaxID())
@@ -181,7 +215,6 @@ class Cell:
 		tmp = tmp.replace(what + ".", by + ".")
 		tmp = tmp.replace(what + ")", by + ")")
 		self.set(tmp)
-
 		self.normalizeID()
 	def replaceAt(self, where, by):
 		what = self.getCellAt(where).toString()
