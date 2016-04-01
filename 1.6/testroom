@@ -393,7 +393,8 @@ def handleRule(rule):
 						break
 
 			if len(substitutions) > 0:
-				if rule.toString()[targetCellIndex] == "?" or rule.toString()[targetCellIndex] == "!":
+				# if you replace a ?n by * OR you replace * by !n
+				if rule.toString()[targetCellIndex] == "?" or substitutions[targetSubstitutionIndex].startswith("!"):
 					c = Cell(rule.getCell().toString())
 					c.replaceAll(rule.getCell().getCellAt(targetCellIndex).toString(), substitutions[targetSubstitutionIndex])
 					rules.append(Rule(c.toString() + "."))
