@@ -3,28 +3,6 @@
 from curses import *
 import sys
 
-# init
-if len(sys.argv) != 2:
-	print("Bad amount of arguments")
-	sys.exit()
-filename=sys.argv[1]
-try:
-	fh = open(filename)
-except:
-	print("Couldn't load " + filename)
-	sys.exit()
-lines=fh.readlines()
-fh.close()
-
-screen = initscr()
-curs_set(0)
-rules=list()
-screen.keypad(True)
-noecho()
-msg=""
-scroll=0
-running = True
-open("debug", "w").close() # clear Debugfile
 
 def die(errormsg=""):
 	global screen
@@ -232,16 +210,6 @@ class Cell:
 				return i
 		die("index: nothing found.")
 		return None
-alllines=""
-for line in lines:
-	if line.find("#") != -1:
-		line = line[0:line.find("#")]
-	alllines += line.strip("\n").replace(" ", "").replace("\t", "")
-rules.append(Rule("equals(?1,?1)."))
-rules.append(Rule("\"true\"."))
-while alllines.find(".") != -1:
-	rules.append(Rule(alllines[:alllines.find(".")+1]))
-	alllines = alllines[alllines.find(".")+1:]
 
 # main
 
@@ -450,8 +418,52 @@ def main():
 			handleRule(rules[targetRuleIndex])
 		else:
 			setMsg("wrong key")
+
+def linesToRules(lines):
+	rules=list()
+	alllines=""
+	for line in lines:
+		if line.find("#") != -1:
+			line = line[0:line.find("#")]
+		alllines += line.strip("\n").replace(" ", "").replace("\t", "")
+	rules.append(Rule("equals(?1,?1)."))
+	rules.append(Rule("\"true\"."))
+	while alllines.find(".") != -1:
+		rules.append(Rule(alllines[:alllines.find(".")+1]))
+		alllines = alllines[alllines.find(".")+1:]
+	return rules
+
+def init():
+	global rules
+	global running
+	global screen
+	global msg
+	global scroll
+	if len(sys.argv) != 2:
+		print("Bad amount of arguments")
+		sys.exit()
+	filename=sys.argv[1]
+	try:
+		fh = open(filename)
+	except:
+		print("Couldn't load " + filename)
+		sys.exit()
+	lines=fh.readlines()
+	fh.close()
+
+	screen = initscr()
+	curs_set(0)
+	rules=linesToRules(lines)
+	screen.keypad(True)
+	noecho()
+	msg=""
+	scroll=0
+	running = True
+	open("debug", "w").close() # clear Debugfile
+
 if __name__ == "__main__":
 	try:
+		init()
 		main()
 	finally:
 		endwin()
