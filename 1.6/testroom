@@ -114,11 +114,11 @@ class Cell:
 	def getNormalCellSubstitutions(self):
 		global rules
 		subs=list()
-		subs.append("!1")
 		if (self.isStringEqualsCell() or self.isRule()) and self.toString() != "\"true\"":
 			subs.append("\"true\"")
 		if self.isWrongConstantEqualsCell() and self.toString() != "\"false\"":
 			subs.append("\"false\"")
+		subs.append("!1")
 		for rule in rules:
 			if rule.getCell().isEqualsCell():
 				if rule.getCell().args[0].toString() == self.toString() and (not rule.getCell().args[1].toString() in subs) and rule.getCell().args[1].toString() != self.toString():
@@ -147,6 +147,9 @@ class Cell:
 			tmp = max(tmp, arg.getMaxID())
 		return tmp
 	def normalizeID(self):
+		if self.isAny() or self.isSpecific():
+			self.id=1
+			return
 		self.incrementID(self.getMaxID())
 		anys=self.getAnyIDs()
 		specifics=self.getSpecificIDs()
@@ -190,6 +193,10 @@ class Cell:
 		self.set(tmp)
 
 	def replaceAll(self, what, by):
+		if self.toString() == what:
+			self.set(by)
+			self.normalizeID()
+			return
 		by = Cell(by)
 		by.incrementID(self.getMaxID())
 		by = by.toString()
