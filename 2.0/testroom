@@ -1,0 +1,6 @@
+#!/usr/bin/python3.4
+
+from srlcore import *
+
+system = SRLSystem()
+system.loadFromFile("file.srl")
