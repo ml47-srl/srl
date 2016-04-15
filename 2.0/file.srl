@@ -1,0 +1,4 @@
+equals(a, b) <-> equals(b, a).
+a(b) -> b(a).
+a(b).
+equals(a, b).
