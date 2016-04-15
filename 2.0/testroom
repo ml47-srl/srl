@@ -3,4 +3,5 @@
 from srlcore import *
 
 system = SRLSystem()
-system.loadFromFile("file.srl")
+system.loadFromFile("1.6")
+print(system.toString())
