@@ -4,7 +4,7 @@ import sys
 import os
 
 def getSubSigns():
-	return ["->"]
+	return ["->", "<->"]
 
 def containsSubSigns(string):
 	for sign in getSubSigns():
@@ -115,7 +115,7 @@ class Cell:
 	def __init__(self, arg):
 		self.args=list()
 		self.body=""
-		set(arg)
+		self.set(arg)
 
 	def set(self, arg):
 		if isinstance(arg, Cell):
@@ -163,6 +163,9 @@ class Cell:
 
 class SubRule:
 	def __init__(self, arg):
+		self.cellA = None
+		self.cellB = None
+		self.sign = None
 		self.set(arg)
 
 	def set(self, arg):
@@ -181,7 +184,8 @@ class SubRule:
 
 class RelRule:
 	def __init__(self, arg):
-		set(arg)
+		self.cell = None
+		self.set(arg)
 
 	def set(self, arg):
 		if isinstance(arg, Cell):
@@ -190,5 +194,6 @@ class RelRule:
 		if not isinstance(arg, str):
 			die("RelRule::set() arg is not a string")
 		self.cell = Cell(arg)
+
 	def toString(self):
 		return self.cell.toString() + "."
