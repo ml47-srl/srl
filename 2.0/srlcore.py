@@ -4,7 +4,7 @@ import sys
 import os
 
 def getSubSigns():
-	return ["->", "<->"]
+	return ["<->", "->"] # the order is important
 
 def containsSubSigns(string):
 	for sign in getSubSigns():
@@ -173,7 +173,7 @@ class SubRule:
 			die("SubRule::set() arg is not a string")
 		args = splitAtSubSigns(arg)
 		self.cellA = Cell(args[0])
-		self.cellB = Cell(args[1])
+		self.cellB = Cell(args[1].strip("."))
 		self.sign = arg[len(args[0]):len(arg)-len(args[1])] # unsure
 
 	def allowsSubstitution(self, sub):
@@ -193,7 +193,7 @@ class RelRule:
 			return
 		if not isinstance(arg, str):
 			die("RelRule::set() arg is not a string")
-		self.cell = Cell(arg)
+		self.cell = Cell(arg.strip("."))
 
 	def toString(self):
 		return self.cell.toString() + "."
