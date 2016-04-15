@@ -4,7 +4,7 @@ import sys
 import os
 
 def getSubSigns():
-	return ["<->", "->"] # the order is important
+	return ["<->", "->", "<-"] # the order is important
 
 def containsSubSigns(string):
 	for sign in getSubSigns():
@@ -59,6 +59,7 @@ class SRLSystem:
 		if abspath in self.importedfiles:
 			return
 		rules=list()
+
 		# load file
 		try:
 			fh = open(abspath)
@@ -67,7 +68,6 @@ class SRLSystem:
 		self.importedfiles.append(abspath)
 		lines=fh.readlines()
 		fh.close()
-		# 
 
 		# concat all lines
 		alllines=""
@@ -75,6 +75,7 @@ class SRLSystem:
 			if line.find("#") != -1:
 				line = line[0:line.find("#")]
 			alllines += normalizeString(line)
+
 		# check for imports
 		while "@import(" in alllines:
 			start = alllines.find("@import(\"")
