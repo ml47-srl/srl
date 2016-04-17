@@ -154,7 +154,7 @@ class Cell:
 			return
 		if not isinstance(arg, str):
 			die("Cell::set() arg is not a string")
-		string = normalizeCellstr(arg)
+		string = normalizeCellstr(arg.strip("."))
 
 		if not "(" in string:
 			self.body = string
