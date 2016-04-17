@@ -3,7 +3,6 @@
 import sys
 import os
 
-
 def getSubSigns():
 	return ["<->", "->", "<-"] # the order is important
 
@@ -30,7 +29,7 @@ def die(arg):
 	print(arg)
 	sys.exit()
 
-def normalizeString(string):
+def normalizeCellstr(string):
 	return string.replace("\t", "").replace(" ", "").replace("\n", "")
 
 def spotToCellstr(spot, string):
@@ -83,20 +82,19 @@ class SRLSystem:
 		print()
 
 	def loadFromFile(self, filename):
-		rules = self.__getRulesByFile(filename, sys.path[0])
-		for rule in rules:
-			if isinstance(rule, SubRule):
-				self.subrules.append(rule)
-			elif isinstance(rule, RelRule):
-				self.relrules.append(rule)
-			else:
-				die("loadFromFile: NOPE NOPE NOPE")
+		self.__addRulestrsByFile(filename, sys.path[0])
 
-	def __getRulesByFile(self, filename, pwd):
+	def addRulestr(self, rulestr):
+		if containsSubSigns(rulestr):
+			self.subrules.append(SubRule(rulestr))
+		else:
+			self.relrules.append(RelRule(rulestr))
+
+	def __addRulestrsByFile(self, filename, pwd):
 		abspath = os.path.realpath(pwd + "/" + filename)
 		if abspath in self.importedfiles:
+			print("ignoring multiple import: \"" + abspath + "\"")
 			return
-		rules=list()
 
 		# load file
 		try:
@@ -104,7 +102,7 @@ class SRLSystem:
 		except:
 			die("Couldn't load \"" + abspath + "\"")
 		self.importedfiles.append(abspath)
-		lines=fh.readlines()
+		lines = fh.readlines()
 		fh.close()
 
 		# concat all lines
@@ -112,7 +110,7 @@ class SRLSystem:
 		for line in lines:
 			if line.find("#") != -1:
 				line = line[0:line.find("#")]
-			alllines += normalizeString(line)
+			alllines += normalizeCellstr(line)
 
 		# check for imports
 		while "@import(" in alllines:
@@ -122,18 +120,12 @@ class SRLSystem:
 					end=i
 					break
 			newfile = alllines[start+9:end]
-			for rule in self.__getRulesByFile(newfile, os.path.dirname(abspath)):
-				rules.append(rule)
+			self.__addRulestrsByFile(newfile, os.path.dirname(abspath))
 			alllines = alllines[:start] + alllines[end+3:]
 		# check for rules
 		while "." in alllines:
-			x = alllines[:alllines.find(".")+1]
-			if containsSubSigns(x):
-				self.subrules.append(SubRule(x))
-			else:
-				self.relrules.append(RelRule(x))
+			self.addRulestr(alllines[:alllines.find(".")+1])
 			alllines = alllines[alllines.find(".")+1:]
-		return rules
 
 	def toString(self):
 		return str([x.toString() for x in self.subrules]) + " : " + str([x.toString() for x in self.relrules])
@@ -162,7 +154,7 @@ class Cell:
 			return
 		if not isinstance(arg, str):
 			die("Cell::set() arg is not a string")
-		string = normalizeString(arg)
+		string = normalizeCellstr(arg)
 
 		if not "(" in string:
 			self.body = string
@@ -175,13 +167,13 @@ class Cell:
 
 	def toString(self):
 		if len(self.args) == 0:
-			return normalizeString(self.body)
+			return normalizeCellstr(self.body)
 		else:
 			tmp = self.body + "("
 			for arg in self.args:
 				tmp += arg.toString() + ","
 			tmp = tmp.strip(",") + ")"
-			return normalizeString(tmp)
+			return normalizeCellstr(tmp)
 
 class SubRule:
 	def __init__(self, arg):
