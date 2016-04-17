@@ -79,12 +79,12 @@ class SRLSystem:
 				return
 
 	def __applySubstitution(self, sub):
-		print()
+		self.__addRulestr(sub.getNewRulestr())
 
 	def loadFromFile(self, filename):
 		self.__addRulestrsByFile(filename, sys.path[0])
 
-	def addRulestr(self, rulestr):
+	def __addRulestr(self, rulestr):
 		if containsSubSigns(rulestr):
 			self.subrules.append(SubRule(rulestr))
 		else:
@@ -124,23 +124,36 @@ class SRLSystem:
 			alllines = alllines[:start] + alllines[end+3:]
 		# check for rules
 		while "." in alllines:
-			self.addRulestr(alllines[:alllines.find(".")+1])
+			self.__addRulestr(alllines[:alllines.find(".")+1])
 			alllines = alllines[alllines.find(".")+1:]
 
 	def toString(self):
 		return str([x.toString() for x in self.subrules]) + " : " + str([x.toString() for x in self.relrules])
 
 class Substitution:
-	def __init__(self, subject, replacement, rule):
-		if not isinstance(subject, Cell):
-			die("Substitution::init() wrong subject data-type")
-		if not isinstance(replacement, Cell):
-			die("Substitution::init() wrong replacement data-type")
-		if not isinstance(rule, str):
-			die("Substitution::init() wrong rule data-type")
-		self.subject = subject
-		self.replacement = replacement
-		self.rule = rule
+	def __init__(self, cspot, newstr, rulestr):
+		self.set(cspot, newstr, rulestr)
+
+	def set(self, cspot, newstr, rulestr):
+		if not isinstance(cspot, int):
+			die("Substitution::init() wrong cspot data-type")
+		if not isinstance(newstr, str):
+			if isinstance(newstr, Cell):
+				self.set(cspot, newstr.toString(), rulestr)
+				return
+			die("Substitution::init() wrong newstr data-type")
+		if not isinstance(rulestr, str):
+			if isinstance(rulestr, SubRule) or isinstance(rulestr, RelRule):
+				self.set(cspot, newstr, rulestr.toString())
+				return
+			die("Substitution::init() wrong rulestr data-type")
+		self.cspot = cspot
+		self.newstr = newstr
+		self.rulestr = rulestr
+
+	def getNewRulestr(self):
+		print("Substitution::getNewRulestr() TODO")
+		return self.rulestr # TODO
 
 class Cell:
 	def __init__(self, arg):
