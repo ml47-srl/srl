@@ -23,6 +23,9 @@ def splitAtSubSigns(string):
 def getCellEndSigns():
 	return [",", ".", ")"]
 
+def getCellBeginSigns():
+	return [",", "("]
+
 def die(arg):
 	print(arg)
 	sys.exit()
@@ -44,6 +47,25 @@ def spotToCellstr(spot, string):
 			return cellname
 		elif openparens == 0 and (string[spot] in getCellEndSigns()):
 			return cellname
+
+def cspotToSpot(cspot, string):
+	cells=0
+	for i in range(len(string)):
+		if cells == cspot:
+			return i
+		if string[i] in getCellBeginSigns():
+			cells += 1
+
+def spotToCspot(spot, string):
+	cells=0
+	for i in range(len(string)):
+		if i == spot:
+			return cells
+		if string[i] in getCellBeginSigns():
+			cells += 1
+
+def cspotToCellstr(cspot, string):
+	return spotToCellstr(cspotToSpot(cspot, string), string)
 
 class SRLSystem:
 	def __init__(self):
