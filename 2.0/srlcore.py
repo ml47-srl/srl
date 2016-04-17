@@ -3,6 +3,7 @@
 import sys
 import os
 
+
 def getSubSigns():
 	return ["<->", "->", "<-"] # the order is important
 
@@ -28,6 +29,21 @@ def die(arg):
 
 def normalizeString(string):
 	return string.replace("\t", "").replace(" ", "").replace("\n", "")
+
+def spotToCellstr(spot, string):
+	cellname = ""
+	openparens = 0
+	while True:
+		if string[spot] == "(":
+			openparens += 1
+		elif string[spot] == ")":
+			openparens -= 1
+		cellname += string[spot]
+		spot += 1
+		if len(string) < spot+1:
+			return cellname
+		elif openparens == 0 and (string[spot] in getCellEndSigns()):
+			return cellname
 
 class SRLSystem:
 	def __init__(self):
@@ -131,24 +147,7 @@ class Cell:
 			return
 		self.body = string[:string.find("(")]
 		while string != self.body + "()":
-			# getCellAt
-			index = string.find("(")+1
-			cellname = ""
-			openparens = 0
-			while True:
-				if string[index] == "(":
-					openparens += 1
-				elif string[index] == ")":
-					openparens -= 1
-				cellname += string[index]
-				index += 1
-				if len(string) < index+1:
-					argstr = cellname
-					break
-				elif openparens == 0 and (string[index] in getCellEndSigns()):
-					argstr = cellname
-					break
-			# /getCellAt
+			argstr = spotToCellstr(string.find("(")+1, string)
 			string = (string[:string.find("(")+1] + string[string.find("(")+1+len(argstr):]).replace("(,", "(")
 			self.args.append(Cell(argstr))
 
