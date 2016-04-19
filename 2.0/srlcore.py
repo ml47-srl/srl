@@ -66,23 +66,21 @@ def spotToCellstr(spot, string):
 			off("spotToCellstr")
 			return cellname
 
-def substituteCall(string, occurence, a, b):
-	on("substituteCall('" + string + "', " + str(occurence) + ", '" + a + "', '" + b + "')")
+def substituteCellstr(string, occurence, a, b):
+	on("substituteCellstr('" + string + "', " + str(occurence) + ", '" + a + "', '" + b + "')")
 	if not isinstance(string, str):
-		die("substituteCall(): string is not str")
+		die("substituteCellstr(): string is not str")
 	if occurence == -1:
-		while True: # done pretty shitty
-			cspots = getCspotsForCellstrInCellstr(a, string)
-			if len(cspots) == 0:
-				break
-			string = string[:cspots[0]] + b + string[cspots[0]+len(b)+1:]
+		spots = getSpotsForCellstrInCellstr(a, string)
+		for spot in sorted(spots, reverse=True):
+			string = string[:spot] + b + string[spot+len(a):]
 	else:
-		cspots = getCspotsForCellstrInCellstr(a, string)
+		spots = getSpotsForCellstrInCellstr(a, string)
 		if len(cspots)-1 < occurence:
-			die("substituteCall(): Can't do it! its too far")
-		cspot = cspots[occurence]
-		string = string[:cspot] + b + string[cspot+1:]
-	off("substituteCall")
+			die("substituteCellstr(): Can't do it! its too far")
+		spot = spots[occurence]
+		string = string[:spot] + b + string[spot+len(a):]
+	off("substituteCellstr")
 	return string
 
 def cspotToSpot(cspot, string):
@@ -296,7 +294,7 @@ class SubRule:
 
 	def insertArgs(self, string, args):
 		for arg in args:
-			string = substituteCall(string, -1, "{" + arg + "}", args[arg])
+			string = substituteCellstr(string, -1, "{" + arg + "}", args[arg])
 		return string
 
 	def substitute(self, relrulestr, args):
@@ -307,9 +305,9 @@ class SubRule:
 			occurence = -1
 
 		if self.sign == "<-":
-			tmp = substituteCall(relrulestr, occurence, self.insertArgs(self.cellstrB, args), self.insertArgs(self.cellstrA, args))
+			tmp = substituteCellstr(relrulestr, occurence, self.insertArgs(self.cellstrB, args), self.insertArgs(self.cellstrA, args))
 		elif self.sign == "->":
-			tmp = substituteCall(relrulestr, occurence, self.insertArgs(self.cellstrA, args), self.insertArgs(self.cellstrB, args))
+			tmp = substituteCellstr(relrulestr, occurence, self.insertArgs(self.cellstrA, args), self.insertArgs(self.cellstrB, args))
 		off("substitute")
 		return tmp
 
