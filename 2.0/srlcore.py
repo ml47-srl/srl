@@ -36,7 +36,7 @@ def splitAtSubSigns(string):
 	return None
 
 def getCellEndSigns():
-	return [",", ".", ")"] # add "(" ?
+	return [",", ".", ")"] # add "(" ? NOTE: This would mean a->b gives us a(c) -> b(c).
 
 def getCellBeginSigns():
 	return [",", "("]
