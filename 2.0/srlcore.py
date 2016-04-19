@@ -153,15 +153,15 @@ def getCspotsForCellstrInCellstr(subject, cellstr):
 
 class SRLSystem:
 	def __init__(self):
-		self.subrules=list() # rules like a -> b. (substitution rules)
-		self.relrules=list() # rules like a(b). (relation rules)
-		self.importedfiles=list()
+		self.__subrules=list() # rules like a -> b. (substitution rules)
+		self.__relrules=list() # rules like a(b). (relation rules)
+		self.__importedfiles=list()
 
 	def applySubstitution(self, relruleID, subruleID, string):
 		on("applySubstitution")
-		relrulestr = self.relrules[relruleID].toString()
+		relrulestr = self.__relrules[relruleID].toString()
 
-		subrule = self.subrules[subruleID]
+		subrule = self.__subrules[subruleID]
 
 		args = dict()
 		if string != "":
@@ -179,20 +179,20 @@ class SRLSystem:
 		self.__addRulestrsByFile(filename, sys.path[0])
 
 	def getChangeableRules(self):
-		return [x for x in self.relrules]
+		return [x for x in self.__relrules]
 
 	def getSubRules(self):
-		return [x for x in self.subrules]
+		return [x for x in self.__subrules]
 
 	def __addRulestr(self, rulestr):
 		if containsSubSigns(rulestr):
-			self.subrules.append(SubRule(rulestr))
+			self.__subrules.append(SubRule(rulestr))
 		else:
-			self.relrules.append(RelRule(rulestr))
+			self.__relrules.append(RelRule(rulestr))
 
 	def __addRulestrsByFile(self, filename, pwd):
 		abspath = os.path.realpath(pwd + "/" + filename)
-		if abspath in self.importedfiles:
+		if abspath in self.__importedfiles:
 			print("ignoring multiple import: \"" + abspath + "\"")
 			return
 
@@ -201,7 +201,7 @@ class SRLSystem:
 			fh = open(abspath)
 		except:
 			die("Couldn't load \"" + abspath + "\"")
-		self.importedfiles.append(abspath)
+		self.__importedfiles.append(abspath)
 		lines = fh.readlines()
 		fh.close()
 
@@ -228,82 +228,57 @@ class SRLSystem:
 			alllines = alllines[alllines.find(".")+1:]
 
 	def toString(self):
-		return str([x.toString() for x in self.subrules]) + " : " + str([x.toString() for x in self.relrules])
-
-class Substitution:
-	def __init__(self, cspot, newstr, rulestr):
-		self.set(cspot, newstr, rulestr)
-
-	def set(self, cspot, newstr, rulestr):
-		if not isinstance(cspot, int):
-			die("Substitution::init() wrong cspot data-type")
-		if not isinstance(newstr, str):
-			if isinstance(newstr, Cell):
-				self.set(cspot, newstr.toString(), rulestr)
-				return
-			die("Substitution::init() wrong newstr data-type")
-		if not isinstance(rulestr, str):
-			if isinstance(rulestr, SubRule) or isinstance(rulestr, RelRule):
-				self.set(cspot, newstr, rulestr.toString())
-				return
-			die("Substitution::init() wrong rulestr data-type")
-		self.cspot = cspot
-		self.newstr = newstr
-		self.rulestr = rulestr
-
-	def getNewRulestr(self):
-		print("Substitution::getNewRulestr() TODO")
-		return self.rulestr # TODO
+		return str([x.toString() for x in self.__subrules]) + " : " + str([x.toString() for x in self.__relrules])
 
 class Cell:
 	def __init__(self, arg):
-		self.args=list()
-		self.body=""
-		self.set(arg)
+		self.__args=list()
+		self.__body=""
+		self.__set(arg)
 
-	def set(self, arg):
+	def __set(self, arg):
 		if isinstance(arg, Cell):
-			self.set(arg.toString())
+			self.__set(arg.toString())
 			return
 		if not isinstance(arg, str):
 			die("Cell::set() arg is not a string")
 		string = normalizeCellstr(arg.strip("."))
 
 		if not "(" in string:
-			self.body = string
+			self.__body = string
 			return
-		self.body = string[:string.find("(")]
-		while string != self.body + "()":
+		self.__body = string[:string.find("(")]
+		while string != self.__body + "()":
 			argstr = spotToCellstr(string.find("(")+1, string)
 			string = (string[:string.find("(")+1] + string[string.find("(")+1+len(argstr):]).replace("(,", "(")
-			self.args.append(Cell(argstr))
+			self.__args.append(Cell(argstr))
 
 	def toString(self):
-		if len(self.args) == 0:
-			return normalizeCellstr(self.body)
+		if len(self.__args) == 0:
+			return normalizeCellstr(self.__body)
 		else:
-			tmp = self.body + "("
-			for arg in self.args:
+			tmp = self.__body + "("
+			for arg in self.__args:
 				tmp += arg.toString() + ","
 			tmp = tmp.strip(",") + ")"
 			return normalizeCellstr(tmp)
 
 class SubRule:
 	def __init__(self, arg):
-		self.cellstrA = None
-		self.cellstrB = None
-		self.sign = None
-		self.set(arg)
+		self.__cellstrA = None
+		self.__cellstrB = None
+		self.__sign = None
+		self.__set(arg)
 
-	def set(self, arg):
+	def __set(self, arg):
 		if not isinstance(arg, str):
 			die("SubRule::set() arg is not a string")
 		args = splitAtSubSigns(arg)
-		self.cellstrA = args[0]
-		self.cellstrB = args[1].strip(".")
-		self.sign = arg[len(args[0]):len(arg)-len(args[1])]
+		self.__cellstrA = args[0]
+		self.__cellstrB = args[1].strip(".")
+		self.__sign = arg[len(args[0]):len(arg)-len(args[1])]
 
-	def insertArgs(self, string, args):
+	def __insertArgs(self, string, args):
 		for arg in args:
 			string = substituteCellstr(string, -1, "{" + arg + "}", args[arg])
 		return string
@@ -315,28 +290,28 @@ class SubRule:
 		else:
 			occurence = -1
 
-		if self.sign == "<-":
-			tmp = substituteCellstr(relrulestr, occurence, self.insertArgs(self.cellstrB, args), self.insertArgs(self.cellstrA, args))
-		elif self.sign == "->":
-			tmp = substituteCellstr(relrulestr, occurence, self.insertArgs(self.cellstrA, args), self.insertArgs(self.cellstrB, args))
+		if self.__sign == "<-":
+			tmp = substituteCellstr(relrulestr, occurence, self.__insertArgs(self.__cellstrB, args), self.__insertArgs(self.__cellstrA, args))
+		elif self.__sign == "->":
+			tmp = substituteCellstr(relrulestr, occurence, self.__insertArgs(self.__cellstrA, args), self.__insertArgs(self.__cellstrB, args))
 		off("substitute")
 		return tmp
 
 	def toString(self):
-		return self.cellstrA + self.sign + self.cellstrB + "."
+		return self.__cellstrA + self.__sign + self.__cellstrB + "."
 
 class RelRule:
 	def __init__(self, arg):
-		self.cell = None
-		self.set(arg)
+		self.__cell = None
+		self.__set(arg)
 
-	def set(self, arg):
+	def __set(self, arg):
 		if isinstance(arg, Cell):
 			set(arg.toString())
 			return
 		if not isinstance(arg, str):
 			die("RelRule::set() arg is not a string")
-		self.cell = Cell(arg.strip("."))
+		self.__cell = Cell(arg.strip("."))
 
 	def toString(self):
-		return self.cell.toString() + "."
+		return self.__cell.toString() + "."
