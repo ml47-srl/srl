@@ -3,8 +3,24 @@
 import sys
 import os
 
+DEBUG=False
+
+debug_amount=0
+
+def on(string):
+	global debug_amount
+	if DEBUG:
+		print("DEB:" + "\t" * debug_amount + string)
+		debug_amount += 1
+
+def off(string):
+	global debug_amount
+	if DEBUG:
+		print("DEB:" + "\t" * (debug_amount-1) + "/" + string)
+		debug_amount -= 1
+
 def getSubSigns():
-	return ["<->", "->", "<-"] # the order is important
+	return ["->", "<-"] # the order is important
 
 def containsSubSigns(string):
 	for sign in getSubSigns():
@@ -20,7 +36,7 @@ def splitAtSubSigns(string):
 	return None
 
 def getCellEndSigns():
-	return [",", ".", ")"]
+	return [",", ".", ")"] # add "(" ?
 
 def getCellBeginSigns():
 	return [",", "("]
@@ -33,6 +49,7 @@ def normalizeCellstr(string):
 	return string.replace("\t", "").replace(" ", "").replace("\n", "")
 
 def spotToCellstr(spot, string):
+	on("spotToCellstr(" + str(spot) + ", '" + string + "')")
 	cellname = ""
 	openparens = 0
 	while True:
@@ -43,28 +60,93 @@ def spotToCellstr(spot, string):
 		cellname += string[spot]
 		spot += 1
 		if len(string) < spot+1:
+			off("spotToCellstr")
 			return cellname
 		elif openparens == 0 and (string[spot] in getCellEndSigns()):
+			off("spotToCellstr")
 			return cellname
 
+def substituteCall(string, occurence, a, b):
+	on("substituteCall('" + string + "', " + str(occurence) + ", '" + a + "', '" + b + "')")
+	if not isinstance(string, str):
+		die("substituteCall(): string is not str")
+	if occurence == -1:
+		while True: # done pretty shitty
+			cspots = getCspotsForCellstrInCellstr(a, string)
+			if len(cspots) == 0:
+				break
+			string = string[:cspots[0]] + b + string[cspots[0]+len(b)+1:]
+	else:
+		cspots = getCspotsForCellstrInCellstr(a, string)
+		if len(cspots)-1 < occurence:
+			die("substituteCall(): Can't do it! its too far")
+		cspot = cspots[occurence]
+		string = string[:cspot] + b + string[cspot+1:]
+	off("substituteCall")
+	return string
+
 def cspotToSpot(cspot, string):
+	on("cspotToSpot(" + str(cspot) + ", '" + string + "')")
+	if not isinstance(string, str):
+		die("cspotToSpot(): string is not str")
 	cells=0
 	for i in range(len(string)):
 		if cells == cspot:
+			off("cspotToSpot")
 			return i
 		if string[i] in getCellBeginSigns():
 			cells += 1
+	off("cspotToSpot (shit)")
 
 def spotToCspot(spot, string):
+	on("spotToCspot(" + str(spot) + ", '" + string + "')")
+	if not isinstance(string, str):
+		die("spotToSpot(): string is not str")
 	cells=0
 	for i in range(len(string)):
 		if i == spot:
+			off("spotToCspot")
 			return cells
 		if string[i] in getCellBeginSigns():
 			cells += 1
+	off("spotToCspot (shit)")
 
 def cspotToCellstr(cspot, string):
-	return spotToCellstr(cspotToSpot(cspot, string), string)
+	on("cspotToCellstr(" + str(cspot) + ", '" + string + "')")
+	if not isinstance(string, str):
+		die("cspotToCellstr(): string is not str")
+	tmp = spotToCellstr(cspotToSpot(cspot, string), string)
+	off("cspotToCellstr")
+	return tmp
+
+def getSpotsForCellstrInCellstr(subject, cellstr):
+	on("getSpotsForCellstrInCellstr('" + subject + "', '" + cellstr + "')")
+	tmp=list()
+	shift=0
+	while True:
+		spot = cellstr.find(subject)
+		if spot == -1:
+			break
+		thisshift = spot+len(subject)
+		if (spot == 0 or (cellstr[spot-1] in getCellBeginSigns())):
+			if (cellstr[thisshift] in getCellEndSigns()):
+				tmp.append(spot+shift)
+		shift += thisshift
+		cellstr = cellstr[thisshift:]
+	off("getSpotsForCellstrInCellstr")
+	return tmp
+
+def getCspotsForCellstrInCellstr(subject, cellstr):
+	on("getCspotsForCellstrInCellstr('" + subject + "', '" + cellstr + "')")
+	if not isinstance(subject, str):
+		die("getCspotsForCellstrInCellstr(): subject is not str")
+	if not isinstance(cellstr, str):
+		die("getCspotsForCellstrInCellstr(): cellstr is not str")
+	tmp = getSpotsForCellstrInCellstr(subject, cellstr)
+	for i in range(len(tmp)):
+		tmp[i] = spotToCspot(tmp[i], cellstr)
+	off("getCspotsForCellstrInCellstr")
+	return tmp
 
 class SRLSystem:
 	def __init__(self):
@@ -72,14 +154,23 @@ class SRLSystem:
 		self.relrules=list() # rules like a(b). (relation rules)
 		self.importedfiles=list()
 
-	def tryToApplySubstitution(self, sub):
-		for subrule in self.subrules:
-			if subrule.allowsSubstitution(sub):
-				self.__applySubstitution(sub)
-				return
+	def applySubstitution(self, relruleID, subruleID, string):
+		on("applySubstitution")
+		relrulestr = self.relrules[relruleID].toString()
 
-	def __applySubstitution(self, sub):
-		self.__addRulestr(sub.getNewRulestr())
+		subrule = self.subrules[subruleID]
+
+		args = dict()
+		if string != "":
+			argsstrs = string.split("?")
+			for argstr in argsstrs:
+				argsOfArgs = argstr.split("=")
+				if len(argsOfArgs) != 2:
+					die("SRLSystem::applySubstitution(): wrong argsOfArgs size (" + str(len(argsOfArgs)) + ") @ " + str(argsOfArgs))
+				args[argsOfArgs[0]] = argsOfArgs[1]
+		
+		self.__addRulestr(subrule.substitute(relrulestr, args))
+		off("applySubstitution")
 
 	def loadFromFile(self, filename):
 		self.__addRulestrsByFile(filename, sys.path[0])
@@ -190,8 +281,8 @@ class Cell:
 
 class SubRule:
 	def __init__(self, arg):
-		self.cellA = None
-		self.cellB = None
+		self.cellstrA = None
+		self.cellstrB = None
 		self.sign = None
 		self.set(arg)
 
@@ -199,15 +290,31 @@ class SubRule:
 		if not isinstance(arg, str):
 			die("SubRule::set() arg is not a string")
 		args = splitAtSubSigns(arg)
-		self.cellA = Cell(args[0])
-		self.cellB = Cell(args[1].strip("."))
-		self.sign = arg[len(args[0]):len(arg)-len(args[1])] # unsure
+		self.cellstrA = args[0]
+		self.cellstrB = args[1].strip(".")
+		self.sign = arg[len(args[0]):len(arg)-len(args[1])]
 
-	def allowsSubstitution(self, sub):
-		return False
+	def insertArgs(self, string, args):
+		for arg in args:
+			string = substituteCall(string, -1, "{" + arg + "}", args[arg])
+		return string
+
+	def substitute(self, relrulestr, args):
+		on("substitute")
+		if "occur" in args:
+			occurence = int(args["occur"])
+		else:
+			occurence = -1
+
+		if self.sign == "<-":
+			tmp = substituteCall(relrulestr, occurence, self.insertArgs(self.cellstrB, args), self.insertArgs(self.cellstrA, args))
+		elif self.sign == "->":
+			tmp = substituteCall(relrulestr, occurence, self.insertArgs(self.cellstrA, args), self.insertArgs(self.cellstrB, args))
+		off("substitute")
+		return tmp
 
 	def toString(self):
-		return self.cellA.toString() + self.sign + self.cellB.toString() + "."
+		return self.cellstrA + self.sign + self.cellstrB + "."
 
 class RelRule:
 	def __init__(self, arg):

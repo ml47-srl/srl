@@ -5,3 +5,5 @@ from srlcore import *
 system = SRLSystem()
 system.loadFromFile("file.srl")
 print(system.toString())
+system.applySubstitution(0, 0, "")
+print(system.toString())
