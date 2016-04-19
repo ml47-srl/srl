@@ -1,2 +1,2 @@
-{a} -> b.
-fish(peter, fish).
+a -> b.
+foo(a,a).

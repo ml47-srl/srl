@@ -5,5 +5,5 @@ from srlcore import *
 system = SRLSystem()
 system.loadFromFile("file.srl")
 print(system.toString())
-system.applySubstitution(0, 0, "a=peter")
+system.applySubstitution(0, 0, "occur=1")
 print(system.toString())

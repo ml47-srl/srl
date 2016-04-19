@@ -81,7 +81,7 @@ def substituteCellstr(string, occurence, a, b):
 			string = string[:spot] + b + string[spot+len(a):]
 	else:
 		spots = getSpotsForCellstrInCellstr(a, string)
-		if len(cspots)-1 < occurence:
+		if len(spots)-1 < occurence:
 			die("substituteCellstr(): Can't do it! its too far")
 		spot = spots[occurence]
 		string = string[:spot] + b + string[spot+len(a):]
