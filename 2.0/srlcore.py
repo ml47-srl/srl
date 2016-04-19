@@ -178,6 +178,12 @@ class SRLSystem:
 	def loadFromFile(self, filename):
 		self.__addRulestrsByFile(filename, sys.path[0])
 
+	def getChangeableRules(self):
+		return [x for x in self.relrules]
+
+	def getSubRules(self):
+		return [x for x in self.subrules]
+
 	def __addRulestr(self, rulestr):
 		if containsSubSigns(rulestr):
 			self.subrules.append(SubRule(rulestr))
