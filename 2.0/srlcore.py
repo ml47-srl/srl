@@ -132,7 +132,7 @@ def getSpotsForCellstrInCellstr(subject, cellstr):
 			break
 		thisshift = spot+len(subject)
 		if (spot == 0 or (cellstr[spot-1] in getCellBeginSigns())):
-			if (cellstr[thisshift] in getCellEndSigns()):
+			if (len(cellstr) == thisshift or cellstr[thisshift] in getCellEndSigns()):
 				tmp.append(spot+shift)
 		shift += thisshift
 		cellstr = cellstr[thisshift:]
