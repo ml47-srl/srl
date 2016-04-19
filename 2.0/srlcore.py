@@ -4,8 +4,9 @@ import sys
 import os
 
 DEBUG=False
-
 debug_amount=0
+
+bodyAsCell=False
 
 def on(string):
 	global debug_amount
@@ -36,7 +37,11 @@ def splitAtSubSigns(string):
 	return None
 
 def getCellEndSigns():
-	return [",", ".", ")"] # add "(" ? NOTE: This would mean a->b gives us a(c) -> b(c).
+	global bodyAsCell
+	if bodyAsCell:
+		return [",", ".", ")", "("]
+	else:
+		return [",", ".", ")"]
 
 def getCellBeginSigns():
 	return [",", "("]
