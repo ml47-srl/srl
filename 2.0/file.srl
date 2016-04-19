@@ -1,2 +1,4 @@
 a -> b.
+b -> b.
 foo(a,a).
+foo(b,a).
