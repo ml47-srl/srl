@@ -123,13 +123,25 @@ def handleRuleID(relruleID):
 				subruleID -= 1
 				if subruleID < scroll:
 					scroll -= 1
-		elif key == ord('q'):
+		elif key == KEY_END:
 			scroll = 0
 			break
 		elif key == ord('\n'):
-			system.applySubstitution(relruleID, subruleID, "")
-			scroll = 0
-			break
+			argstr = ""
+			while True:
+				renderString(1, 0, "> " + argstr + " ")
+				key = screen.getch()
+				if key == ord('\n'):
+					system.applySubstitution(relruleID, subruleID, argstr)
+					scroll = 0
+					return
+				elif key == KEY_END:
+					scroll = 0
+					break
+				elif key == KEY_BACKSPACE:
+					argstr = argstr[:len(argstr)-1]
+				else:
+					argstr += str(chr(key))
 		else:
 			setMsg("wrong key")
 
@@ -170,7 +182,7 @@ def main():
 				targetRuleIndex -= 1
 				if targetRuleIndex < scroll:
 					scroll -= 1
-		elif key == ord('q'):
+		elif key == KEY_END:
 			running=False
 		elif key == ord('\n'):
 			handleRuleID(targetRuleIndex)
