@@ -27,7 +27,7 @@ def on(string):
 def off(string):
 	global trace_indent
 	if DEBUG:
-		debug("TRACE:" + ("\t" * trace_indent-1) + "/" + string)
+		debug("TRACE:" + ("\t" * (trace_indent-1)) + "/" + string)
 		trace_indent -= 1
 
 def getSubSigns():
