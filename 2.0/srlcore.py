@@ -3,22 +3,32 @@
 import sys
 import os
 
-DEBUG=False
-debug_amount=0
+DEBUG=True
+trace_indent=1
 
 bodyAsCell=False
 
+def toDebugFile(s):
+	f = open("debug", "a")
+	f.write(s + "\n")
+	f.close()
+
+def debug(s):
+	print(s)
+	toDebugFile(s)
+
 def on(string):
-	global debug_amount
+	global trace_indent
+	global DEBUG
 	if DEBUG:
-		print("DEB:" + "\t" * debug_amount + string)
-		debug_amount += 1
+		debug("TRACE:" + ("\t" * trace_indent) + string)
+		trace_indent += 1
 
 def off(string):
-	global debug_amount
+	global trace_indent
 	if DEBUG:
-		print("DEB:" + "\t" * (debug_amount-1) + "/" + string)
-		debug_amount -= 1
+		debug("TRACE:" + ("\t" * trace_indent-1) + "/" + string)
+		trace_indent -= 1
 
 def getSubSigns():
 	return ["->", "<-"] # the order is important
@@ -47,7 +57,7 @@ def getCellBeginSigns():
 	return [",", "("]
 
 def die(arg):
-	print(arg)
+	debug("ERROR: " + arg)
 	sys.exit()
 
 def normalizeCellstr(string):
@@ -193,7 +203,7 @@ class SRLSystem:
 	def __addRulestrsByFile(self, filename, pwd):
 		abspath = os.path.realpath(pwd + "/" + filename)
 		if abspath in self.__importedfiles:
-			print("ignoring multiple import: \"" + abspath + "\"")
+			debug("ignoring multiple import: \"" + abspath + "\"")
 			return
 
 		# load file

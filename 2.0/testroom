@@ -9,14 +9,12 @@ def die(errormsg=""):
 	global screen
 	if screen != None:
 		endwin()
-	print(errormsg)
+	debug("ERROR: " + errormsg)
 	sys.exit()
 
 def setMsg(info):
 	global msg
-	f = open("debug", "a")
-	f.write(info + "\n")
-	f.close()
+	debug("setMsg(\"" + info + "\")")
 	msg=info
 	renderString(maxY()-1, 0, msg)
 
@@ -31,9 +29,9 @@ def clearScreen():
 def renderString(line, x, s):
 	global screen
 	if x > maxX():
-		print("renderString(): x{" + str(x) + "} > maxX(){" + str(maxX()) + "}")
+		debug("renderString(): x{" + str(x) + "} > maxX(){" + str(maxX()) + "}")
 	if line > maxY():
-		print("renderString(): line{" + str(line) + "} > maxY(){" + str(maxY()) + "}")
+		debug("renderString(): line{" + str(line) + "} > maxY(){" + str(maxY()) + "}")
 	try:
 		screen.addstr(line, x, s)
 	except:
@@ -197,6 +195,7 @@ def init():
 	global scroll
 
 	screen = None
+	open("debug", "w").close() # clear Debugfile
 
 	if len(sys.argv) != 2:
 		die("Bad amount of arguments")
@@ -213,7 +212,6 @@ def init():
 	msg=""
 	scroll=0
 	running = True
-	open("debug", "w").close() # clear Debugfile
 
 if __name__ == "__main__":
 	init()
@@ -221,3 +219,4 @@ if __name__ == "__main__":
 		main()
 	finally:
 		endwin()
+		die("The program crashed")

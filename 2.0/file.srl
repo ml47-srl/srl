@@ -1,5 +1,8 @@
 #!testroom
-a -> b.
+
+# -> / <- / a(b). / {a}
+
+{a} -> b.
 b -> b.
 foo(a,a).
 foo(b,a).
