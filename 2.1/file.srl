@@ -1,0 +1,6 @@
+#!testroom
+
+# -> / <- / a(b). / {a}
+
+is-everything({a}): {a} -> {b}.
+is-everything(me).

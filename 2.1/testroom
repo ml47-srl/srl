@@ -1,0 +1,224 @@
+#!/usr/bin/python3 -B
+
+from curses import *
+from srlcore import *
+import sys
+import os
+
+def die(errormsg=""):
+	global screen
+	if screen != None:
+		endwin()
+	debug("ERROR: " + errormsg)
+	sys.exit()
+
+def setMsg(info):
+	global msg
+	debug("setMsg(\"" + info + "\")")
+	msg=info
+	renderString(maxY()-1, 0, msg)
+
+def clearScreen():
+	global screen
+	global msg
+	screen.clear()
+	renderString(maxY()-1, 0, msg)
+
+# main
+
+def renderString(line, x, s):
+	global screen
+	if x > maxX():
+		debug("renderString(): x{" + str(x) + "} > maxX(){" + str(maxX()) + "}")
+	if line > maxY():
+		debug("renderString(): line{" + str(line) + "} > maxY(){" + str(maxY()) + "}")
+	try:
+		screen.addstr(line, x, s)
+	except:
+		die("failed to render:\nstring{" + s + "}\nline{" + str(line) + "}\nx{" + str(x) + "}\nmaxX(){" + str(maxX()) + "}\nmaxY(){" + str(maxY()) + "}")
+
+def maxX():
+	return screen.getmaxyx()[1]
+
+def maxY():
+	return screen.getmaxyx()[0]
+
+def repaintHandleRule(rule, substitutions, subruleID):
+	global scroll
+	clearScreen()
+	folding=0
+	# render handled rule
+	renderString(0, 0, rule.toString()[:min(maxX(), len(rule.toString()))])
+	# if there are substitutions
+	if len(substitutions) > 0:
+		# render the subruleID-marker
+		renderString(subruleID+2-scroll, 0, ">")
+		# render all substitutions (x = index of substitutions)
+			# leave <scroll> substitutions at the beginning out
+			# the last substitution is:
+				# the last possible substitution in substitutions
+				# or the last renderable substitution
+		for x in range(scroll, min(len(substitutions), maxY()-4+scroll)):
+			# render substitution at x + 2(beginning-lines) - scroll(the more you scroll, the more the text goes up)
+			if x == subruleID:
+				renderString(x+2-scroll, 2, substitutions[x])
+				folding = int(len(substitutions[x])/(maxX()-2))
+				if folding > 0:
+					folding += 1
+			else:
+				if len(substitutions[x]) > maxX()-2:
+					renderString(x+2-scroll+folding, 2, substitutions[x][:maxX()-2-3] + "...")
+				else:
+					renderString(x+2-scroll+folding, 2, substitutions[x][:maxX()-2])
+
+def findNextCellIndex(rule, pos):
+	tmp = pos
+	# bis zum nxten bedeutungsvollen Zeichen
+	while rule[tmp] != "," and rule[tmp] != "(" and rule[tmp] != ")":
+		tmp += 1
+		if len(rule)-2 < tmp:
+			return pos
+	# bis zur nxten Cell
+	while rule[tmp] == "," or rule[tmp] == "(" or rule[tmp] == ")" or rule[tmp] == " " or rule[tmp] == ".":
+		tmp += 1
+		if len(rule)-2 < tmp:
+			return pos
+	return tmp
+
+def findPreviousCellIndex(rule, pos):
+	if pos == 0:
+		return pos
+	tmp = pos-1
+	# bis zum Ende der vorherigen Cell
+	while rule[tmp] == "," or rule[tmp] == "(" or rule[tmp] == ")" or rule[tmp] == " ":
+		tmp -= 1
+	# bis zum Anfang der vorherigen Cell
+	while rule[tmp-1] != "," and rule[tmp-1] != "(" and rule[tmp-1] != ")" and rule[tmp-1] != " " and tmp > 0:
+		tmp -= 1
+	return tmp
+
+def handleRuleID(relruleID):
+	global scroll
+	global system
+	global running
+	rule = system.getChangeableRules()[relruleID]
+	subruleID=0
+	scroll = 0
+	while running:
+		substitutions=[x.toString() for x in system.getSubRules()]
+		repaintHandleRule(rule, substitutions, subruleID)
+		key = screen.getch()
+		
+		if str(key) == str(KEY_DOWN):
+			# if subruleID is a valid index for substitutions (for subruleID > -1)
+			if subruleID < len(substitutions)-1:
+				subruleID += 1
+				# if subruleID is under the list of substitutions
+				if subruleID >= maxY()-4-scroll and subruleID+2-scroll == maxY()-2:
+					scroll += 1
+		elif str(key) == str(KEY_UP):
+			if subruleID > 0:
+				subruleID -= 1
+				if subruleID < scroll:
+					scroll -= 1
+		elif key == KEY_END:
+			scroll = 0
+			break
+		elif key == ord('\n'):
+			argstr = ""
+			while True:
+				renderString(1, 0, "> " + argstr + " ")
+				key = screen.getch()
+				if key == ord('\n'):
+					ret = system.applySubstitution(relruleID, subruleID, argstr)
+					if ret != None:
+						setMsg("SubInfo: " + ret)
+					scroll = 0
+					return
+				elif key == KEY_END:
+					scroll = 0
+					break
+				elif key == KEY_BACKSPACE:
+					argstr = argstr[:len(argstr)-1]
+				else:
+					argstr += str(chr(key))
+		else:
+			setMsg("wrong key")
+
+def repaintMain(targetRuleIndex):
+	global scroll
+	global system
+	clearScreen()
+	renderString(targetRuleIndex-scroll, 0, ">")
+	folding=0
+	for x in range(scroll, min(len(system.getChangeableRules()), maxY()-2+scroll)):
+		if x == targetRuleIndex:
+			renderString(x-scroll+folding, 2, system.getChangeableRules()[x].toString())
+			folding = int(len(system.getChangeableRules()[x].toString())/(maxX()-2))
+			if folding > 0:
+				folding = folding+1
+		else:
+			if len(system.getChangeableRules()[x].toString()) > maxX()-2:
+				renderString(x-scroll+folding, 2, system.getChangeableRules()[x].toString()[:maxX()-2-3] + "...")
+			else:
+				renderString(x-scroll+folding, 2, system.getChangeableRules()[x].toString()[:maxX()-2])
+
+def main():
+	global scroll
+	global system
+	global running
+	targetRuleIndex=0
+	while running:
+		repaintMain(targetRuleIndex)
+		key = screen.getch()
+
+		if str(key) == str(KEY_DOWN):
+			if targetRuleIndex < len(system.getChangeableRules())-1:
+				targetRuleIndex += 1
+				if targetRuleIndex > maxY()-scroll-3 and targetRuleIndex - scroll == maxY()-2:
+					scroll += 1
+		elif str(key) == str(KEY_UP):
+			if targetRuleIndex > 0:
+				targetRuleIndex -= 1
+				if targetRuleIndex < scroll:
+					scroll -= 1
+		elif key == KEY_END:
+			running=False
+		elif key == ord('\n'):
+			handleRuleID(targetRuleIndex)
+		else:
+			setMsg("wrong key")
+
+def init():
+	global running
+	global screen
+	global system
+	global msg
+	global scroll
+
+	screen = None
+	open("debug", "w").close() # clear Debugfile
+
+	if len(sys.argv) != 2:
+		die("Bad amount of arguments")
+
+	system = SRLSystem()
+	system.loadFromFile(sys.argv[1])
+
+	# screen init
+	screen = initscr()
+	curs_set(0)
+	screen.keypad(True)
+	noecho()
+
+	msg=""
+	scroll=0
+	running = True
+
+if __name__ == "__main__":
+	init()
+	try:
+		main()
+	finally:
+		endwin()
+		die("The program crashed")
