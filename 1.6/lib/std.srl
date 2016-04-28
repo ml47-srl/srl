@@ -10,3 +10,10 @@ equals(or("true", ?1), "true").
 equals(or("false", "false"), "false").
 implies(and(?1, ?2), ?1).
 implies(?1, or(?1, ?2)).
+
+# types
+
+# types should only be declarated explicitly. (eg. equals(typeof(mycar), "car"). )
+# this means types should not be defined by condition (eg. 'if a string is longer than 500 chars, it is a text')
+
+implies(not(equals(typeof(?1),typeof(?2))),not(equals(?1,?2))).
