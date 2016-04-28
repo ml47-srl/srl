@@ -1,0 +1,14 @@
+# std.srl
+
+equals({a}, {b}): {a} -> {b}.
+equals({a}, {b}): {b} -> {a}.
+
+equals(and(true, true), true).
+equals(and(true, false), false).
+equals(and(false, true), false).
+equals(and(false, false), false).
+
+equals(or(true, true), true).
+equals(or(true, false), true).
+equals(or(false, true), true).
+equals(or(false, false), false).
