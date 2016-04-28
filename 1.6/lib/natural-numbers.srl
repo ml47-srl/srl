@@ -10,7 +10,7 @@ equals(equals(typeof(?1), "number"), is-number(?1)).
 
 equals
 (
-	is-number(?1)
+	is-number(?1),
 	or
 	(
 		and
