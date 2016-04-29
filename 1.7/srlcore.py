@@ -30,22 +30,6 @@ def off(string):
 		debug("TRACE:" + ("\t" * (trace_indent-1)) + "/" + string)
 		trace_indent -= 1
 
-def getSubSigns():
-	return ["->", "<-"] # the order is important
-
-def containsSubSigns(string):
-	for sign in getSubSigns():
-		if sign in string:
-			return True
-	return False
-
-def splitAtSubSigns(string):
-	for sign in getSubSigns():
-		if sign in string:
-			return string.split(sign)
-	die("splitAtSubSigns: NOPE NOPE NOPE")
-	return None
-
 def getCellEndSigns():
 	global bodyAsCell
 	if bodyAsCell:
@@ -167,51 +151,55 @@ class SRLSystem:
 		self.__relrules=list() # rules like a(b). (relation rules)
 		self.__importedfiles=list()
 
-	def applySubstitution(self, relruleID, subruleID, string):
+	def applySubstitution(self, srcruleID, subruleID, string):
 		on("applySubstitution")
-		relrulestr = self.__relrules[relruleID].toString()
+		srcrulestr = self.getSrcRuleByID(srcruleID).toString()
 
 		subrule = self.__subrules[subruleID]
 
 		args = dict()
 		if string != "":
-			argsstrs = string.split("?")
+			argsstrs = string.split(" ")
 			for argstr in argsstrs:
 				argsOfArgs = argstr.split("=")
 				if len(argsOfArgs) != 2:
 					die("SRLSystem::applySubstitution(): wrong argsOfArgs size (" + str(len(argsOfArgs)) + ") @ " + str(argsOfArgs))
 				args[argsOfArgs[0]] = argsOfArgs[1]
 
-		if self.validateCondition(subrule.getConditionStrByArgs(args)):
-			self.__addRulestr(subrule.substitute(relrulestr, args))
-			off("applySubstitution")
-			return
-		else:
-			off("applySubstitution")
-			return "condition \"" + subrule.getConditionStrByArgs(args) + "\" not met"
+		newrulestr, msg = subrule.substitute(srcrulestr, args)
+
+		if newrulestr != None:
+			self.__addRulestr(newrulestr)
+
+		off("applySubstitution")
+		return msg
 
 	def validateCondition(self, conditionstr):
 		if conditionstr == "true":
 			return True
 
-		for relrule in self.__relrules:
-			debug("relrule = " + relrule.toString().strip(".") + ", con=" + conditionstr)
-			if relrule.toString().strip(".") == conditionstr:
+		for srcrule in self.getSrcRules():
+			if srcrule.toString().strip(".") == conditionstr:
 				return True
-
 		return False
 
 	def loadFromFile(self, filename):
 		self.__addRulestrsByFile(filename, sys.path[0])
 
-	def getChangeableRules(self):
-		return [x for x in self.__relrules]
+	def getSrcRules(self):
+		return [x for x in self.__relrules + self.__subrules]
+
+	def getSrcRuleByID(self, id):
+		if id >= 0:
+			return self.__relrules[id]
+		else:
+			return self.__subrules[-id-1]
 
 	def getSubRules(self):
 		return [x for x in self.__subrules]
 
 	def __addRulestr(self, rulestr):
-		if containsSubSigns(rulestr):
+		if rulestr.startswith("<"):
 			self.__subrules.append(SubRule(rulestr))
 		else:
 			self.__relrules.append(RelRule(rulestr))
@@ -291,52 +279,43 @@ class Cell:
 
 class SubRule:
 	def __init__(self, arg):
-		self.__cellstrA = None
-		self.__cellstrB = None
-		self.__sign = None
-		self.__conditionstr = None
+		self.__cell = None
 		self.__set(arg)
 
 	def __set(self, arg):
+		if isinstance(arg, Cell):
+			self.__set(arg.toString())
+			return
 		if not isinstance(arg, str):
 			die("SubRule::set() arg is not a string")
-		if ":" in arg:
-			self.__conditionstr = arg.split(":")[0]
-			arg = arg.split(":")[1]
-		else:
-			self.__conditionstr = "true"
-		args = splitAtSubSigns(arg)
-		self.__cellstrA = args[0]
-		self.__cellstrB = args[1].strip(".")
-		self.__sign = arg[len(args[0]):len(arg)-len(args[1])]
+		self.__cell = Cell(arg.strip("."))
 
 	def __insertArgs(self, string, args):
 		for arg in args:
 			string = substituteCellstr(string, -1, "{" + arg + "}", args[arg])
 		return string
 
-	def substitute(self, relrulestr, args):
+	def substitute(self, srcrulestr, args):
 		on("substitute")
-		if "occur" in args:
-			occurence = int(args["occur"])
-		else:
-			occurence = -1
 
-		if self.__sign == "<-":
-			tmp = substituteCellstr(relrulestr, occurence, self.__insertArgs(self.__cellstrB, args), self.__insertArgs(self.__cellstrA, args))
-		elif self.__sign == "->":
-			tmp = substituteCellstr(relrulestr, occurence, self.__insertArgs(self.__cellstrA, args), self.__insertArgs(self.__cellstrB, args))
+		sys.path.append(sys.path[0] + "/subcells")
+		import subcells
+
+		srcrulestr = self.__insertArgs(srcrulestr, args)
+
+		newrulestr, msg = eval("subcells." + self.getSubcellStr() + "(srcrulestr, args)") # TODO make less horrible
+
 		off("substitute")
-		return tmp
+		return newrulestr, msg
 
-	def getConditionStrByArgs(self, args):
-		return self.__insertArgs(self.__conditionstr, args)
+	def getSubcellStr(self):
+		string = self.toString()
+		string = string[1:string.find("(")-1]
+		debug("getSubcellStr: " + string)
+		return string
 
 	def toString(self):
-		if self.__conditionstr == "true":
-			return self.__cellstrA + self.__sign + self.__cellstrB + "."
-		else:
-			return self.__conditionstr + ":" + self.__cellstrA + self.__sign + self.__cellstrB + "."
+		return self.__cell.toString() + "."
 
 class RelRule:
 	def __init__(self, arg):
@@ -345,7 +324,7 @@ class RelRule:
 
 	def __set(self, arg):
 		if isinstance(arg, Cell):
-			set(arg.toString())
+			self.__set(arg.toString())
 			return
 		if not isinstance(arg, str):
 			die("RelRule::set() arg is not a string")

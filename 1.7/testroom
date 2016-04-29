@@ -101,7 +101,7 @@ def handleRuleID(relruleID):
 	global scroll
 	global system
 	global running
-	rule = system.getChangeableRules()[relruleID]
+	rule = system.getSrcRules()[relruleID]
 	subruleID=0
 	scroll = 0
 	while running:
@@ -151,17 +151,17 @@ def repaintMain(targetRuleIndex):
 	clearScreen()
 	renderString(targetRuleIndex-scroll, 0, ">")
 	folding=0
-	for x in range(scroll, min(len(system.getChangeableRules()), maxY()-2+scroll)):
+	for x in range(scroll, min(len(system.getSrcRules()), maxY()-2+scroll)):
 		if x == targetRuleIndex:
-			renderString(x-scroll+folding, 2, system.getChangeableRules()[x].toString())
-			folding = int(len(system.getChangeableRules()[x].toString())/(maxX()-2))
+			renderString(x-scroll+folding, 2, system.getSrcRules()[x].toString())
+			folding = int(len(system.getSrcRules()[x].toString())/(maxX()-2))
 			if folding > 0:
 				folding = folding+1
 		else:
-			if len(system.getChangeableRules()[x].toString()) > maxX()-2:
-				renderString(x-scroll+folding, 2, system.getChangeableRules()[x].toString()[:maxX()-2-3] + "...")
+			if len(system.getSrcRules()[x].toString()) > maxX()-2:
+				renderString(x-scroll+folding, 2, system.getSrcRules()[x].toString()[:maxX()-2-3] + "...")
 			else:
-				renderString(x-scroll+folding, 2, system.getChangeableRules()[x].toString()[:maxX()-2])
+				renderString(x-scroll+folding, 2, system.getSrcRules()[x].toString()[:maxX()-2])
 
 def main():
 	global scroll
@@ -173,7 +173,7 @@ def main():
 		key = screen.getch()
 
 		if str(key) == str(KEY_DOWN):
-			if targetRuleIndex < len(system.getChangeableRules())-1:
+			if targetRuleIndex < len(system.getSrcRules())-1:
 				targetRuleIndex += 1
 				if targetRuleIndex > maxY()-scroll-3 and targetRuleIndex - scroll == maxY()-2:
 					scroll += 1
