@@ -155,9 +155,9 @@ class SRLSystem:
 		cellstr = cspotToCellstr(cspot, rulestr)
 		msg=""
 
-		if cellstr.startswith("{") and cellstr.endswith("}"): # insert the variable
+		if cellstr.startswith("{"): # insert the variable
 			if isinstance(action, str):
-				self.__addRulestr(substituteCellstr(rulestr -1, cellstr, action))
+				self.__addRulestr(substituteCellstr(rulestr, -1, cellstr, action))
 			else:
 				debug("applySubstitution: {var}: action not str")
 				msg = "SubInfo: ERROR: action not str"

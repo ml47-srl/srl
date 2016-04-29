@@ -1,4 +1,8 @@
 #!testroom
 
-<sub>(a).
+<sub>(c).
 a(b).
+a(true).
+z.
+really(z).
+fasc({1}).
