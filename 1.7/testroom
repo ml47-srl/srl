@@ -9,12 +9,12 @@ def die(errormsg=""):
 	global screen
 	if screen != None:
 		endwin()
-	debug("ERROR: " + errormsg)
+	debug(errormsg)
 	sys.exit()
 
 def setMsg(info):
 	global msg
-	debug("setMsg(\"" + info + "\")")
+	debug("setMsg(" + info + ")")
 	msg=info
 	renderString(maxY()-1, 0, msg)
 
@@ -29,9 +29,9 @@ def clearScreen():
 def renderString(line, x, s):
 	global screen
 	if x > maxX():
-		debug("renderString(): x{" + str(x) + "} > maxX(){" + str(maxX()) + "}")
+		print("renderString(): x{" + str(x) + "} > maxX(){" + str(maxX()) + "}")
 	if line > maxY():
-		debug("renderString(): line{" + str(line) + "} > maxY(){" + str(maxY()) + "}")
+		print("renderString(): line{" + str(line) + "} > maxY(){" + str(maxY()) + "}")
 	try:
 		screen.addstr(line, x, s)
 	except:
@@ -43,33 +43,17 @@ def maxX():
 def maxY():
 	return screen.getmaxyx()[0]
 
-def repaintHandleRule(rule, substitutions, subruleID):
+def repaintHandleRule(rule, targetCellIndex):
 	global scroll
 	clearScreen()
 	folding=0
 	# render handled rule
-	renderString(0, 0, rule.toString()[:min(maxX(), len(rule.toString()))])
-	# if there are substitutions
-	if len(substitutions) > 0:
-		# render the subruleID-marker
-		renderString(subruleID+2-scroll, 0, ">")
-		# render all substitutions (x = index of substitutions)
-			# leave <scroll> substitutions at the beginning out
-			# the last substitution is:
-				# the last possible substitution in substitutions
-				# or the last renderable substitution
-		for x in range(scroll, min(len(substitutions), maxY()-4+scroll)):
-			# render substitution at x + 2(beginning-lines) - scroll(the more you scroll, the more the text goes up)
-			if x == subruleID:
-				renderString(x+2-scroll, 2, substitutions[x])
-				folding = int(len(substitutions[x])/(maxX()-2))
-				if folding > 0:
-					folding += 1
-			else:
-				if len(substitutions[x]) > maxX()-2:
-					renderString(x+2-scroll+folding, 2, substitutions[x][:maxX()-2-3] + "...")
-				else:
-					renderString(x+2-scroll+folding, 2, substitutions[x][:maxX()-2])
+	if targetCellIndex < 20:
+		renderString(0, 20-targetCellIndex, rule.toString()[:targetCellIndex-20+maxX()])
+	else:
+		renderString(0, 0, rule.toString()[targetCellIndex-20:targetCellIndex-20+maxX()])
+	# render targetCellIndex-marker
+	renderString(1, 20, "^")
 
 def findNextCellIndex(rule, pos):
 	tmp = pos
@@ -97,71 +81,60 @@ def findPreviousCellIndex(rule, pos):
 		tmp -= 1
 	return tmp
 
-def handleRuleID(relruleID):
+def handleRule(ruleID):
+	rule = system.getRules()[ruleID]
 	global scroll
-	global system
 	global running
-	rule = system.getSrcRules()[relruleID]
-	subruleID=0
-	scroll = 0
+	targetCellIndex=0
 	while running:
-		substitutions=[x.toString() for x in system.getSubRules()]
-		repaintHandleRule(rule, substitutions, subruleID)
+		repaintHandleRule(rule, targetCellIndex)
 		key = screen.getch()
 		
-		if str(key) == str(KEY_DOWN):
-			# if subruleID is a valid index for substitutions (for subruleID > -1)
-			if subruleID < len(substitutions)-1:
-				subruleID += 1
-				# if subruleID is under the list of substitutions
-				if subruleID >= maxY()-4-scroll and subruleID+2-scroll == maxY()-2:
-					scroll += 1
-		elif str(key) == str(KEY_UP):
-			if subruleID > 0:
-				subruleID -= 1
-				if subruleID < scroll:
-					scroll -= 1
-		elif key == KEY_END:
+		if str(key) == str(KEY_LEFT):
+				targetCellIndex = findPreviousCellIndex(rule.toString(), targetCellIndex)
+		elif str(key) == str(KEY_RIGHT):
+				targetCellIndex = findNextCellIndex(rule.toString(), targetCellIndex)
+		elif key == ord('q'):
 			scroll = 0
 			break
 		elif key == ord('\n'):
-			argstr = ""
+			newkey="a"
+			string=""
 			while True:
-				renderString(1, 0, "> " + argstr + " ")
-				key = screen.getch()
-				if key == ord('\n'):
-					ret = system.applySubstitution(relruleID, subruleID, argstr)
-					if ret != None:
-						setMsg("SubInfo: " + ret)
-					scroll = 0
-					return
-				elif key == KEY_END:
-					scroll = 0
-					break
-				elif key == KEY_BACKSPACE:
-					argstr = argstr[:len(argstr)-1]
-				else:
-					argstr += str(chr(key))
+				while newkey != ord("\n"):
+					newkey=screen.getch()
+					if str(newkey) == str(KEY_BACKSPACE):
+						string = string[:len(string)-1]
+					else:
+						try:
+							string += chr(newkey)
+						except:
+							setMsg("invalid key")
+					renderString(2, 2, " "*(maxX()-2))
+					renderString(2, 2, string)
+				break
+			system.applySubstitution(ruleID, spotToCspot(targetCellIndex, rule.toString()), string.strip())
+			scroll = 0
+			break
 		else:
 			setMsg("wrong key")
 
 def repaintMain(targetRuleIndex):
 	global scroll
-	global system
 	clearScreen()
 	renderString(targetRuleIndex-scroll, 0, ">")
 	folding=0
-	for x in range(scroll, min(len(system.getSrcRules()), maxY()-2+scroll)):
+	for x in range(scroll, min(len(system.getRules()), maxY()-2+scroll)):
 		if x == targetRuleIndex:
-			renderString(x-scroll+folding, 2, system.getSrcRules()[x].toString())
-			folding = int(len(system.getSrcRules()[x].toString())/(maxX()-2))
+			renderString(x-scroll+folding, 2, system.getRules()[x].toString())
+			folding = int(len(system.getRules()[x].toString())/(maxX()-2))
 			if folding > 0:
 				folding = folding+1
 		else:
-			if len(system.getSrcRules()[x].toString()) > maxX()-2:
-				renderString(x-scroll+folding, 2, system.getSrcRules()[x].toString()[:maxX()-2-3] + "...")
+			if len(system.getRules()[x].toString()) > maxX()-2:
+				renderString(x-scroll+folding, 2, system.getRules()[x].toString()[:maxX()-2-3] + "...")
 			else:
-				renderString(x-scroll+folding, 2, system.getSrcRules()[x].toString()[:maxX()-2])
+				renderString(x-scroll+folding, 2, system.getRules()[x].toString()[:maxX()-2])
 
 def main():
 	global scroll
@@ -173,7 +146,7 @@ def main():
 		key = screen.getch()
 
 		if str(key) == str(KEY_DOWN):
-			if targetRuleIndex < len(system.getSrcRules())-1:
+			if targetRuleIndex < len(system.getRules())-1:
 				targetRuleIndex += 1
 				if targetRuleIndex > maxY()-scroll-3 and targetRuleIndex - scroll == maxY()-2:
 					scroll += 1
@@ -182,26 +155,26 @@ def main():
 				targetRuleIndex -= 1
 				if targetRuleIndex < scroll:
 					scroll -= 1
-		elif key == KEY_END:
+		elif key == ord('q'):
 			running=False
 		elif key == ord('\n'):
-			handleRuleID(targetRuleIndex)
+			handleRule(targetRuleIndex)
 		else:
 			setMsg("wrong key")
 
+
 def init():
+	global system
 	global running
 	global screen
-	global system
 	global msg
 	global scroll
 
-	screen = None
 	open("debug", "w").close() # clear Debugfile
 
+	screen=None
 	if len(sys.argv) != 2:
 		die("Bad amount of arguments")
-
 	system = SRLSystem()
 	system.loadFromFile(sys.argv[1])
 
@@ -210,6 +183,7 @@ def init():
 	curs_set(0)
 	screen.keypad(True)
 	noecho()
+	# 
 
 	msg=""
 	scroll=0

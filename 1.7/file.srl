@@ -1,12 +1,3 @@
 #!testroom
 
-equals(and(<sub>({a},{b}),<sub>({b},{a})),equals({a},{b})).
-<sub>(equals({a},{b}),<sub>({a},{b})).
-<sub>(equals({a},{b}),equals({b},{a})).
-
-<pipe>.
-equals(a,b).
-
-is-a-fish(a).
-
-<sub>(a,b).
+<sub>(a).
