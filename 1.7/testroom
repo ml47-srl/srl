@@ -217,8 +217,5 @@ def init():
 
 if __name__ == "__main__":
 	init()
-	try:
-		main()
-	finally:
-		endwin()
-		die("The program crashed")
+	main()
+	endwin()

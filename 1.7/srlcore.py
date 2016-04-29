@@ -157,16 +157,16 @@ class SRLSystem:
 
 		subrule = self.__subrules[subruleID]
 
-		args = dict()
+		vars = dict()
 		if string != "":
-			argsstrs = string.split(" ")
-			for argstr in argsstrs:
-				argsOfArgs = argstr.split("=")
-				if len(argsOfArgs) != 2:
-					die("SRLSystem::applySubstitution(): wrong argsOfArgs size (" + str(len(argsOfArgs)) + ") @ " + str(argsOfArgs))
-				args[argsOfArgs[0]] = argsOfArgs[1]
+			varstrs = string.split(" ")
+			for varstr in varstrs:
+				tmp = varstr.split("=")
+				if len(tmp) != 2:
+					die("SRLSystem::applySubstitution(): wrong tmp size (" + str(len(tmp)) + ") @ " + str(tmp))
+				vars[tmp[0]] = tmp[1]
 
-		newrulestr, msg = subrule.substitute(srcrulestr, args)
+		newrulestr, msg = subrule.substitute(srcrulestr, vars)
 
 		if newrulestr != None:
 			self.__addRulestr(newrulestr)
@@ -277,6 +277,9 @@ class Cell:
 			tmp = tmp.strip(",") + ")"
 			return normalizeCellstr(tmp)
 
+	def getArgsStrs(self):
+		return [x.toString() for x in self.__args]
+
 class SubRule:
 	def __init__(self, arg):
 		self.__cell = None
@@ -290,20 +293,22 @@ class SubRule:
 			die("SubRule::set() arg is not a string")
 		self.__cell = Cell(arg.strip("."))
 
-	def __insertArgs(self, string, args):
-		for arg in args:
-			string = substituteCellstr(string, -1, "{" + arg + "}", args[arg])
+	def __insertArgs(self, string, vars):
+		for var in vars:
+			if var.startswith("{") and var.endswith("}"):
+				string = substituteCellstr(string, -1, var, vars[var])
 		return string
 
-	def substitute(self, srcrulestr, args):
+	def substitute(self, srcrulestr, vars):
 		on("substitute")
 
 		sys.path.append(sys.path[0] + "/subcells")
 		import subcells
 
-		srcrulestr = self.__insertArgs(srcrulestr, args)
+		srcrulestr = self.__insertArgs(srcrulestr, vars)
 
-		newrulestr, msg = eval("subcells." + self.getSubcellStr() + "(srcrulestr, args)") # TODO make less horrible
+		argstrs=self.__cell.getArgsStrs()
+		newrulestr, msg = eval("subcells." + self.getSubcellStr() + "(srcrulestr, argstrs, vars)") # TODO make less horrible
 
 		off("substitute")
 		return newrulestr, msg
