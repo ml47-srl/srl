@@ -1,8 +1,6 @@
 #!testroom
 
-<sub>(c).
-a(b).
-a(true).
-z.
-really(z).
-fasc({1}).
+@import("lib/std.srl").
+
+equals(a, b).
+a.

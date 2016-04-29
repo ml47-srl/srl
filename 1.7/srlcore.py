@@ -66,7 +66,7 @@ def spotToCellstr(spot, string):
 			off("spotToCellstr")
 			return cellname
 
-def substituteCellstr(string, cspot, a, b):
+def substituteCellstr(a, b, string, cspot):
 	on("substituteCellstr('" + string + "', " + str(cspot) + ", '" + a + "', '" + b + "')")
 	if not isinstance(string, str):
 		die("substituteCellstr(): string is not str")
@@ -157,7 +157,7 @@ class SRLSystem:
 
 		if cellstr.startswith("{"): # insert the variable
 			if isinstance(action, str):
-				self.__addRulestr(substituteCellstr(rulestr, -1, cellstr, action))
+				self.__addRulestr(substituteCellstr(cellstr, action, rulestr, -1))
 			else:
 				debug("applySubstitution: {var}: action not str")
 				msg = "SubInfo: ERROR: action not str"
@@ -166,14 +166,14 @@ class SRLSystem:
 			funcstr = cellstr[1:cellstr.find("(")-1]
 			args = Cell(cellstr).getArgs()
 			ret, msg = eval("srlfuncs." + funcstr + "(args)") # TODO make less horrible
-			self.__addRulestr(substituteCellstr(rulestr, cspot, cellstr, ret))
+			self.__addRulestr(substituteCellstr(cellstr, ret, rulestr, cspot))
 
 		elif cellstr == "true": # substitute with rule
-			self.__addRulestr(substituteCellstr(rulestr, cspot, cellstr, self.__rules[int(action)].toString()))
+			self.__addRulestr(substituteCellstr(cellstr, self.__rules[int(action)].toString(), rulestr, cspot))
 		else: # is it true?
 			for rule in self.__rules:
 				if rule.toString().strip(".") == cellstr: # yes!
-					self.__addRulestr(substituteCellstr(rulestr, cspot, cellstr, "true"))
+					self.__addRulestr(substituteCellstr(cellstr, "true", rulestr, cspot))
 					break
 
 		off("applySubstitution")

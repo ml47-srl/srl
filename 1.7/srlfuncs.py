@@ -1,7 +1,6 @@
 #!/usr/bin/python3 -B
 
-def sub(args):
-	return "wow", "no error"
+import srlcore
 
-def pipe(args):
-	return "wow, so pipe!", "no pipe error"
+def sub(args): # sub(a, b, str, cspot)
+	return srlcore.substituteCellstr(args[0].toString(), args[1].toString(), args[2].toString(), int(args[3].toString())), None
