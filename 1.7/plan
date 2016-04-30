@@ -1,6 +1,12 @@
 # plan
 
+Current laws:
+1. true <-> any rule
+2. functions can be executed
+3. insertion of variables
+
 Ideas:
+- Anyhow prohibit the use of specific laws in argument-lists (eg. const() / <streq>() should not allow law 1/2)
 - Implementing number cells (1.6: ! or ?)
 
 Unclear:
