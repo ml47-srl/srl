@@ -1,0 +1,12 @@
+# germanProblems
+
+- Operator priority
+	Der Ball ist nicht blau und grün. # ambiguous
+		Der Ball ist nicht(blau und grün).
+		Der Ball ist nicht(blau) und grün.
+- Missing Word Definition
+- Equal words
+	Sie == Sie
+- Inaccurate personal pronouns
+- too complex grammar (could be simplified)
+	- In my opinion, too many useless cases

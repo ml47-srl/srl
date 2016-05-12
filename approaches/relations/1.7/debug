@@ -1,0 +1,137 @@
+TRACE:	spotToCellstr(6, '<sub>(equals({a},{b}),<sub>({a},{b},{str2},{cs2}),true,{cs1})')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals({a},{b})')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals({b})')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(6, '<sub>(<sub>({a},{b},{str2},{cs2}),true,{cs1})')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(6, '<sub>({a},{b},{str2},{cs2})')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(6, '<sub>({b},{str2},{cs2})')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(6, '<sub>({str2},{cs2})')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(6, '<sub>({cs2})')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(6, '<sub>(true,{cs1})')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(6, '<sub>({cs1})')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(6, '<sub>(equals({a},{b}),equals({b},{a}),true,{cs})')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals({a},{b})')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals({b})')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(6, '<sub>(equals({b},{a}),true,{cs})')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals({b},{a})')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals({a})')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(6, '<sub>(true,{cs})')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(6, '<sub>({cs})')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals(and(true,true),true)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(4, 'and(true,true)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(4, 'and(true)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals(true)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals(and(true,false),false)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(4, 'and(true,false)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(4, 'and(false)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals(false)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals(and(false,true),false)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(4, 'and(false,true)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(4, 'and(true)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals(false)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals(and(false,false),false)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(4, 'and(false,false)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(4, 'and(false)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals(false)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals(or(true,true),true)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(3, 'or(true,true)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(3, 'or(true)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals(true)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals(or(true,false),true)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(3, 'or(true,false)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(3, 'or(false)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals(true)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals(or(false,true),true)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(3, 'or(false,true)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(3, 'or(true)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals(true)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals(or(false,false),false)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(3, 'or(false,false)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(3, 'or(false)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals(false)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals(not(true),false)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(4, 'not(true)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals(false)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals(not(false),true)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(4, 'not(false)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals(true)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals(a,b)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(7, 'equals(b)')
+TRACE:	/spotToCellstr
+setMsg(wrong key)
+setMsg(wrong key)
+setMsg(wrong key)
+setMsg(wrong key)
+setMsg(wrong key)
+setMsg(wrong key)
+setMsg(wrong key)
+setMsg(wrong key)
+setMsg(wrong key)
+setMsg(wrong key)
+setMsg(wrong key)
+setMsg(wrong key)
+setMsg(wrong key)
+setMsg(wrong key)
+setMsg(wrong key)
+setMsg(wrong key)
+setMsg(wrong key)
+setMsg(wrong key)
+setMsg(wrong key)
+setMsg(wrong key)
+setMsg(wrong key)
