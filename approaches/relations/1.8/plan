@@ -6,9 +6,7 @@ Current laws:
 3. insertion of variables
 
 Ideas:
-- Anyhow prohibit the use of specific laws in argument-lists (eg. const() / <streq>() should not allow law 1/2)
 - Implementing number cells (1.6: ! or ?)
 
 Unclear:
-- Can I implement constants or number cells in the current srl 1.7?
 - Can I implement sets?
