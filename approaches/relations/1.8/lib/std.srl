@@ -1,0 +1,17 @@
+# std.srl
+
+<sub>(equals({a},{b}),<sub>({a},{b},{str2},{cs2}),true,{cs1}).
+<sub>(equals({a},{b}),equals({b},{a}),true,{cs}).
+
+equals(and(true, true), true).
+equals(and(true, false), false).
+equals(and(false, true), false).
+equals(and(false, false), false).
+
+equals(or(true, true), true).
+equals(or(true, false), true).
+equals(or(false, true), true).
+equals(or(false, false), false).
+
+equals(not(true), false).
+equals(not(false), true).

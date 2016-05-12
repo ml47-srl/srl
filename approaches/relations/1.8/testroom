@@ -1,0 +1,176 @@
+#!/usr/bin/python3 -B
+
+from curses import *
+from srlcore import *
+import sys
+import os
+
+def die(errormsg=""):
+	global screen
+	if screen != None:
+		endwin()
+	debug(errormsg)
+	sys.exit()
+
+def setMsg(info):
+	global msg
+	debug("setMsg(" + info + ")")
+	msg=info
+	renderString(maxY()-1, 0, msg)
+
+def clearScreen():
+	global screen
+	global msg
+	screen.clear()
+	renderString(maxY()-1, 0, msg)
+
+# main
+
+def renderString(line, x, s):
+	global screen
+	if x > maxX():
+		print("renderString(): x{" + str(x) + "} > maxX(){" + str(maxX()) + "}")
+	if line > maxY():
+		print("renderString(): line{" + str(line) + "} > maxY(){" + str(maxY()) + "}")
+	try:
+		screen.addstr(line, x, s)
+	except:
+		die("failed to render:\nstring{" + s + "}\nline{" + str(line) + "}\nx{" + str(x) + "}\nmaxX(){" + str(maxX()) + "}\nmaxY(){" + str(maxY()) + "}")
+
+def maxX():
+	return screen.getmaxyx()[1]
+
+def maxY():
+	return screen.getmaxyx()[0]
+
+def findNextCellIndex(rule, pos):
+	tmp = pos
+	# bis zum nxten bedeutungsvollen Zeichen
+	while rule[tmp] != "," and rule[tmp] != "(" and rule[tmp] != ")":
+		tmp += 1
+		if len(rule)-2 < tmp:
+			return pos
+	# bis zur nxten Cell
+	while rule[tmp] == "," or rule[tmp] == "(" or rule[tmp] == ")" or rule[tmp] == " " or rule[tmp] == ".":
+		tmp += 1
+		if len(rule)-2 < tmp:
+			return pos
+	return tmp
+
+def findPreviousCellIndex(rule, pos):
+	if pos == 0:
+		return pos
+	tmp = pos-1
+	# bis zum Ende der vorherigen Cell
+	while rule[tmp] == "," or rule[tmp] == "(" or rule[tmp] == ")" or rule[tmp] == " ":
+		tmp -= 1
+	# bis zum Anfang der vorherigen Cell
+	while rule[tmp-1] != "," and rule[tmp-1] != "(" and rule[tmp-1] != ")" and rule[tmp-1] != " " and tmp > 0:
+		tmp -= 1
+	return tmp
+
+def repaintMain(ruleID, cellID, text):
+	global scroll
+	clearScreen()
+	if cellID < 20:
+		renderString(0, 20-cellID, system.getRules()[ruleID].toString()[:cellID-20+maxX()])
+	else:
+		renderString(0, 0, system.getRules()[ruleID].toString()[cellID-20:cellID-20+maxX()])
+
+	renderString(1, 20, "^")
+	renderString(ruleID-scroll+4, 0, ">")
+	folding=0
+	for x in range(scroll, min(len(system.getRules()), maxY()-2+scroll)):
+		if x == ruleID:
+			renderString(x-scroll+folding+4, 2, system.getRules()[x].toString())
+			folding = int(len(system.getRules()[x].toString())/(maxX()-2))
+			if folding > 0:
+				folding = folding+1
+		else:
+			if len(system.getRules()[x].toString()) > maxX()-2:
+				renderString(x-scroll+folding+4, 2, system.getRules()[x].toString()[:maxX()-2-3] + "...")
+			else:
+				renderString(x-scroll+folding+4, 2, system.getRules()[x].toString()[:maxX()-2])
+
+def main():
+	global scroll
+	global system
+	global running
+	ruleID=0
+	cellID=0
+	text=""
+	while running:
+		repaintMain(ruleID, cellID, text)
+		key = screen.getch()
+
+		if str(key) == str(KEY_DOWN):
+			if ruleID < len(system.getRules())-1:
+				cellID = 0
+				ruleID += 1
+				if ruleID > maxY()-scroll-3 and ruleID - scroll == maxY()-2:
+					scroll += 1
+		elif str(key) == str(KEY_UP):
+			if ruleID > 0:
+				cellID = 0
+				ruleID -= 1
+				if ruleID < scroll:
+					scroll -= 1
+		elif str(key) == str(KEY_LEFT):
+			cellID = findPreviousCellIndex(system.getRules()[ruleID].toString(), cellID)
+		elif str(key) == str(KEY_RIGHT):
+			cellID = findNextCellIndex(system.getRules()[ruleID].toString(), cellID)
+		elif key == ord('q'):
+			running=False
+		elif key == ord('\n'):
+			newkey="a"
+			string=""
+			renderString(2, 0, ">>" + " "*(maxX()-2))
+			while True:
+				while newkey != ord("\n"):
+					newkey=screen.getch()
+					if str(newkey) == str(KEY_BACKSPACE):
+						string = string[:len(string)-1]
+					else:
+						try:
+							string += chr(newkey)
+						except:
+							setMsg("invalid key")
+					renderString(2, 0, ">>" + " "*(maxX()-2))
+					renderString(2, 2, string)
+				break
+			system.applySubstitution(ruleID, spotToCspot(cellID, system.getRules()[ruleID].toString()), string.strip())
+			scroll = 0
+		else:
+			setMsg("wrong key")
+
+
+def init():
+	global system
+	global running
+	global screen
+	global msg
+	global scroll
+
+	open("debug", "w").close() # clear Debugfile
+
+	screen=None
+	if len(sys.argv) != 2:
+		die("Bad amount of arguments")
+	system = SRLSystem()
+	system.loadFromFile(sys.argv[1])
+
+	# screen init
+	screen = initscr()
+	curs_set(0)
+	screen.keypad(True)
+	noecho()
+	# 
+
+	msg=""
+	scroll=0
+	running = True
+
+if __name__ == "__main__":
+	init()
+	main()
+	endwin()

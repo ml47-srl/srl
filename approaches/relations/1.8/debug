@@ -110,28 +110,120 @@ TRACE:	spotToCellstr(4, 'not(false)')
 TRACE:	/spotToCellstr
 TRACE:	spotToCellstr(7, 'equals(true)')
 TRACE:	/spotToCellstr
-TRACE:	spotToCellstr(7, 'equals(a,b)')
+TRACE:	spotToCellstr(8, '<streq>(a,b)')
 TRACE:	/spotToCellstr
-TRACE:	spotToCellstr(7, 'equals(b)')
+TRACE:	spotToCellstr(8, '<streq>(b)')
 TRACE:	/spotToCellstr
-setMsg(wrong key)
-setMsg(wrong key)
-setMsg(wrong key)
-setMsg(wrong key)
-setMsg(wrong key)
-setMsg(wrong key)
-setMsg(wrong key)
-setMsg(wrong key)
-setMsg(wrong key)
-setMsg(wrong key)
-setMsg(wrong key)
-setMsg(wrong key)
-setMsg(wrong key)
-setMsg(wrong key)
-setMsg(wrong key)
-setMsg(wrong key)
-setMsg(wrong key)
-setMsg(wrong key)
-setMsg(wrong key)
-setMsg(wrong key)
-setMsg(wrong key)
+TRACE:	spotToCellstr(8, '<streq>(a,{3})')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(8, '<streq>({3})')
+TRACE:	/spotToCellstr
+TRACE:	spotToCellstr(8, 'shmerps(a)')
+TRACE:	/spotToCellstr
+TRACE:	spotToCspot(8, 'shmerps(a).')
+TRACE:	/spotToCspot
+TRACE:	applySubstitution
+TRACE:		cspotToCellstr(1, 'shmerps(a).')
+TRACE:			cspotToSpot(1, 'shmerps(a).')
+TRACE:			/cspotToSpot
+TRACE:			spotToCellstr(8, 'shmerps(a).')
+TRACE:			/spotToCellstr
+TRACE:		/cspotToCellstr
+TRACE:		cspotToSpot(1, 'shmerps(a).')
+TRACE:		/cspotToSpot
+TRACE:		spotToCspot(7, 'shmerps(a).')
+TRACE:		/spotToCspot
+TRACE:		cspotToCellstr(0, 'shmerps(a).')
+TRACE:			cspotToSpot(0, 'shmerps(a).')
+TRACE:			/cspotToSpot
+TRACE:			spotToCellstr(0, 'shmerps(a).')
+TRACE:			/spotToCellstr
+TRACE:		/cspotToCellstr
+TRACE:		cspotToSpot(0, 'shmerps(a).')
+TRACE:		/cspotToSpot
+TRACE:		substituteCellstr('shmerps(a).', 1, 'a', 'true')
+TRACE:			cspotToSpot(1, 'shmerps(a).')
+TRACE:			/cspotToSpot
+TRACE:		/substituteCellstr
+TRACE:		spotToCellstr(8, 'shmerps(true)')
+TRACE:		/spotToCellstr
+TRACE:	/applySubstitution
+TRACE:	spotToCspot(0, 'a.')
+TRACE:	/spotToCspot
+TRACE:	applySubstitution
+TRACE:		cspotToCellstr(0, 'a.')
+TRACE:			cspotToSpot(0, 'a.')
+TRACE:			/cspotToSpot
+TRACE:			spotToCellstr(0, 'a.')
+TRACE:			/spotToCellstr
+TRACE:		/cspotToCellstr
+TRACE:		cspotToSpot(0, 'a.')
+TRACE:		/cspotToSpot
+TRACE:		substituteCellstr('a.', 0, 'a', 'true')
+TRACE:			cspotToSpot(0, 'a.')
+TRACE:			/cspotToSpot
+TRACE:		/substituteCellstr
+TRACE:	/applySubstitution
+TRACE:	spotToCspot(8, '<streq>(a,{3}).')
+TRACE:	/spotToCspot
+TRACE:	applySubstitution
+TRACE:		cspotToCellstr(1, '<streq>(a,{3}).')
+TRACE:			cspotToSpot(1, '<streq>(a,{3}).')
+TRACE:			/cspotToSpot
+TRACE:			spotToCellstr(8, '<streq>(a,{3}).')
+TRACE:			/spotToCellstr
+TRACE:		/cspotToCellstr
+TRACE:		cspotToSpot(1, '<streq>(a,{3}).')
+TRACE:		/cspotToSpot
+TRACE:		spotToCspot(7, '<streq>(a,{3}).')
+TRACE:		/spotToCspot
+TRACE:		cspotToCellstr(0, '<streq>(a,{3}).')
+TRACE:			cspotToSpot(0, '<streq>(a,{3}).')
+TRACE:			/cspotToSpot
+TRACE:			spotToCellstr(0, '<streq>(a,{3}).')
+TRACE:			/spotToCellstr
+TRACE:		/cspotToCellstr
+applySubstitution: @nosub prohibits
+TRACE:	/applySubstitution
+TRACE:	spotToCspot(8, '<streq>(a,{3}).')
+TRACE:	/spotToCspot
+TRACE:	applySubstitution
+TRACE:		cspotToCellstr(1, '<streq>(a,{3}).')
+TRACE:			cspotToSpot(1, '<streq>(a,{3}).')
+TRACE:			/cspotToSpot
+TRACE:			spotToCellstr(8, '<streq>(a,{3}).')
+TRACE:			/spotToCellstr
+TRACE:		/cspotToCellstr
+TRACE:		cspotToSpot(1, '<streq>(a,{3}).')
+TRACE:		/cspotToSpot
+TRACE:		spotToCspot(7, '<streq>(a,{3}).')
+TRACE:		/spotToCspot
+TRACE:		cspotToCellstr(0, '<streq>(a,{3}).')
+TRACE:			cspotToSpot(0, '<streq>(a,{3}).')
+TRACE:			/cspotToSpot
+TRACE:			spotToCellstr(0, '<streq>(a,{3}).')
+TRACE:			/spotToCellstr
+TRACE:		/cspotToCellstr
+applySubstitution: @nosub prohibits
+TRACE:	/applySubstitution
+TRACE:	spotToCspot(8, '<streq>(a,{3}).')
+TRACE:	/spotToCspot
+TRACE:	applySubstitution
+TRACE:		cspotToCellstr(1, '<streq>(a,{3}).')
+TRACE:			cspotToSpot(1, '<streq>(a,{3}).')
+TRACE:			/cspotToSpot
+TRACE:			spotToCellstr(8, '<streq>(a,{3}).')
+TRACE:			/spotToCellstr
+TRACE:		/cspotToCellstr
+TRACE:		cspotToSpot(1, '<streq>(a,{3}).')
+TRACE:		/cspotToSpot
+TRACE:		spotToCspot(7, '<streq>(a,{3}).')
+TRACE:		/spotToCspot
+TRACE:		cspotToCellstr(0, '<streq>(a,{3}).')
+TRACE:			cspotToSpot(0, '<streq>(a,{3}).')
+TRACE:			/cspotToSpot
+TRACE:			spotToCellstr(0, '<streq>(a,{3}).')
+TRACE:			/spotToCellstr
+TRACE:		/cspotToCellstr
+applySubstitution: @nosub prohibits
+TRACE:	/applySubstitution
