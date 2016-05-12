@@ -138,7 +138,7 @@ def main():
 					renderString(2, 0, ">>" + " "*(maxX()-2))
 					renderString(2, 2, string)
 				break
-			system.applySubstitution(ruleID, spotToCspot(cellID, system.getRules()[ruleID].toString()), string.strip())
+			setMsg(system.applySubstitution(ruleID, spotToCspot(cellID, system.getRules()[ruleID].toString()), string.strip()))
 			scroll = 0
 		else:
 			setMsg("wrong key")
