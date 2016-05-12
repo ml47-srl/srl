@@ -1,7 +1,11 @@
 # std.srl
 
+# equals
+
 <sub>(equals({a},{b}),<sub>({a},{b},{str2},{cs2}),true,{cs1}).
 <sub>(equals({a},{b}),equals({b},{a}),true,{cs}).
+
+# boolean algebra
 
 equals(and(true, true), true).
 equals(and(true, false), false).
@@ -15,3 +19,13 @@ equals(or(false, false), false).
 
 equals(not(true), false).
 equals(not(false), true).
+
+# const
+
+@nosub(<streq>).
+@nofunc(<streq>).
+
+@nosub(const).
+@nofunc(const).
+
+equals(equals(const({1}), const({2})), <streq>(const({1}), const({2}))).
