@@ -1,0 +1,19 @@
+# std.srl
+
+equals (implies [const true] [all 1]) (equals [all 1] [const true]).
+equals (not [all 1]) (equals [all 1] [const false]).
+equals (and [all 1] [all 2]) (and [all 2] [all 1]).
+equals (and [const true] [const true]) [const true]).
+equals (and [const false] [all 1]) [const false]).
+equals (or [all 1] [all 2]) (or [all 2] [all 1]).
+equals (or [const true] [all 1]) [const true].
+equals (or [const false] [const false]) [const false].
+implies (and [all 1] [all 2]) [all 1].
+implies [all 1] (or [all 1] [all 2]).
+
+# types
+
+# types should only be declarated explicitly. (eg. equals (typeof mycar) [const car]. )
+# this means types should not be defined by condition (eg. 'if a string is longer than 500 chars, it is a text')
+
+implies (not (equals (typeof [all 1]) (typeof [all 2]))) (not (equals [all 1] [all 2])).
