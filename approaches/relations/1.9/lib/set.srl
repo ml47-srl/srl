@@ -1,0 +1,38 @@
+# set.srl
+
+# 0
+equals (equals [const 0] (sizeof [all set]))
+       (equals [const false] (contains [all set] [all member])).
+
+# 1
+equals (equals [const 1] (sizeof [all set]))
+       (equals (equals [all member] [one element])
+               (contains [all set] [all member])).
+
+# tmp1
+equals (tmp1 [all x] [all i])
+       (and (tmp1 [all x] (minus [all i] [const 1]))
+            (not (equals [one [all x]] [one (minus [all i] [const 1])]))).
+
+equals (tmp1 [all x] [const 1]) [const true].
+
+# tmp2
+equals (tmp2 [all x])
+       (and (tmp2 (minus [all x] [const 1]))
+            (tmp1 (minus [all x] [const 1]) (minus [all x] [const 1]))).
+
+equals (tmp2 [const 1]) [const true].
+
+# tmp3
+equals (tmp3 [all element] [all n])
+       (or (equals [all element] (minus [all n] [const 1]))
+           (tmp3 [all element] (minus [all n] [const 1]))).
+
+equals (tmp3 [all element] [const 1]) [const false].
+
+# combined
+and (tmp2 (plus [const 1] [all n]))
+    (equals (equals [all n] (sizeof [all set]))
+    (equals (contains [all set] [all element])
+            (tmp3 [all element] [all n]))).
+
