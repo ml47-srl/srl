@@ -1,0 +1,14 @@
+# minus.srl
+
+[a "a"
+	(implies
+		(and
+			(is-int [v "a" "x"])
+			(is-int [v "a" "y"])
+		)
+		(equals
+			(minus (plus [v "a" "x"] [v "a" "y"]) [v "a" "y"])
+			[v "a" "x"]
+		)
+	)
+].

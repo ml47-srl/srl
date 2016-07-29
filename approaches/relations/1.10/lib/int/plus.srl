@@ -1,9 +1,5 @@
-# int.srl
+# plus.srl
 
-# binary 0-infinity
-
-is-int "0".
-is-int "1".
 commutative plus.
 
 # int + int = int
@@ -17,7 +13,6 @@ commutative plus.
 		)
 	)
 ].
-
 
 # x + 0 = x
 

@@ -1,0 +1,6 @@
+# int.srl
+
+# binary 0-infinity
+
+is-int "0".
+is-int "1".
