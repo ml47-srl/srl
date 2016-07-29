@@ -1,0 +1,39 @@
+# modulo.srl
+
+# x%y = (while (x >= y) x -= y; return x;)
+
+[a "a"
+	(implies
+		(and
+			(and
+				(is-int [v "a" "x"])
+				(is-int [v "a" "y"])
+			)
+			(greater-or-equal [v "a" "x"] [v "a" "x"])
+		)
+		(equals
+			(modulo [v "a" "x"] [v "a" "y"])
+			(modulo (minus [v "a" "x"] [v "a" "y"]) [v "a" "y"])
+		)
+		
+	)
+].
+
+[a "a"
+	(implies
+		(and
+			(and
+				(is-int [v "a" "x"])
+				(is-int [v "a" "y"])
+			)
+			(not (greater-or-equal [v "a" "x"] [v "a" "y"]))
+		)
+		(equals
+			(modulo [v "a" "x"] [v "a" "y"])
+			[v "a" "x"]
+		)
+		
+	)
+].
+
+# (4%3) = 1

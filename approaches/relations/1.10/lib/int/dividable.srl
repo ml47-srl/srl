@@ -1,0 +1,17 @@
+# dividable.srl
+
+[a "a"
+	(implies
+		(and
+			(equals
+				(modulo [v "a" "x"] [v "a" "y"])
+				"0"
+			)
+			(and
+				(is-int [v "a" "x"])
+				(is-int [v "a" "y"])
+			)
+		)
+		(dividable [v "a" "x"] [v "a" "y"])
+	)
+].

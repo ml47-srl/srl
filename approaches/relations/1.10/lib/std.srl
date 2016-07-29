@@ -9,3 +9,16 @@
 		)
 	)
 ].
+
+[a "a"
+	(implies
+		(and
+			(transitive [v "a" "operator"])
+			(and
+				([v "a" "operator"] [v "a" "a"] [v "a" "b"])
+				([v "a" "operator"] [v "a" "b"] [v "a" "c"])
+			)
+		)
+		([v "a" "operator"] [v "a" "a"] [v "a" "c"])
+	)
+].

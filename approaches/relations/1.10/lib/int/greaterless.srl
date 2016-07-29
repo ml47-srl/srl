@@ -1,0 +1,74 @@
+# greaterless.srl
+
+# greater (hardcoded)
+
+transitive greater.
+greater "1" "0".
+
+# x > y -> x+1 > y
+
+[a "a"
+	(implies
+		(and
+			(and
+				(is-int [v "a" "x"])
+				(is-int [v "a" "y"])
+			)
+			(implies
+				(greater [v "a" "x"] [v "a" "y"])
+				(greater (plus [v "a" "x"] "1") [v "a" "y"])
+			)
+		)
+		
+	)
+].
+
+# less < greater
+
+[a "a"
+	(implies
+		(and
+			(is-int [v "a" "x"])
+			(is-int [v "a" "y"])
+		)
+		(equals
+			(less [v "a" "x"] [v "a" "y"])
+			(not
+				(or
+					(greater [v "a" "x"] [v "a" "y"])
+					(equals [v "a" "x"] [v "a" "y"])
+				)
+			)
+		)
+	)
+].
+
+# less-or-equal < greater
+
+[a "a"
+	(implies
+		(and
+			(is-int [v "a" "x"])
+			(is-int [v "a" "y"])
+		)
+		(equals
+			(greater [v "a" "x"] [v "a" "y"])
+			(not (less-or-equal [v "a" "x"] [v "a" "y"]))
+		)
+	)
+].
+
+# greater-or-equal < less
+
+[a "a"
+	(implies
+		(and
+			(is-int [v "a" "x"])
+			(is-int [v "a" "y"])
+		)
+		(equals
+			(less [v "a" "x"] [v "a" "y"])
+			(not (greater-or-equal [v "a" "x"] [v "a" "y"]))
+		)
+	)
+].

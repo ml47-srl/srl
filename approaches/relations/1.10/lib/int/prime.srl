@@ -1,0 +1,18 @@
+# prime.srl
+
+[a "a"
+	(equals
+		(is-prime [v "a" "prime"])
+		[a "b"
+			(not
+				(and
+					(dividable [v "a" "prime"] [v "b" "x"])
+					(and
+						(less [v "b" "x"] [v "a" "prime"])
+						(greater [v "b" "x"] "1")
+					)
+				)
+			)
+		]
+	)
+].
