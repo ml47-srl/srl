@@ -1,0 +1,42 @@
+# bool.srl
+
+# and
+equals (and "true" "true") "true".
+equals (and "true" "false") "false".
+equals (and "false" "true") "false".
+equals (and "false" "false") "false".
+
+# or
+equals (or "true" "true") "true".
+equals (or "true" "false") "true".
+equals (or "false" "true") "true".
+equals (or "false" "false") "false".
+
+# xor
+equals (xor "true" "true") "false".
+equals (xor "true" "false") "true".
+equals (xor "false" "true") "true".
+equals (xor "false" "false") "false".
+
+# not
+equals (not "false") "true".
+equals (not "true") "false".
+
+# implies
+[a "a"
+	(equals
+		(implies "true" [v "a" "b"])
+		(equals "true" [v "a" "b"])
+	)
+].
+
+# bool
+[a "a"
+	(equals
+		(bool [v "a" "b"])
+		(or
+			(equals "true" [v "a" "b"])
+			(equals "false" [v "a" "b"])
+		)
+	)
+].
