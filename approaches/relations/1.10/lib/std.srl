@@ -1,0 +1,11 @@
+# std.srl
+
+[a "a"
+	(equals
+		(commutative [v "a" "operator"])
+		(equals
+			([v "a" "operator"] [v "a" "arg0"] [v "a" "arg1"])
+			([v "a" "operator"] [v "a" "arg1"] [v "a" "arg0"])
+		)
+	)
+].

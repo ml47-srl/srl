@@ -33,7 +33,7 @@ equals (not "true") "false".
 # bool
 [a "a"
 	(equals
-		(bool [v "a" "b"])
+		(is-bool [v "a" "b"])
 		(or
 			(equals "true" [v "a" "b"])
 			(equals "false" [v "a" "b"])

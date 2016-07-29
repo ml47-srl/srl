@@ -1,0 +1,31 @@
+# int.srl
+
+# binary 0-infinity
+
+is-int "0".
+is-int "1".
+commutative plus.
+
+# int + int = int
+
+[a "a"
+	(equals
+		(is-int (plus [v "a" "x"] [v "a" "y"]))
+		(and
+			(is-int [v "a" "x"])
+			(is-int [v "a" "y"])
+		)
+	)
+].
+
+
+# x + 0 = x
+
+[a "a"
+	(implies (is-num [v "a" "num"])
+		(equals
+			[v "a" "num"]
+			(plus "0" [v "a" "num"])
+		)
+	)
+].
