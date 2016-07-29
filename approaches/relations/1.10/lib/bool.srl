@@ -30,7 +30,7 @@ equals (not "true") "false".
 	)
 ].
 
-# bool
+# is-bool
 [a "a"
 	(equals
 		(is-bool [v "a" "b"])
