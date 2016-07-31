@@ -4,3 +4,18 @@
 
 is-int "0".
 is-int "1".
+
+[a "a"
+	(implies
+		(and
+			(greater [v "a" "x"] [v "a" "y"])
+			(and
+				(is-int [v "a" "x"])
+				(is-int [v "a" "y"])
+			)
+		)
+		(not
+			(equals [v "a" "x"] [v "a" "y"])
+		)
+	)
+].
