@@ -82,6 +82,9 @@ fn split_rules(string : String) -> Vec<String> {
 	loop {
 		match string.find(".") {
 			Some(x) => {
+				if x == 0 {
+					panic!("invalid '.'-expression at beginning");
+				}
 				let string_clone = string.clone();
 				let (mut new_rule_string, mut tmp_string) = string_clone.split_at(x+1);
 				string = tmp_string.to_string();
@@ -109,6 +112,18 @@ fn test_split_rules() {
 	x.push("nice".to_string());
 	x.push("good".to_string());
 	assert_eq!(split_rules("wow.nice.good.".to_string()), x);
+}
+
+#[test]
+#[should_panic]
+fn test_split_rules2() {
+	split_rules(".nice.good.".to_string());
+}
+
+#[test]
+#[should_panic]
+fn test_split_rules3() {
+	split_rules("nice..good.".to_string());
 }
 
 impl Database {
