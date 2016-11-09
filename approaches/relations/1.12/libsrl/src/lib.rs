@@ -48,6 +48,20 @@ fn fix_whitespaces(string : &str) -> String {
 			None => { panic!("fix_whitespaces(): string is empty"); }
 		}
 	}
+	// "( " => "("
+	loop {
+		match string.find("( ") {
+			Some(x) => { string.remove(x+1); }
+			None => { break; }
+		}
+	}
+	// " )" => ")"
+	loop {
+		match string.find(" )") {
+			Some(x) => { string.remove(x); }
+			None => { break; }
+		}
+	}
 	string
 }
 
@@ -58,6 +72,8 @@ fn test_fix_whitespaces() {
 	 "), "wow. x".to_string());
 	assert_eq!(fix_whitespaces("abc   "), "abc");
 	assert_eq!(fix_whitespaces("   abc"), "abc");
+	assert_eq!(fix_whitespaces("   ( abc  )"), "(abc)");
+	assert_eq!(fix_whitespaces(" abc def ()  \t ( abc  )"), "abc def () (abc)");
 }
 
 fn find_invalid_char(string : &str) -> Option<i32> {
