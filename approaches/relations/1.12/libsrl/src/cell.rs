@@ -1,6 +1,6 @@
 use std::fmt;
 
-static VALID_SIPMLE_CELL_CHARS : &'static str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_=";
+static VALID_SIMPLE_CELL_CHARS : &'static str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_=";
 
 
 #[derive(PartialEq)]
@@ -36,7 +36,7 @@ impl Cell {
 			return Err(());
 		} else {
 			for chr in string.chars() {
-				if ! VALID_SIPMLE_CELL_CHARS.contains(chr) {
+				if ! VALID_SIMPLE_CELL_CHARS.contains(chr) {
 					panic!("inacceptable char '{}' in SimpleCell", chr);
 				}
 				return Ok(Cell::SimpleCell { string: string.to_string() });
