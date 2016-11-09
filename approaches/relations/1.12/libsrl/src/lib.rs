@@ -8,6 +8,7 @@ use std::fs::File;
 use std::io::Read;
 
 pub struct Database {
+	#[allow(dead_code)]
 	rules : Vec<Cell>
 }
 
@@ -16,13 +17,20 @@ impl Database {
 	fn by_string(string : &str) -> Database {
 		match find_invalid_char(&string) {
 			Some(x) => panic!("Inaccepted characters in string; char_no = {}", x),
-			None => ()
+			None => {}
 		}
 		let string : String = fix_whitespaces(string);
 		let rule_strings = split_rules(string);
 		let mut rules : Vec<Cell> = Vec::new();
 		for rule_string in rule_strings {
-			let tokens : Vec<String> = split_tokens(rule_string);
+			let mut tokens : Vec<String> = split_tokens(rule_string);
+
+			// adding implicit parens
+			if tokens.len() > 1 && tokens[0] != "(" {
+				tokens.insert(0, "(".to_string());
+				tokens.push(")".to_string());
+			}
+
 			match Cell::by_tokens(tokens) {
 				Ok(x) => {
 					rules.push(x);
