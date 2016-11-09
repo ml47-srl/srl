@@ -4,6 +4,7 @@ use std::fs::File;
 use std::io::Read;
 
 static VALID_CHARS : &'static str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ _=().\n\t";
+static VALID_ID_CHARS : &'static str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_=";
 
 pub struct Database {
 	rules : Vec<Cell>
@@ -139,9 +140,47 @@ fn test_split_rules3() {
 }
 
 fn split_tokens(string : &str) -> Vec<String> {
-	let tokens : Vec<String> = Vec::new();
-	// TODO
+	let mut tokens : Vec<String> = Vec::new();
+
+	let mut string : String = string.to_string();
+
+	loop {
+		match string.chars().nth(0) {
+			Some('(') => {
+				string = string.chars().skip(1).collect();
+				tokens.push("(".to_string());
+			},
+			Some(')') => {
+				string = string.chars().skip(1).collect();
+				tokens.push(")".to_string());
+			},
+			Some(x) => {
+				let mut tmp_string : String = String::new();
+				for chr in string.clone().chars() {
+					if chr == ' ' {
+						string = string.chars().skip(tmp_string.len() + 1).collect();
+						tokens.push(tmp_string);
+						break;
+					} else if chr == ')' {
+						string = string.chars().skip(tmp_string.len()).collect();
+						tokens.push(tmp_string);
+						break;
+					} else if VALID_ID_CHARS.contains(chr) {
+						tmp_string.push(chr);
+					} else {
+						panic!("char is not valid for use in ID: {}", chr);
+					}
+				}
+			},
+			None => { break; }
+		}
+	}
 	tokens
+}
+
+#[test]
+fn test_split_tokens() {
+	assert_eq!(split_tokens("(wow good)"), vec!["(".to_string(), "wow".to_string(), "good".to_string(), ")".to_string()]);
 }
 
 impl Database {
