@@ -86,7 +86,7 @@ fn split_rules(string : String) -> Vec<String> {
 					panic!("invalid '.'-expression at beginning");
 				}
 				let string_clone = string.clone();
-				let (mut new_rule_string, mut tmp_string) = string_clone.split_at(x+1);
+				let (new_rule_string, tmp_string) = string_clone.split_at(x+1);
 				string = tmp_string.to_string();
 				let mut new_rule_string : String = new_rule_string.to_string();
 				new_rule_string.pop();
@@ -127,6 +127,7 @@ fn test_split_rules3() {
 }
 
 impl Database {
+	#[allow(dead_code)]
 	fn by_string(string : &str) -> Database {
 		match find_invalid_char(&string) {
 			Some(x) => { panic!("Inaccepted characters in string; char_no = {}", x); }
@@ -141,6 +142,7 @@ impl Database {
 		Database { rules : rules }
 	}
 
+	#[allow(dead_code)]
 	fn by_filename(filename : &str) -> Database {
 		let mut file : File = match File::open(filename) {
 			Ok(file) => file,

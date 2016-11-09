@@ -10,8 +10,8 @@ pub enum Cell {
 }
 
 impl fmt::Debug for Cell {
-	fn fmt(&self, _ : &mut fmt::Formatter) -> fmt::Result {
-		Ok(())
+	fn fmt(&self, f : &mut fmt::Formatter) -> fmt::Result {
+		f.write_str(&self.to_string())
 	}
 }
 
