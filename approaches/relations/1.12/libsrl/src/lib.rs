@@ -30,8 +30,8 @@ fn fix_whitespaces(string : &str) -> String {
 	// "  " => " "
 	loop {
 		match string.find("  ") {
-			Some(x) => { string.remove(x); }
-			None => { break; }
+			Some(x) => { string.remove(x); },
+			None => break
 		}
 	}
 	// "equals a b. " => "equals a b."
@@ -43,7 +43,7 @@ fn fix_whitespaces(string : &str) -> String {
 				}
 				break;
 			}
-			None => { panic!("fix_whitespaces(): string is empty"); }
+			None => panic!("fix_whitespaces(): string is empty")
 		}
 	}
 	// " equals a b." => "equals a b."
@@ -55,21 +55,21 @@ fn fix_whitespaces(string : &str) -> String {
 				}
 				break;
 			}
-			None => { panic!("fix_whitespaces(): string is empty"); }
+			None => panic!("fix_whitespaces(): string is empty")
 		}
 	}
 	// "( " => "("
 	loop {
 		match string.find("( ") {
 			Some(x) => { string.remove(x+1); }
-			None => { break; }
+			None => break
 		}
 	}
 	// " )" => ")"
 	loop {
 		match string.find(" )") {
 			Some(x) => { string.remove(x); }
-			None => { break; }
+			None => break
 		}
 	}
 	string
@@ -181,7 +181,7 @@ fn split_tokens(string : &str) -> Vec<String> {
 					}
 				}
 			},
-			None => { break; }
+			None => break
 		}
 	}
 	tokens
@@ -196,7 +196,7 @@ impl Database {
 	#[allow(dead_code)]
 	fn by_string(string : &str) -> Database {
 		match find_invalid_char(&string) {
-			Some(x) => { panic!("Inaccepted characters in string; char_no = {}", x); }
+			Some(x) => panic!("Inaccepted characters in string; char_no = {}", x),
 			None => ()
 		}
 		let string = fix_whitespaces(string);
@@ -220,12 +220,12 @@ impl Database {
 	fn by_filename(filename : &str) -> Database {
 		let mut file : File = match File::open(filename) {
 			Ok(file) => file,
-			Err(_) => { panic!("failed to open file"); }
+			Err(_) => panic!("failed to open file")
 		};
 		let mut filecontent = String::new();
 		match file.read_to_string(&mut filecontent) {
 			Ok(_) => (),
-			Err(_) => { panic!("failed to read from file"); }
+			Err(_) => panic!("failed to read from file")
 		}
 		Database::by_string(&filecontent)
 	}

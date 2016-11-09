@@ -87,7 +87,7 @@ impl Cell {
 						Ok(x) => {
 							vec.push(x);
 						},
-						_ => { panic!("Cell::by_tokens(): recursive call failed"); }
+						_ => panic!("Cell::by_tokens(): recursive call failed")
 					}
 					index = 0;
 				} else {
