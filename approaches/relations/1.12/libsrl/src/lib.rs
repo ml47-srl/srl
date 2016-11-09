@@ -10,6 +10,15 @@ pub struct Database {
 	rules : Vec<Cell>
 }
 
+fn is_valid_id(string : &str) -> bool {
+	for chr in string.chars() {
+		if ! VALID_ID_CHARS.contains(chr) {
+			return false;
+		}
+	}
+	return true;
+}
+
 fn fix_whitespaces(string : &str) -> String {
 	// '\t', '\n'  => ' '
 	let mut string : String = string.chars().map(|c| {
@@ -154,7 +163,7 @@ fn split_tokens(string : &str) -> Vec<String> {
 				string = string.chars().skip(1).collect();
 				tokens.push(")".to_string());
 			},
-			Some(x) => {
+			Some(_) => {
 				let mut tmp_string : String = String::new();
 				for chr in string.clone().chars() {
 					if chr == ' ' {
