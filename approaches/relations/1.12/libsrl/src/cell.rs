@@ -31,22 +31,22 @@ impl Cell {
 		}
 	}
 
-	pub fn by_string(string : &str) -> Cell {
+	pub fn by_string(string : &str) -> Result<Cell, ()> {
 		if string.starts_with("(") {
-			panic!("Cell::by_string(): TODO for complex cells");
+			return Err(());
 		} else {
 			for chr in string.chars() {
 				if ! VALID_SIPMLE_CELL_CHARS.contains(chr) {
 					panic!("inacceptable char '{}' in SimpleCell", chr);
 				}
-				return Cell::SimpleCell { string: string.to_string() };
+				return Ok(Cell::SimpleCell { string: string.to_string() });
 			}
 		}
-		panic!("Cell::by_string(): TODO");
+		Err(())
 	}
 }
 
 #[test]
 fn test_cell_by_string() {
-	assert_eq!(Cell::SimpleCell { string : "wow".to_string() }, Cell::by_string("wow"));
+	assert_eq!(Cell::SimpleCell { string : "wow".to_string() }, Cell::by_string("wow").unwrap());
 }

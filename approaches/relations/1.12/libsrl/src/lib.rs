@@ -137,7 +137,12 @@ impl Database {
 		let rule_strings = split_rules(string);
 		let mut rules : Vec<Cell> = Vec::new();
 		for rule_string in rule_strings {
-			rules.push(Cell::by_string(&rule_string));
+			rules.push(match Cell::by_string(&rule_string) {
+				Ok(x) => x,
+				Err(_) => {
+					panic!("Database::by_string(): Cell::by_string('{}') failed", rule_string);
+				}
+			});
 		}
 		Database { rules : rules }
 	}
