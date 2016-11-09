@@ -30,8 +30,20 @@ fn fix_whitespaces(string : &str) -> String {
 			Some(x) => {
 				if x == ' ' {
 					string.pop();
-					break;
 				}
+				break;
+			}
+			None => { panic!("fix_whitespaces(): string is empty"); }
+		}
+	}
+	// " equals a b." => "equals a b."
+	loop {
+		match string.chars().nth(0) {
+			Some(x) => {
+				if x == ' ' {
+					string = string.chars().skip(1).collect();
+				}
+				break;
 			}
 			None => { panic!("fix_whitespaces(): string is empty"); }
 		}
@@ -43,7 +55,9 @@ fn fix_whitespaces(string : &str) -> String {
 fn test_fix_whitespaces() {
 	assert_eq!(fix_whitespaces("wow.
 	 x 
-	 "), "wow. x");
+	 "), "wow. x".to_string());
+	assert_eq!(fix_whitespaces("abc   "), "abc");
+	assert_eq!(fix_whitespaces("   abc"), "abc");
 }
 
 fn find_invalid_char(string : &str) -> Option<i32> {
@@ -62,6 +76,41 @@ fn test_find_invalid_char() {
 	assert_eq!(find_invalid_char("wowäsdf"), Some(3));
 }
 
+fn split_rules(string : String) -> Vec<String> {
+	let mut vec : Vec<String> = Vec::new();
+	let mut string : String = string.to_string();
+	loop {
+		match string.find(".") {
+			Some(x) => {
+				let string_clone = string.clone();
+				let (mut new_rule_string, mut tmp_string) = string_clone.split_at(x+1);
+				string = tmp_string.to_string();
+				let mut new_rule_string : String = new_rule_string.to_string();
+				new_rule_string.pop();
+				if ! new_rule_string.is_empty() {
+					vec.push(new_rule_string);
+				}
+			}
+			None => {
+				if ! string.is_empty() {
+					vec.push(string);
+				}
+				break;
+			}
+		};
+	}
+	vec
+}
+
+#[test]
+fn test_split_rules() {
+	let mut x : Vec<String> = Vec::new();
+	x.push("wow".to_string());
+	x.push("nice".to_string());
+	x.push("good".to_string());
+	assert_eq!(split_rules("wow.nice.good.".to_string()), x);
+}
+
 impl Database {
 	fn by_string(string : &str) -> Database {
 		match find_invalid_char(&string) {
@@ -69,6 +118,7 @@ impl Database {
 			None => ()
 		}
 		let string = fix_whitespaces(string);
+		let rule_strings = split_rules(string);
 		let rules : Vec<Cell> = Vec::new();
 		Database { rules : rules }
 	}
