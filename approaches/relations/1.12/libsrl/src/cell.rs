@@ -1,4 +1,5 @@
 use std::fmt;
+use parse::*;
 
 #[derive(PartialEq)]
 pub enum Cell {
@@ -41,7 +42,7 @@ impl Cell {
 		if tokens.len() == 0 {
 			panic!("Cell::by_tokens(): no tokens!");
 		} else if tokens.len() == 1 {
-			if ! ::is_valid_id(&tokens[0]) {
+			if ! is_valid_id(&tokens[0]) {
 				panic!("Cell::by_tokens(): invalid id");
 			}
 
@@ -62,7 +63,7 @@ impl Cell {
 
 			while ! tokens.is_empty() {
 				let token : String = tokens[0].to_string();
-				if ! ::is_valid_id(&token) {
+				if ! is_valid_id(&token) {
 					if token == "(" {
 						parens += 1;
 					}
