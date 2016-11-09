@@ -134,7 +134,10 @@ impl Database {
 		}
 		let string = fix_whitespaces(string);
 		let rule_strings = split_rules(string);
-		let rules : Vec<Cell> = Vec::new();
+		let mut rules : Vec<Cell> = Vec::new();
+		for rule_string in rule_strings {
+			rules.push(Cell::by_string(&rule_string));
+		}
 		Database { rules : rules }
 	}
 
