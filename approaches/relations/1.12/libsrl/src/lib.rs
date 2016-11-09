@@ -204,7 +204,7 @@ impl Database {
 		let mut rules : Vec<Cell> = Vec::new();
 		for rule_string in rule_strings {
 			let tokens : Vec<String> = split_tokens(&rule_string);
-			match Cell::by_tokens(&tokens) {
+			match Cell::by_tokens(tokens) {
 				Ok(x) => {
 					rules.push(x);
 				},

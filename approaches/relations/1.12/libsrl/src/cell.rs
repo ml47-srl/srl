@@ -13,6 +13,14 @@ impl fmt::Debug for Cell {
 }
 
 impl Cell {
+	fn simple(string_arg : String) -> Cell {
+		Cell::SimpleCell { string : string_arg }
+	}
+
+	fn complex(cells_arg : Vec<Cell>) -> Cell {
+		Cell::ComplexCell { cells : cells_arg }
+	}
+
 	pub fn to_string(&self) -> String {
 		match &self {
 			&&Cell::SimpleCell { string : ref x } => x.to_string(),
@@ -28,7 +36,7 @@ impl Cell {
 		}
 	}
 
-	pub fn by_tokens(tokens : &Vec<String>) -> Result<Cell, ()> {
+	pub fn by_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {
 		// if there is only one token => return it as simple cell
 		if tokens.len() == 0 {
 			panic!("Cell::by_tokens(): no tokens!");
@@ -37,9 +45,8 @@ impl Cell {
 				panic!("Cell::by_tokens(): invalid id");
 			}
 
-			return Ok(Cell::SimpleCell { string : tokens[0].to_string() });
+			return Ok(Cell::simple(tokens[0].to_string()));
 		} else {
-			let mut tokens : Vec<String> = tokens.clone();
 			// starts with '('
 			if tokens[0] == "(" {
 				tokens.remove(0);
@@ -76,7 +83,7 @@ impl Cell {
 					for x in subtokens_slice {
 						subtokens.push(x.to_string());
 					}
-					match Cell::by_tokens(&subtokens) {
+					match Cell::by_tokens(subtokens) {
 						Ok(x) => {
 							vec.push(x);
 						},
@@ -87,15 +94,15 @@ impl Cell {
 					index += 1;
 				}
 			}
-			return Ok(Cell::ComplexCell { cells : vec });
+			return Ok(Cell::complex(vec));
 		}
 	}
 }
 
 #[test]
 fn test_cell_by_tokens() {
-	assert_eq!(Cell::SimpleCell { string : "wow".to_string() },
-		Cell::by_tokens(&vec!["wow".to_string()]).unwrap());
-	assert_eq!(Cell::ComplexCell { cells : vec![Cell::SimpleCell { string : "equals".to_string() }, Cell::SimpleCell { string : "a".to_string() }, Cell::SimpleCell { string : "b".to_string()}] },
-		Cell::by_tokens(&vec!["(".to_string(), "equals".to_string(), "a".to_string(), "b".to_string(), ")".to_string()]).unwrap());
+	assert_eq!(Cell::simple("wow".to_string()),
+		Cell::by_tokens(vec!["wow".to_string()]).unwrap());
+	assert_eq!(Cell::complex(vec![Cell::simple("equals".to_string()), Cell::simple("a".to_string()), Cell::simple("b".to_string())]),
+		Cell::by_tokens(vec!["(".to_string(), "equals".to_string(), "a".to_string(), "b".to_string(), ")".to_string()]).unwrap());
 }
