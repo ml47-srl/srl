@@ -72,7 +72,7 @@ fn test_fix_whitespaces() {
 	 "), "wow. x".to_string());
 	assert_eq!(fix_whitespaces("abc   "), "abc");
 	assert_eq!(fix_whitespaces("   abc"), "abc");
-	assert_eq!(fix_whitespaces("   ( abc  )"), "(abc)");
+	assert_eq!(fix_whitespaces(" \n  ( abc  )"), "(abc)");
 	assert_eq!(fix_whitespaces(" abc def ()  \t ( abc  )"), "abc def () (abc)");
 }
 
@@ -116,18 +116,14 @@ fn split_rules(string : String) -> Vec<String> {
 				}
 				break;
 			}
-		};
+		}
 	}
 	vec
 }
 
 #[test]
 fn test_split_rules() {
-	let mut x : Vec<String> = Vec::new();
-	x.push("wow".to_string());
-	x.push("nice".to_string());
-	x.push("good".to_string());
-	assert_eq!(split_rules("wow.nice.good.".to_string()), x);
+	assert_eq!(split_rules("wow.nice.good.".to_string()), vec!["wow".to_string(), "nice".to_string(), "good".to_string()]);
 }
 
 #[test]
@@ -142,6 +138,12 @@ fn test_split_rules3() {
 	split_rules("nice..good.".to_string());
 }
 
+fn split_tokens(string : &str) -> Vec<String> {
+	let tokens : Vec<String> = Vec::new();
+	// TODO
+	tokens
+}
+
 impl Database {
 	#[allow(dead_code)]
 	fn by_string(string : &str) -> Database {
@@ -153,12 +155,15 @@ impl Database {
 		let rule_strings = split_rules(string);
 		let mut rules : Vec<Cell> = Vec::new();
 		for rule_string in rule_strings {
-			rules.push(match Cell::by_string(&rule_string) {
-				Ok(x) => x,
+			let tokens : Vec<String> = split_tokens(&rule_string);
+			match Cell::by_tokens(&tokens) {
+				Ok(x) => {
+					rules.push(x);
+				},
 				Err(_) => {
-					panic!("Database::by_string(): Cell::by_string('{}') failed", rule_string);
+					panic!("Database::by_string(): Cell::by_tokens() failed");
 				}
-			});
+			}
 		}
 		Database { rules : rules }
 	}

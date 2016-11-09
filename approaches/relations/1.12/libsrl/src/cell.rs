@@ -1,8 +1,5 @@
 use std::fmt;
 
-static VALID_SIMPLE_CELL_CHARS : &'static str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_=";
-
-
 #[derive(PartialEq)]
 pub enum Cell {
 	SimpleCell { string : String },
@@ -31,22 +28,13 @@ impl Cell {
 		}
 	}
 
-	pub fn by_string(string : &str) -> Result<Cell, ()> {
-		if string.starts_with("(") {
-			return Err(());
-		} else {
-			for chr in string.chars() {
-				if ! VALID_SIMPLE_CELL_CHARS.contains(chr) {
-					panic!("inacceptable char '{}' in SimpleCell", chr);
-				}
-				return Ok(Cell::SimpleCell { string: string.to_string() });
-			}
-		}
+	pub fn by_tokens(tokens : &Vec<String>) -> Result<Cell, ()> {
+		// TODO
 		Err(())
 	}
 }
 
 #[test]
-fn test_cell_by_string() {
-	assert_eq!(Cell::SimpleCell { string : "wow".to_string() }, Cell::by_string("wow").unwrap());
+fn test_cell_by_tokens() {
+	assert_eq!(Cell::SimpleCell { string : "wow".to_string() }, Cell::by_tokens(&vec!["wow".to_string()]).unwrap());
 }
