@@ -66,17 +66,35 @@ impl Database {
 		Database::by_string(&filecontent)
 	}
 
-	fn apply_equals_change(&mut self, equals_evidence : &EqualsEvidence, target_cell_id : &CellID) -> Option<String> {
-		// TODO
-		None
+	fn apply_equals_change(&mut self, equals_evidence : &EqualsEvidence, target_cell_id : &CellID) -> Result<Cell, String> { // returns and adds rule
+		if target_cell_id.is_valid(&self.rules) {
+			let cell = target_cell_id.get_cell(&self.rules);
+			if equals_evidence.0 == cell {
+				return Ok(target_cell_id.replace_by(&self.rules, equals_evidence.1.clone()));
+			} else if equals_evidence.1 == cell {
+				return Ok(target_cell_id.replace_by(&self.rules, equals_evidence.0.clone()));
+			} else {
+				return Err("wrong member of equals_evidence".to_string());
+			}
+		} else {
+			Err("target_cell_id is invalid".to_string())
+		}
 	}
 
-	fn apply_paradox(&mut self, paradox_evidence : &ParadoxEvidence) -> Option<String> {
+	fn apply_paradox(&mut self, paradox_evidence : &ParadoxEvidence) -> Result<(), String> {
 		println!("The Database is paradox. Something has gone wrong here..");
-		None
+		Ok(())
 	}
 
-	fn evidence_equals(&self, rule_id : &RuleID) -> Result<EqualsEvidence, String> {
+	fn evidence_paradox_equal_and_differ(&self, equals_evidence : &EqualsEvidence, differ_evidence : &DifferenceEvidence) -> Result<ParadoxEvidence, String> {
+		if (equals_evidence.0 == differ_evidence.0 && equals_evidence.1 == differ_evidence.1) || (equals_evidence.0 == differ_evidence.1 && equals_evidence.1 == differ_evidence.0) {
+			Ok(ParadoxEvidence)
+		} else {
+			Err("Database::evidence_paradox_equal_and_differ(): wrong cells".to_string())
+		}
+	}
+
+	fn evidence_equals_by_rule(&self, rule_id : &RuleID) -> Result<EqualsEvidence, String> {
 		if ! rule_id.is_valid(&self.rules) {
 			return Err("rule_id is invalid".to_string());
 		}

@@ -20,11 +20,11 @@ impl fmt::Display for Cell {
 }
 
 impl Cell {
-	fn simple(string_arg : String) -> Cell {
+	pub fn simple(string_arg : String) -> Cell {
 		Cell::SimpleCell { string : string_arg }
 	}
 
-	fn complex(cells_arg : Vec<Cell>) -> Cell {
+	pub fn complex(cells_arg : Vec<Cell>) -> Cell {
 		Cell::ComplexCell { cells : cells_arg }
 	}
 
