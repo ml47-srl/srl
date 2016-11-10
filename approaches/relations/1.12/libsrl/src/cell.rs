@@ -1,13 +1,19 @@
 use std::fmt;
 use parse::*;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 pub enum Cell {
 	SimpleCell { string : String },
 	ComplexCell { cells: Vec<Cell> } 
 }
 
 impl fmt::Debug for Cell {
+	fn fmt(&self, f : &mut fmt::Formatter) -> fmt::Result {
+		f.write_str(&self.to_string())
+	}
+}
+
+impl fmt::Display for Cell {
 	fn fmt(&self, f : &mut fmt::Formatter) -> fmt::Result {
 		f.write_str(&self.to_string())
 	}

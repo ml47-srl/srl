@@ -4,6 +4,15 @@ use parse::*;
 mod cell;
 use cell::Cell;
 
+mod navi;
+use navi::RuleID;
+use navi::CellID;
+
+mod evi;
+use evi::EqualsEvidence;
+use evi::DifferenceEvidence;
+use evi::ParadoxEvidence;
+
 use std::fs::File;
 use std::io::Read;
 
@@ -55,5 +64,35 @@ impl Database {
 			Err(_) => panic!("failed to read from file")
 		}
 		Database::by_string(&filecontent)
+	}
+
+	fn apply_equals_change(&mut self, equals_evidence : &EqualsEvidence, target_cell_id : &CellID) -> Option<String> {
+		// TODO
+		None
+	}
+
+	fn apply_paradox(&mut self, paradox_evidence : &ParadoxEvidence) -> Option<String> {
+		println!("The Database is paradox. Something has gone wrong here..");
+		None
+	}
+
+	fn evidence_equals(&self, rule_id : &RuleID) -> Result<EqualsEvidence, String> {
+		if ! rule_id.is_valid(&self.rules) {
+			return Err("rule_id is invalid".to_string());
+		}
+		let cell = rule_id.get_cell(&self.rules);
+		match cell {
+			Cell::SimpleCell { string : _ } => return Err("rule_id points to simple cell".to_string()),
+			Cell::ComplexCell { cells : cells_out } => {
+				if cells_out.len() != 3 {
+					return Err(format!("rule_id points to cell with {} arguments", cells_out.len()));
+				}
+				if cells_out[0].to_string() == "equals" {
+					return Ok(EqualsEvidence(cells_out[1].clone(), cells_out[2].clone()));
+				} else {
+					return Err(format!("rule_id points to cell which starts with '{}'", cells_out[0]));
+				}
+			}
+		}
 	}
 }
