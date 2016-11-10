@@ -23,7 +23,7 @@ pub struct Database {
 
 impl Database {
 	#[allow(dead_code)]
-	fn by_string(string : &str) -> Database {
+	pub fn by_string(string : &str) -> Database {
 		match find_invalid_char(&string) {
 			Some(x) => panic!("Inaccepted characters in string; char_no = {}", x),
 			None => {}
@@ -53,7 +53,7 @@ impl Database {
 	}
 
 	#[allow(dead_code)]
-	fn by_filename(filename : &str) -> Database {
+	pub fn by_filename(filename : &str) -> Database {
 		let mut file : File = match File::open(filename) {
 			Ok(file) => file,
 			Err(_) => panic!("failed to open file")
@@ -66,7 +66,7 @@ impl Database {
 		Database::by_string(&filecontent)
 	}
 
-	fn apply_equals_change(&mut self, equals_evidence : &EqualsEvidence, target_cell_id : &CellID) -> Result<Cell, String> { // returns and adds rule
+	pub fn apply_equals_change(&mut self, equals_evidence : &EqualsEvidence, target_cell_id : &CellID) -> Result<Cell, String> { // returns and adds rule
 		if target_cell_id.is_valid(&self.rules) {
 			let cell = target_cell_id.get_cell(&self.rules);
 			if equals_evidence.0 == cell {
@@ -81,12 +81,12 @@ impl Database {
 		}
 	}
 
-	fn apply_paradox(&mut self, paradox_evidence : &ParadoxEvidence) -> Result<(), String> {
+	pub fn apply_paradox(&mut self, paradox_evidence : &ParadoxEvidence) -> Result<(), String> {
 		println!("The Database is paradox. Something has gone wrong here..");
 		Ok(())
 	}
 
-	fn evidence_paradox_equal_and_differ(&self, equals_evidence : &EqualsEvidence, differ_evidence : &DifferenceEvidence) -> Result<ParadoxEvidence, String> {
+	pub fn evidence_paradox_equal_and_differ(&self, equals_evidence : &EqualsEvidence, differ_evidence : &DifferenceEvidence) -> Result<ParadoxEvidence, String> {
 		if (equals_evidence.0 == differ_evidence.0 && equals_evidence.1 == differ_evidence.1) || (equals_evidence.0 == differ_evidence.1 && equals_evidence.1 == differ_evidence.0) {
 			Ok(ParadoxEvidence)
 		} else {
@@ -94,7 +94,7 @@ impl Database {
 		}
 	}
 
-	fn evidence_equals_by_rule(&self, rule_id : &RuleID) -> Result<EqualsEvidence, String> {
+	pub fn evidence_equals_by_rule(&self, rule_id : &RuleID) -> Result<EqualsEvidence, String> {
 		if ! rule_id.is_valid(&self.rules) {
 			return Err("rule_id is invalid".to_string());
 		}
