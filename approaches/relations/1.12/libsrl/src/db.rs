@@ -8,12 +8,10 @@ use std::fs::File;
 use std::io::Read;
 
 pub struct Database {
-	#[allow(dead_code)]
 	rules : Vec<Cell>
 }
 
 impl Database {
-	#[allow(dead_code)]
 	pub fn by_string(string : &str) -> Database {
 		match find_invalid_char(&string) {
 			Some(x) => panic!("Inaccepted characters in string; char_no = {}", x),
@@ -35,7 +33,6 @@ impl Database {
 		Database { rules : rules }
 	}
 
-	#[allow(dead_code)]
 	pub fn by_filename(filename : &str) -> Database {
 		let mut file : File = match File::open(filename) {
 			Ok(file) => file,
