@@ -1,6 +1,21 @@
 use std::fmt;
 use parse::*;
 
+fn zero_layer_paren_tokens(mut vec : Vec<String>) -> Vec<String> {
+	while vec[0] == "(" && vec[vec.len()-1] == ")" {
+		vec.pop();
+		vec.remove(0);
+	}
+	vec
+}
+
+fn one_layer_paren_tokens(mut vec : Vec<String>) -> Vec<String> {
+	vec = zero_layer_paren_tokens(vec);
+	vec.insert(0, "(".to_string());
+	vec.push(")".to_string());
+	vec
+}
+
 #[derive(PartialEq, Clone)]
 pub enum Cell {
 	SimpleCell { string : String },
@@ -48,6 +63,8 @@ impl Cell {
 	}
 
 	pub fn by_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {
+		tokens = zero_layer_paren_tokens(tokens);
+
 		// if there is only one token => return it as simple cell
 		if tokens.len() == 0 {
 			panic!("Cell::by_tokens(): no tokens!");
@@ -58,14 +75,6 @@ impl Cell {
 
 			return Ok(Cell::simple(tokens[0].to_string()));
 		} else {
-			// starts with '('
-			if tokens[0] == "(" {
-				tokens.remove(0);
-			}
-			// ends with ')'
-			if tokens[tokens.len()-1] == ")" {
-				tokens.pop();
-			}
 
 			let mut vec : Vec<Cell> = Vec::new();
 			let mut parens = 0;
