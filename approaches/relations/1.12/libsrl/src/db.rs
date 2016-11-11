@@ -1,11 +1,11 @@
 use parse::*;
 use cell::Cell;
-use navi::RuleID;
-use navi::CellID;
-use evi::EqualsEvidence;
-use evi::DifferenceEvidence;
 use std::fs::File;
 use std::io::Read;
+use interface::apply_interface::ApplyInterface;
+use interface::paradox_interface::ParadoxInterface;
+use interface::equals_evi_interface::EqualsEvidenceInterface;
+use interface::difference_evi_interface::DifferenceEvidenceInterface;
 
 pub struct Database {
 	rules : Vec<Cell>
@@ -46,71 +46,20 @@ impl Database {
 		Database::by_string(&filecontent)
 	}
 
-	pub fn apply_equals(&mut self, evi : EqualsEvidence) -> Result<Cell, String> {
-		let result = Cell::complex(vec![Cell::simple_by_str("equals"), evi.0, evi.1]);
-		self.rules.push(result.clone());
-		Ok(result)
+	pub fn apply_interface(&mut self) -> ApplyInterface {
+		ApplyInterface(&mut self.rules)
 	}
 
-	pub fn apply_equals_change(&mut self, equals_evidence : &EqualsEvidence, target_cell_id : &CellID) -> Result<Cell, String> { // returns and adds rule
-		if target_cell_id.is_valid(&self.rules) {
-			let cell = target_cell_id.get_cell(&self.rules);
-			if equals_evidence.0 == cell {
-				let c = target_cell_id.replace_by(&self.rules, equals_evidence.1.clone());
-				self.rules.push(c.clone());
-				return Ok(c);
-			} else if equals_evidence.1 == cell {
-				let c = target_cell_id.replace_by(&self.rules, equals_evidence.0.clone());
-				self.rules.push(c.clone());
-				return Ok(c);
-			} else {
-				return Err("wrong member of equals_evidence".to_string());
-			}
-		} else {
-			Err("target_cell_id is invalid".to_string())
-		}
+	pub fn paradox_interface(&self) -> ParadoxInterface {
+		ParadoxInterface(&self.rules)
 	}
 
-	fn on_paradox(&self) {
-		println!("The Database is paradox. Something has gone wrong here..");
-		panic!("PARADOX!");
+	pub fn equals_evi_interface(&self) -> EqualsEvidenceInterface {
+		EqualsEvidenceInterface(&self.rules)
 	}
 
-	pub fn evidence_paradox_equal_and_differ(&self, equals_evidence : &EqualsEvidence, differ_evidence : &DifferenceEvidence) -> Result<(), String> {
-		if (equals_evidence.0 == differ_evidence.0 && equals_evidence.1 == differ_evidence.1) || (equals_evidence.0 == differ_evidence.1 && equals_evidence.1 == differ_evidence.0) {
-			self.on_paradox();
-			Ok(())
-		} else {
-			Err("Database::evidence_paradox_equal_and_differ(): wrong cells".to_string())
-		}
-	}
-
-	pub fn evidence_equals_by_rule(&self, rule_id : &RuleID) -> Result<EqualsEvidence, String> {
-		if ! rule_id.is_valid(&self.rules) {
-			return Err("rule_id is invalid".to_string());
-		}
-		let cell = rule_id.get_cell(&self.rules);
-		match cell {
-			Cell::SimpleCell { string : _ } => return Err("rule_id points to simple cell".to_string()),
-			Cell::ComplexCell { cells : cells_out } => {
-				if cells_out.len() != 3 {
-					return Err(format!("rule_id points to cell with {} arguments", cells_out.len()));
-				}
-				if cells_out[0].to_string() == "equals" {
-					return Ok(EqualsEvidence(cells_out[1].clone(), cells_out[2].clone()));
-				} else {
-					return Err(format!("rule_id points to cell which starts with '{}'", cells_out[0]));
-				}
-			}
-		}
-	}
-
-	pub fn evidence_equals_same_cell(&self, cell : Cell) -> Result<EqualsEvidence, String> {
-		if cell.is_valid() {
-			Ok(EqualsEvidence(cell.clone(), cell))
-		} else {
-			Err("invalid cell".to_string())
-		}
+	pub fn difference_evi_interface(&self) -> DifferenceEvidenceInterface {
+		DifferenceEvidenceInterface(&self.rules)
 	}
 
 	pub fn count_rules(&self) -> usize
