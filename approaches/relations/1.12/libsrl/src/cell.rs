@@ -76,12 +76,13 @@ impl Cell {
 			return Ok(Cell::simple(tokens[0].to_string()));
 		} else {
 
-			let mut vec : Vec<Cell> = Vec::new();
+			let mut cells : Vec<Cell> = Vec::new();
+			let mut tmp_tokens : Vec<String> = Vec::new();
 			let mut parens = 0;
-			let mut index = 0;
 
 			while ! tokens.is_empty() {
-				let token : String = tokens[0].to_string();
+				let token : String = tokens.remove(0).to_string();
+				tmp_tokens.push(token.clone());
 				if ! is_valid_id(&token) {
 					if token == "(" {
 						parens += 1;
@@ -93,28 +94,16 @@ impl Cell {
 					}
 				}
 				if parens == 0 {
-					let mut subtokens : Vec<String> = Vec::new();
-					let tokens_clone = tokens.clone();
-					let (subtokens_slice, tokens_slice) = tokens_clone.split_at(index + 1);
-					tokens.clear();
-					for x in tokens_slice {
-						tokens.push(x.to_string());
-					}
-					for x in subtokens_slice {
-						subtokens.push(x.to_string());
-					}
-					match Cell::by_tokens(subtokens) {
+					match Cell::by_tokens(tmp_tokens) {
 						Ok(x) => {
-							vec.push(x);
+							cells.push(x);
 						},
 						_ => panic!("Cell::by_tokens(): recursive call failed")
 					}
-					index = 0;
-				} else {
-					index += 1;
+					tmp_tokens = Vec::new();
 				}
 			}
-			return Ok(Cell::complex(vec));
+			return Ok(Cell::complex(cells));
 		}
 	}
 }
