@@ -47,19 +47,19 @@ impl Database {
 	}
 
 	pub fn apply_i(&mut self) -> ApplyInterface {
-		ApplyInterface(&mut self.rules)
+		ApplyInterface::new(&mut self.rules)
 	}
 
 	pub fn paradox_i(&self) -> ParadoxInterface {
-		ParadoxInterface(&self.rules)
+		ParadoxInterface::new(&self.rules)
 	}
 
 	pub fn equals_evi_i(&self) -> EqualsEvidenceInterface {
-		EqualsEvidenceInterface(&self.rules)
+		EqualsEvidenceInterface::new(&self.rules)
 	}
 
 	pub fn differ_evi_i(&self) -> DifferEvidenceInterface {
-		DifferEvidenceInterface(&self.rules)
+		DifferEvidenceInterface::new(&self.rules)
 	}
 
 	pub fn count_rules(&self) -> usize

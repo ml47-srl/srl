@@ -2,9 +2,13 @@ use cell::Cell;
 use evi::EqualsEvidence;
 use navi::RuleID;
 
-pub struct EqualsEvidenceInterface<'a>(pub &'a Vec<Cell>);
+pub struct EqualsEvidenceInterface<'a>(&'a Vec<Cell>);
 
 impl<'a> EqualsEvidenceInterface<'a> {
+	pub fn new(x : &'a Vec<Cell>) -> EqualsEvidenceInterface {
+		EqualsEvidenceInterface(x)
+	}
+
 	pub fn single_cell(&self, cell : Cell) -> Result<EqualsEvidence, String> {
 		if cell.is_valid() {
 			Ok(EqualsEvidence(cell.clone(), cell))

@@ -2,9 +2,13 @@ use cell::Cell;
 use evi::EqualsEvidence;
 use evi::DifferEvidence;
 
-pub struct ParadoxInterface<'a>(pub &'a Vec<Cell>);
+pub struct ParadoxInterface<'a>(&'a Vec<Cell>);
 
 impl<'a> ParadoxInterface<'a> {
+	pub fn new(x : &'a Vec<Cell>) -> ParadoxInterface {
+		ParadoxInterface(x)
+	}
+
 	fn on_paradox(&self) {
 		println!("The Database is paradox. Something has gone wrong here..");
 		panic!("PARADOX!");
