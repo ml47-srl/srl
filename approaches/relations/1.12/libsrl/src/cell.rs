@@ -34,11 +34,11 @@ impl Cell {
 			&&Cell::ComplexCell { cells : ref x } => {
 				let mut s = String::from("(");
 				for i in x {
-					let tmp_string : String = " ".to_string() + &i.to_string() + " ";
+					let tmp_string : String = i.to_string() + " ";
 					s.push_str(&tmp_string);
 				}
 				s.push(')');
-				s
+				s.replace(" )", ")")
 			}
 		}
 	}

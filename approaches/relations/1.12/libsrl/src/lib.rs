@@ -114,4 +114,14 @@ impl Database {
 			}
 		}
 	}
+
+	pub fn count_rules(&self) -> usize
+	{
+		self.rules.len()
+	}
+
+	pub fn get_rule(&self, index : usize) -> Cell
+	{
+		self.rules[index].clone()
+	}
 }
