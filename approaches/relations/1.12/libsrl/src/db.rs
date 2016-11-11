@@ -4,7 +4,6 @@ use navi::RuleID;
 use navi::CellID;
 use evi::EqualsEvidence;
 use evi::DifferenceEvidence;
-use evi::ParadoxEvidence;
 use std::fs::File;
 use std::io::Read;
 
@@ -75,15 +74,15 @@ impl Database {
 		}
 	}
 
-	#[allow(unused_variables)]
-	pub fn apply_paradox(&mut self, paradox_evidence : &ParadoxEvidence) -> Result<(), String> {
+	fn on_paradox(&self) {
 		println!("The Database is paradox. Something has gone wrong here..");
-		Ok(())
+		panic!("PARADOX!");
 	}
 
-	pub fn evidence_paradox_equal_and_differ(&self, equals_evidence : &EqualsEvidence, differ_evidence : &DifferenceEvidence) -> Result<ParadoxEvidence, String> {
+	pub fn evidence_paradox_equal_and_differ(&self, equals_evidence : &EqualsEvidence, differ_evidence : &DifferenceEvidence) -> Result<(), String> {
 		if (equals_evidence.0 == differ_evidence.0 && equals_evidence.1 == differ_evidence.1) || (equals_evidence.0 == differ_evidence.1 && equals_evidence.1 == differ_evidence.0) {
-			Ok(ParadoxEvidence)
+			self.on_paradox();
+			Ok(())
 		} else {
 			Err("Database::evidence_paradox_equal_and_differ(): wrong cells".to_string())
 		}

@@ -2,7 +2,6 @@ use cell::Cell;
 
 pub struct EqualsEvidence(pub Cell, pub Cell);
 pub struct DifferenceEvidence(pub Cell, pub Cell);
-pub struct ParadoxEvidence;
 
 impl PartialEq for EqualsEvidence {
 	fn eq(&self, other : &EqualsEvidence) -> bool {
