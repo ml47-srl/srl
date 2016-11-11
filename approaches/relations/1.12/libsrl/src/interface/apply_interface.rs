@@ -5,7 +5,7 @@ use navi::CellID;
 pub struct ApplyInterface<'a>(pub &'a mut Vec<Cell>);
 
 impl<'a> ApplyInterface<'a> {
-	pub fn create_equals(&mut self, evi : EqualsEvidence) -> Result<Cell, String> {
+	pub fn create_equals_rule(&mut self, evi : EqualsEvidence) -> Result<Cell, String> {
 		let result = Cell::complex(vec![Cell::simple_by_str("equals"), evi.0, evi.1]);
 		self.0.push(result.clone());
 		Ok(result)

@@ -5,7 +5,7 @@ use navi::RuleID;
 pub struct EqualsEvidenceInterface<'a>(pub &'a Vec<Cell>);
 
 impl<'a> EqualsEvidenceInterface<'a> {
-	pub fn by_single_cell(&self, cell : Cell) -> Result<EqualsEvidence, String> {
+	pub fn single_cell(&self, cell : Cell) -> Result<EqualsEvidence, String> {
 		if cell.is_valid() {
 			Ok(EqualsEvidence(cell.clone(), cell))
 		} else {
@@ -13,7 +13,7 @@ impl<'a> EqualsEvidenceInterface<'a> {
 		}
 	}
 
-	pub fn by_equals_rule(&self, rule_id : &RuleID) -> Result<EqualsEvidence, String> {
+	pub fn equals_rule(&self, rule_id : &RuleID) -> Result<EqualsEvidence, String> {
 		if ! rule_id.is_valid(&self.0) {
 			return Err("rule_id is invalid".to_string());
 		}

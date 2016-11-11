@@ -5,7 +5,7 @@ use std::io::Read;
 use interface::apply_interface::ApplyInterface;
 use interface::paradox_interface::ParadoxInterface;
 use interface::equals_evi_interface::EqualsEvidenceInterface;
-use interface::difference_evi_interface::DifferenceEvidenceInterface;
+use interface::differ_evi_interface::DifferEvidenceInterface;
 
 pub struct Database {
 	rules : Vec<Cell>
@@ -46,20 +46,20 @@ impl Database {
 		Database::by_string(&filecontent)
 	}
 
-	pub fn apply_interface(&mut self) -> ApplyInterface {
+	pub fn apply_i(&mut self) -> ApplyInterface {
 		ApplyInterface(&mut self.rules)
 	}
 
-	pub fn paradox_interface(&self) -> ParadoxInterface {
+	pub fn paradox_i(&self) -> ParadoxInterface {
 		ParadoxInterface(&self.rules)
 	}
 
-	pub fn equals_evi_interface(&self) -> EqualsEvidenceInterface {
+	pub fn equals_evi_i(&self) -> EqualsEvidenceInterface {
 		EqualsEvidenceInterface(&self.rules)
 	}
 
-	pub fn difference_evi_interface(&self) -> DifferenceEvidenceInterface {
-		DifferenceEvidenceInterface(&self.rules)
+	pub fn differ_evi_i(&self) -> DifferEvidenceInterface {
+		DifferEvidenceInterface(&self.rules)
 	}
 
 	pub fn count_rules(&self) -> usize

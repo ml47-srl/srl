@@ -7,11 +7,11 @@ use libsrl::cell::Cell;
 #[test]
 fn main() {
 	let mut db = Database::by_string("equals x y.");
-	let evi : EqualsEvidence = match db.equals_evi_interface().by_single_cell(Cell::simple_by_str("a")) {
+	let evi : EqualsEvidence = match db.equals_evi_i().single_cell(Cell::simple_by_str("a")) {
 		Ok(x) => x,
 		Err(y) => panic!(format!("ERR1={}", y))
 	};
-	match db.apply_interface().create_equals(evi) {
+	match db.apply_i().create_equals_rule(evi) {
 		Err(x) => panic!(format!("ERR2={}", x)),
 		Ok(_) => {}
 	}
