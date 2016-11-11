@@ -4,4 +4,7 @@ extern crate libsrl;
 fn main() {
 	assert_eq!("(equals a b)", libsrl::Database::by_string("equals a b.").get_rule(0).to_string());
 	assert_eq!("(equals a b)", libsrl::Database::by_string("(equals a b).").get_rule(0).to_string());
+	assert_eq!("(equals a b)", libsrl::Database::by_string("((equals a b)).").get_rule(0).to_string());
+	assert_eq!("a", libsrl::Database::by_string("(a).").get_rule(0).to_string());
+	assert_eq!("(a b)", libsrl::Database::by_string("(a) b.").get_rule(0).to_string());
 }

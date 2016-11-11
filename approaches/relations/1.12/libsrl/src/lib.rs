@@ -34,7 +34,6 @@ impl Database {
 		for rule_string in rule_strings {
 			let rule_string : String = one_layer_parens(&rule_string);
 			let tokens : Vec<String> = split_tokens(rule_string);
-
 			match Cell::by_tokens(tokens) {
 				Ok(x) => {
 					rules.push(x);
