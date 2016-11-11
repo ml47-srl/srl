@@ -32,21 +32,14 @@ impl Database {
 		let rule_strings = split_rules(string);
 		let mut rules : Vec<Cell> = Vec::new();
 		for rule_string in rule_strings {
-			let mut tokens : Vec<String> = split_tokens(rule_string);
-
-			// adding implicit parens
-			if tokens.len() > 1 && tokens[0] != "(" {
-				tokens.insert(0, "(".to_string());
-				tokens.push(")".to_string());
-			}
+			let rule_string : String = one_layer_parens(&rule_string);
+			let tokens : Vec<String> = split_tokens(rule_string);
 
 			match Cell::by_tokens(tokens) {
 				Ok(x) => {
 					rules.push(x);
 				},
-				Err(_) => {
-					panic!("Database::by_string(): Cell::by_tokens() failed");
-				}
+				Err(_) => panic!("Database::by_string(): Cell::by_tokens() failed")
 			}
 		}
 		Database { rules : rules }

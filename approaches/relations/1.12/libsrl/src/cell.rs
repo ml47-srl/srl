@@ -30,17 +30,21 @@ impl Cell {
 
 	pub fn to_string(&self) -> String {
 		match &self {
-			&&Cell::SimpleCell { string : ref x } => x.to_string(),
-			&&Cell::ComplexCell { cells : ref x } => {
-				let mut s = String::from("(");
-				for i in x {
-					let tmp_string : String = i.to_string() + " ";
-					s.push_str(&tmp_string);
+			&&Cell::SimpleCell { string : ref string_out } => string_out.to_string(),
+			&&Cell::ComplexCell { cells : ref cells_out } => {
+				let mut string = String::new();
+				string.push_str(&cells_out[0].to_string());
+				for cell in cells_out.iter().skip(1) {
+					string.push(' ');
+					string.push_str(&cell.to_string());
 				}
-				s.push(')');
-				s.replace(" )", ")")
+				return one_layer_parens(&string);
 			}
 		}
+	}
+
+	pub fn to_rule_string(&self) -> String {
+		zero_layer_parens(&self.to_string()) + "."
 	}
 
 	pub fn by_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {

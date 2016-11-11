@@ -1,5 +1,78 @@
+use std::cmp::min;
+
 static VALID_CHARS : &'static str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ _=().\n\t";
 static VALID_ID_CHARS : &'static str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_=";
+
+fn count_parens(string : &str) -> i32 {
+	let mut left = 0;
+	let mut right = 0;
+
+	for chr in string.chars() {
+		match chr {
+			'(' => {
+				left += 1;
+			}
+			_ => break
+		}
+	}
+	for chr in string.chars().rev() {
+		match chr {
+			')' => {
+				right += 1;
+			}
+			_ => break
+		}
+	}
+	min(left, right)
+}
+
+#[test]
+fn test_count_parens() {
+	assert_eq!(count_parens("((wow (great)))"), 2);
+	assert_eq!(count_parens("wow"), 0);
+	assert_eq!(count_parens("(wow good)"), 1);
+}
+
+pub fn one_layer_parens(string : &str) -> String {
+	let parens = count_parens(string);
+	let mut string : String = string.to_string();
+	let mut rm_parens = parens-1;
+	while rm_parens > 0 {
+		string.remove(0);
+		string.pop();
+		rm_parens -= 1;
+	}
+	while rm_parens < 0 {
+		string.insert(0, '(');
+		string.push(')');
+		rm_parens += 1;
+	}
+	string
+}
+
+#[test]
+fn test_one_layer_parens() {
+	assert_eq!(&one_layer_parens("(((wow abc)))"), "(wow abc)");
+	assert_eq!(&one_layer_parens("(((wow abc (ok good))))"), "(wow abc (ok good))");
+	assert_eq!(&one_layer_parens("wow abc (ok good)"), "(wow abc (ok good))");
+}
+
+pub fn zero_layer_parens(string : &str) -> String {
+	let mut parens = count_parens(string);
+	let mut string : String = string.to_string();
+	while parens > 0 {
+		string.remove(0);
+		string.pop();
+		parens -= 1;
+	}
+	string
+}
+
+#[test]
+fn test_zero_layer_parens() {
+	assert_eq!(&zero_layer_parens("(((wow abc)))"), "wow abc");
+	assert_eq!(&zero_layer_parens("(((wow abc (ok good))))"), "wow abc (ok good)");
+}
 
 pub fn is_valid_id(string : &str) -> bool {
 	for chr in string.chars() {
