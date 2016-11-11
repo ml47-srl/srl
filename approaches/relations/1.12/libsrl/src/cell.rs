@@ -35,8 +35,16 @@ impl fmt::Display for Cell {
 }
 
 impl Cell {
+	pub fn is_valid(&self) -> bool {
+		true
+	}
+
 	pub fn simple(string_arg : String) -> Cell {
 		Cell::SimpleCell { string : string_arg }
+	}
+
+	pub fn simple_by_str(string_arg : &str) -> Cell {
+		Cell::SimpleCell { string : string_arg.to_string() }
 	}
 
 	pub fn complex(cells_arg : Vec<Cell>) -> Cell {
@@ -73,7 +81,7 @@ impl Cell {
 				panic!("Cell::by_tokens(): invalid id");
 			}
 
-			return Ok(Cell::simple(tokens[0].to_string()));
+			return Ok(Cell::simple(tokens[0].clone()));
 		} else {
 
 			let mut cells : Vec<Cell> = Vec::new();
@@ -106,14 +114,22 @@ impl Cell {
 			return Ok(Cell::complex(cells));
 		}
 	}
+
+	pub fn by_str_tokens(tokens : Vec<&str>) -> Result<Cell, ()> {
+		let mut v : Vec<String> = Vec::new();
+		for token in tokens {
+			v.push(token.to_string());
+		}
+		Cell::by_tokens(v)
+	}
 }
 
 #[test]
 fn test_cell_by_tokens() {
-	assert_eq!(Cell::complex(vec![Cell::simple("a".to_string()), Cell::simple("b".to_string())]),
-		Cell::by_tokens(vec!["(".to_string(), "a".to_string(), ")".to_string(), "b".to_string()]).unwrap());
-	assert_eq!(Cell::simple("wow".to_string()),
-		Cell::by_tokens(vec!["wow".to_string()]).unwrap());
-	assert_eq!(Cell::complex(vec![Cell::simple("equals".to_string()), Cell::simple("a".to_string()), Cell::simple("b".to_string())]),
-		Cell::by_tokens(vec!["(".to_string(), "equals".to_string(), "a".to_string(), "b".to_string(), ")".to_string()]).unwrap());
+	assert_eq!(Cell::complex(vec![Cell::simple_by_str("a"), Cell::simple_by_str("b")]),
+		Cell::by_str_tokens(vec!["(", "a", ")", "b"]).unwrap());
+	assert_eq!(Cell::simple_by_str("wow"),
+		Cell::by_str_tokens(vec!["wow"]).unwrap());
+	assert_eq!(Cell::complex(vec![Cell::simple_by_str("equals"), Cell::simple_by_str("a"), Cell::simple_by_str("b")]),
+		Cell::by_str_tokens(vec!["(", "equals", "a", "b", ")"]).unwrap());
 }

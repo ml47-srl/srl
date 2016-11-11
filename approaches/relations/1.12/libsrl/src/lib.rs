@@ -1,14 +1,14 @@
-mod parse;
+pub mod parse;
 use parse::*;
 
-mod cell;
+pub mod cell;
 use cell::Cell;
 
-mod navi;
+pub mod navi;
 use navi::RuleID;
 use navi::CellID;
 
-mod evi;
+pub mod evi;
 use evi::EqualsEvidence;
 use evi::DifferenceEvidence;
 use evi::ParadoxEvidence;
@@ -58,13 +58,23 @@ impl Database {
 		Database::by_string(&filecontent)
 	}
 
+	pub fn apply_equals(&mut self, evi : EqualsEvidence) -> Result<Cell, String> {
+		let result = Cell::complex(vec![Cell::simple_by_str("equals"), evi.0, evi.1]);
+		self.rules.push(result.clone());
+		Ok(result)
+	}
+
 	pub fn apply_equals_change(&mut self, equals_evidence : &EqualsEvidence, target_cell_id : &CellID) -> Result<Cell, String> { // returns and adds rule
 		if target_cell_id.is_valid(&self.rules) {
 			let cell = target_cell_id.get_cell(&self.rules);
 			if equals_evidence.0 == cell {
-				return Ok(target_cell_id.replace_by(&self.rules, equals_evidence.1.clone()));
+				let c = target_cell_id.replace_by(&self.rules, equals_evidence.1.clone());
+				self.rules.push(c.clone());
+				return Ok(c);
 			} else if equals_evidence.1 == cell {
-				return Ok(target_cell_id.replace_by(&self.rules, equals_evidence.0.clone()));
+				let c = target_cell_id.replace_by(&self.rules, equals_evidence.0.clone());
+				self.rules.push(c.clone());
+				return Ok(c);
 			} else {
 				return Err("wrong member of equals_evidence".to_string());
 			}
@@ -104,6 +114,14 @@ impl Database {
 					return Err(format!("rule_id points to cell which starts with '{}'", cells_out[0]));
 				}
 			}
+		}
+	}
+
+	pub fn evidence_equals_same_cell(&self, cell : Cell) -> Result<EqualsEvidence, String> {
+		if cell.is_valid() {
+			Ok(EqualsEvidence(cell.clone(), cell))
+		} else {
+			Err("invalid cell".to_string())
 		}
 	}
 
