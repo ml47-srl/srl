@@ -121,6 +121,8 @@ impl Cell {
 
 #[test]
 fn test_cell_by_tokens() {
+	assert_eq!(Cell::complex(vec![Cell::simple("a".to_string()), Cell::simple("b".to_string())]),
+		Cell::by_tokens(vec!["(".to_string(), "a".to_string(), ")".to_string(), "b".to_string()]).unwrap());
 	assert_eq!(Cell::simple("wow".to_string()),
 		Cell::by_tokens(vec!["wow".to_string()]).unwrap());
 	assert_eq!(Cell::complex(vec![Cell::simple("equals".to_string()), Cell::simple("a".to_string()), Cell::simple("b".to_string())]),
