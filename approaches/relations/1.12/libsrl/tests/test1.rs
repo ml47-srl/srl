@@ -1,6 +1,6 @@
 extern crate libsrl;
 
-use libsrl::Database;
+use libsrl::db::Database;
 
 #[test]
 fn main() {

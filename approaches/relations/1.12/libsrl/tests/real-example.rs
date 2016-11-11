@@ -1,6 +1,6 @@
 extern crate libsrl;
 
-use libsrl::Database;
+use libsrl::db::Database;
 use libsrl::evi::EqualsEvidence;
 use libsrl::cell::Cell;
 
