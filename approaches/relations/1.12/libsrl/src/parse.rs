@@ -176,7 +176,6 @@ pub fn split_tokens(mut string : String) -> Vec<String> {
 	}
 	if ! tmp_string.is_empty() {
 		tokens.push(tmp_string);
-		tmp_string = String::new();
 	}
 	tokens
 }

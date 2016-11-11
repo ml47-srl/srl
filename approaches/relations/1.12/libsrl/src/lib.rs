@@ -81,6 +81,7 @@ impl Database {
 		}
 	}
 
+	#[allow(unused_variables)]
 	pub fn apply_paradox(&mut self, paradox_evidence : &ParadoxEvidence) -> Result<(), String> {
 		println!("The Database is paradox. Something has gone wrong here..");
 		Ok(())

@@ -44,7 +44,7 @@ impl CellID {
 	pub fn replace_by(&self, rules : &Vec<Cell>, mut cell : Cell) -> Cell {
 		if self.rule_id.is_valid(rules) {
 			let mut indices = self.indices.clone();
-			let mut last_index = 0;
+			let mut last_index;
 
 			while indices.len() > 0 {
 				match indices.pop() {
@@ -73,7 +73,7 @@ impl CellID {
 		let mut cell : Cell = self.rule_id.get_cell(rules); // obtain copy
 		for index in self.indices.clone() {
 			match cell {
-				Cell::SimpleCell { string : string_out } => return false,
+				Cell::SimpleCell { string : _ } => return false,
 				Cell::ComplexCell { cells : cells_out } => {
 					cell = cells_out[index].clone();
 				}
