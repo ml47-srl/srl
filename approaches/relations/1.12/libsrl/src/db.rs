@@ -12,7 +12,7 @@ pub struct Database {
 }
 
 impl Database {
-	pub fn by_string(string : &str) -> Database {
+	pub fn by_string(string : &str) -> Result<Database, String> {
 		match find_invalid_char(&string) {
 			Some(x) => panic!("Inaccepted characters in string; char_no = {}", x),
 			None => {}
@@ -30,18 +30,23 @@ impl Database {
 				Err(_) => panic!("Database::by_string(): Cell::by_tokens() failed")
 			}
 		}
-		Database { rules : rules }
+		for rule in &rules {
+			if ! rule.is_valid() {
+				return Err(format!("rule '{}' is malformed", rule.to_rule_string()));
+			}
+		}
+		Ok(Database { rules : rules })
 	}
 
-	pub fn by_filename(filename : &str) -> Database {
+	pub fn by_filename(filename : &str) -> Result<Database, String> {
 		let mut file : File = match File::open(filename) {
 			Ok(file) => file,
-			Err(_) => panic!("failed to open file")
+			Err(_) => return Err(format!("Cannot open file: '{}'", filename)),
 		};
 		let mut filecontent = String::new();
 		match file.read_to_string(&mut filecontent) {
 			Ok(_) => (),
-			Err(_) => panic!("failed to read from file")
+			Err(_) => return Err(format!("failed to read from file: '{}'", filename))
 		}
 		Database::by_string(&filecontent)
 	}

@@ -6,13 +6,16 @@ use libsrl::cell::Cell;
 
 #[test]
 fn main() {
-	let mut db = Database::by_string("equals x y.");
-	let evi : EqualsEvidence = match db.equals_evi_i().single_cell(Cell::simple_by_str("a")) {
+	let mut db = match Database::by_string("equals x y.") {
 		Ok(x) => x,
 		Err(y) => panic!(format!("ERR1={}", y))
 	};
+	let evi : EqualsEvidence = match db.equals_evi_i().single_cell(Cell::simple_by_str("a")) {
+		Ok(x) => x,
+		Err(y) => panic!(format!("ERR2={}", y))
+	};
 	match db.apply_i().create_equals_rule(evi) {
-		Err(x) => panic!(format!("ERR2={}", x)),
+		Err(x) => panic!(format!("ERR3={}", x)),
 		Ok(_) => {}
 	}
 	assert_eq!(&db.get_rule(1).to_rule_string(), "equals a a.");
