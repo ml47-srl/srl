@@ -48,4 +48,24 @@ impl<'a> DifferEvidenceInterface<'a> {
 			}
 		}
 	}
+
+	pub fn constants(&self, cell1 : Cell, cell2 : Cell) -> Result<DifferEvidence, String> {
+		if ! cell1.is_valid() {
+			return Err("cell1 is invalid".to_string());
+		}
+		if ! cell2.is_valid() {
+			return Err("cell2 is invalid".to_string());
+		}
+		if ! cell1.is_constant() {
+			return Err("cell1 is no constant".to_string());
+		}
+		if ! cell2.is_constant() {
+			return Err("cell2 is no constant".to_string());
+		}
+		if cell1 == cell2 {
+			return Err("cell1 and cell2 are equals".to_string());
+		}
+
+		return Ok(DifferEvidence(cell1, cell2));
+	}
 }

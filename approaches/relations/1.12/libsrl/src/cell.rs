@@ -35,8 +35,31 @@ impl fmt::Display for Cell {
 }
 
 impl Cell {
+	pub fn is_constant(&self) -> bool {
+		match &self {
+			&&Cell::SimpleCell { string : ref string_out } => return string_out.starts_with('\'') && string_out.ends_with('\''),
+			&&Cell::ComplexCell { cells : _ } => return false
+		}
+	}
+
 	pub fn is_valid(&self) -> bool {
-		true
+		match &self {
+			&&Cell::SimpleCell { string : ref string_out } => {
+				let mut too_many_ticks = string_out.matches('\'').count();
+				if self.is_constant() {
+					too_many_ticks -= 2;
+				}
+				return too_many_ticks == 0;
+			}
+			&&Cell::ComplexCell { cells : ref cells_out } => {
+				for cell in cells_out {
+					if ! cell.is_valid() {
+						return false;
+					}
+				}
+				return true;
+			}
+		}
 	}
 
 	pub fn simple(string_arg : String) -> Cell {
