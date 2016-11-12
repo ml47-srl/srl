@@ -17,6 +17,7 @@ impl<'a> EqualsEvidenceInterface<'a> {
 		}
 	}
 
+	// equals a b
 	pub fn equals_rule(&self, rule_id : &RuleID) -> Result<EqualsEvidence, String> {
 		if ! rule_id.is_valid(&self.0) {
 			return Err("rule_id is invalid".to_string());
@@ -28,11 +29,11 @@ impl<'a> EqualsEvidenceInterface<'a> {
 				if cells_out.len() != 3 {
 					return Err(format!("rule_id points to cell with {} arguments", cells_out.len()));
 				}
-				if cells_out[0].to_string() == "equals" {
-					return Ok(EqualsEvidence(cells_out[1].clone(), cells_out[2].clone()));
-				} else {
+				if cells_out[0].to_string() != "equals" {
 					return Err(format!("rule_id points to cell which starts with '{}'", cells_out[0]));
 				}
+
+				return Ok(EqualsEvidence(cells_out[1].clone(), cells_out[2].clone()));
 			}
 		}
 	}
