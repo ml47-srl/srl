@@ -25,18 +25,9 @@ impl<'a> EqualsEvidenceInterface<'a> {
 			return Err("rule_id is invalid".to_string());
 		}
 		let cell = rule_id.get_cell(&self.0);
-		match cell {
-			Cell::Simple { string : _ } => return Err("rule_id points to simple cell".to_string()),
-			Cell::Complex { cells : cells_out } => {
-				if cells_out.len() != 3 {
-					return Err(format!("rule_id points to cell with {} arguments", cells_out.len()));
-				}
-				if cells_out[0].to_string() != "equals" {
-					return Err(format!("rule_id points to cell which starts with '{}'", cells_out[0]));
-				}
-
-				return Ok(EqualsEvidence(cells_out[1].clone(), cells_out[2].clone()));
-			}
+		return match Cell::destructure_equals_cell(cell) {
+			Ok((cell1, cell2)) => return Ok(EqualsEvidence(cell1, cell2)),
+			Err(x) => Err(x)
 		}
 	}
 

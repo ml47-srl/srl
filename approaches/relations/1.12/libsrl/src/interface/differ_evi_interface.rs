@@ -16,37 +16,26 @@ impl<'a> DifferEvidenceInterface<'a> {
 			return Err("invalid rule_id".to_string());
 		}
 		let cell = rule_id.get_cell(&self.0);
-		match cell {
-			Cell::Simple { string : _ } => return Err("argument is simple cell".to_string()),
-			Cell::Complex { cells : cells_out }  => {
-				if cells_out.len() != 3 {
-					return Err("argument should contain 3 cells \"equals 'false' <cell>\"".to_string());
-				}
-				if &cells_out[0].to_string() != "equals" {
-					return Err("argument[0] is no equals-cell".to_string());
-				}
+		match Cell::destructure_equals_cell(cell) {
+			Ok((cell1, cell2)) => {
+
 				let othercell : Cell;
-				if &cells_out[1].to_string() == "'false'" {
-					othercell = cells_out[2].clone();
-				} else if &cells_out[2].to_string() == "'false'" {
-					othercell = cells_out[1].clone();
+				let false_cell = Cell::false_cell();
+
+				if cell1 == false_cell {
+					othercell = cell2;
+				} else if cell2 == false_cell {
+					othercell = cell1;
 				} else {
-					return Err("there is no 'false' in here".to_string());
+					return Err("there is no false cell".to_string());
 				}
 
-				match othercell {
-					Cell::Simple { string : _ } => return Err("inner argument is simple cell".to_string()),
-					Cell::Complex { cells : cells_out } => {
-						if cells_out.len() != 3 {
-							return Err("inner argument should contain 3 cell \"equal".to_string());
-						}
-						if cells_out[0].to_string() != "equals" {
-							return Err("inner argument[0] is no equals cell".to_string());
-						}
-						return Ok(DifferEvidence(cells_out[1].clone(), cells_out[2].clone()));
-					}
+				match Cell::destructure_equals_cell(othercell) {
+					Ok((cell1, cell2)) => return Ok(DifferEvidence(cell1, cell2)),
+					Err(x) => return Err(x)
 				}
-			}
+			},
+			Err(x) => return Err(x)
 		}
 	}
 

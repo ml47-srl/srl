@@ -47,6 +47,32 @@ impl Cell {
 		Cell::complex(vec![Cell::simple_by_str("equals"), cell1, cell2])
 	}
 
+	pub fn destructure_equals_cell(equals_cell : Cell) -> Result<(Cell, Cell), String> {
+		if ! equals_cell.is_valid() {
+			return Err("equals_cell is invalid".to_string());
+		}
+
+		match equals_cell {
+			Cell::Simple { string : _ } => return Err("equals_cell is a simple cell".to_string()),
+			Cell::Complex { cells : cells_out } => {
+				if cells_out.len() != 3 {
+					return Err("equals_cell should have 2 arguments".to_string());
+				}
+
+				match cells_out[0] {
+					Cell::Complex { cells : _ } => return Err("first argument of equals cell is complex".to_string()),
+					Cell::Simple { string : ref string_out } => {
+						if string_out != "equals" {
+							return Err("first equals argument is not \"equals\"".to_string());
+						}
+					}
+				}
+
+				return Ok((cells_out[1].clone(), cells_out[2].clone()));
+			}
+		}
+	}
+
 	pub fn is_constant(&self) -> bool {
 		match &self {
 			&&Cell::Simple { string : ref string_out } => return string_out.starts_with('\'') && string_out.ends_with('\''),
