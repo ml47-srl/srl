@@ -2,10 +2,10 @@ use parse::*;
 use cell::Cell;
 use std::fs::File;
 use std::io::Read;
-use interface::apply_interface::ApplyInterface;
-use interface::paradox_interface::ParadoxInterface;
-use interface::equals_evi_interface::EqualsEvidenceInterface;
-use interface::differ_evi_interface::DifferEvidenceInterface;
+use interface::apply::ApplyInterface;
+use interface::paradox::ParadoxInterface;
+use interface::equals_evi::EqualsEvidenceInterface;
+use interface::differ_evi::DifferEvidenceInterface;
 
 pub struct Database {
 	rules : Vec<Cell>
