@@ -31,11 +31,11 @@ impl<'a> ApplyInterface<'a> {
 		}
 
 		let cell = target_cell_id.get_cell(&self.0);
-		if equals_evidence.first_cloned() == cell {
+		if equals_evidence.first() == &cell {
 			let c = target_cell_id.replace_by(&self.0, equals_evidence.second_cloned());
 			self.0.push(c.clone());
 			return Ok(c);
-		} else if equals_evidence.second_cloned() == cell {
+		} else if equals_evidence.second() == &cell {
 			let c = target_cell_id.replace_by(&self.0, equals_evidence.first_cloned());
 			self.0.push(c.clone());
 			return Ok(c);
