@@ -1,6 +1,7 @@
 use cell::Cell;
-use evi::EqualsEvidence;
-use evi::DifferEvidence;
+use interface::equals_evi::EqualsEvidence;
+use interface::differ_evi::DifferEvidence;
+use evi::Evidence;
 use navi::CellID;
 
 pub struct ApplyInterface<'a>(&'a mut Vec<Cell>);
@@ -15,7 +16,7 @@ impl<'a> ApplyInterface<'a> {
 		if ! evi.is_valid() {
 			return Err("evidence is invalid".to_string());
 		}
-		let result = Cell::equals_cell(evi.0, evi.1);
+		let result = Cell::equals_cell(evi.first_cloned(), evi.second_cloned());
 		self.0.push(result.clone());
 		Ok(result)
 	}
@@ -30,12 +31,12 @@ impl<'a> ApplyInterface<'a> {
 		}
 
 		let cell = target_cell_id.get_cell(&self.0);
-		if equals_evidence.0 == cell {
-			let c = target_cell_id.replace_by(&self.0, equals_evidence.1.clone());
+		if equals_evidence.first_cloned() == cell {
+			let c = target_cell_id.replace_by(&self.0, equals_evidence.second_cloned());
 			self.0.push(c.clone());
 			return Ok(c);
-		} else if equals_evidence.1 == cell {
-			let c = target_cell_id.replace_by(&self.0, equals_evidence.0.clone());
+		} else if equals_evidence.second_cloned() == cell {
+			let c = target_cell_id.replace_by(&self.0, equals_evidence.first_cloned());
 			self.0.push(c.clone());
 			return Ok(c);
 		} else {
@@ -48,7 +49,7 @@ impl<'a> ApplyInterface<'a> {
 		if ! evi.is_valid() {
 			return Err("evidence is invalid".to_string());
 		}
-		let result = Cell::equals_cell(Cell::equals_cell(evi.0, evi.1), Cell::false_cell());
+		let result = Cell::equals_cell(Cell::equals_cell(evi.first_cloned(), evi.second_cloned()), Cell::false_cell());
 		self.0.push(result.clone());
 		Ok(result)
 	}

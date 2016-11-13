@@ -1,6 +1,6 @@
 use cell::Cell;
 use navi::RuleID;
-use evi::DifferEvidence;
+use evi::Evidence;
 
 pub struct DifferEvidenceInterface<'a>(&'a Vec<Cell>);
 
@@ -58,5 +58,17 @@ impl<'a> DifferEvidenceInterface<'a> {
 		}
 
 		return Ok(DifferEvidence(cell1, cell2));
+	}
+}
+
+pub struct DifferEvidence(Cell, Cell);
+
+impl Evidence for DifferEvidence {
+	fn first(&self) -> &Cell {
+		&self.0
+	}
+
+	fn second(&self) -> &Cell {
+		&self.1
 	}
 }

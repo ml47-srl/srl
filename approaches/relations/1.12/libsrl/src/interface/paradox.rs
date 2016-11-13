@@ -1,6 +1,7 @@
 use cell::Cell;
-use evi::EqualsEvidence;
-use evi::DifferEvidence;
+use interface::equals_evi::EqualsEvidence;
+use interface::differ_evi::DifferEvidence;
+use evi::Evidence;
 
 pub struct ParadoxInterface<'a>(&'a Vec<Cell>);
 
@@ -16,7 +17,7 @@ impl<'a> ParadoxInterface<'a> {
 
 	// R13.1
 	pub fn equal_and_differ(&self, equals_evidence : &EqualsEvidence, differ_evidence : &DifferEvidence) -> Result<(), String> {
-		if (equals_evidence.0 == differ_evidence.0 && equals_evidence.1 == differ_evidence.1) || (equals_evidence.0 == differ_evidence.1 && equals_evidence.1 == differ_evidence.0) {
+		if equals_evidence.equals(differ_evidence) {
 			self.on_paradox();
 			Ok(())
 		} else {

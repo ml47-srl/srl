@@ -1,28 +1,29 @@
 use cell::Cell;
 
-pub struct EqualsEvidence(pub Cell, pub Cell);
-pub struct DifferEvidence(pub Cell, pub Cell);
+pub trait Evidence {
+	fn first(&self) -> &Cell;
+	fn second(&self) -> &Cell;
 
-impl PartialEq for EqualsEvidence {
-	fn eq(&self, other : &EqualsEvidence) -> bool {
-		(self.0 == other.0 && self.1 == other.1) || (self.1 == other.0 && self.0 == other.1)
+	fn is_valid(&self) -> bool {
+		self.first().is_valid() && self.second().is_valid()
 	}
-}
 
-impl PartialEq for DifferEvidence {
-	fn eq(&self, other : &DifferEvidence) -> bool {
-		(self.0 == other.0 && self.1 == other.1) || (self.1 == other.0 && self.0 == other.1)
+	fn cmp(&self, other : &Evidence) -> i32 {
+		let mut matches = 0;
+		if self.first() == other.first() || self.first() == other.second() { matches += 1; }
+		if self.second() == other.first() || self.second() == other.second() { matches += 1; }
+		matches
 	}
-}
 
-impl EqualsEvidence {
-	pub fn is_valid(&self) -> bool {
-		self.0.is_valid() && self.1.is_valid()
+	fn first_cloned(&self) -> Cell {
+		self.first().clone()
 	}
-}
 
-impl DifferEvidence {
-	pub fn is_valid(&self) -> bool {
-		self.0.is_valid() && self.1.is_valid()
+	fn second_cloned(&self) -> Cell {
+		self.second().clone()
+	}
+
+	fn equals(&self, other : &Evidence) -> bool {
+		self.cmp(other) == 2
 	}
 }

@@ -1,6 +1,6 @@
 use cell::Cell;
-use evi::EqualsEvidence;
 use navi::RuleID;
+use evi::Evidence;
 
 pub struct EqualsEvidenceInterface<'a>(&'a Vec<Cell>);
 
@@ -48,20 +48,32 @@ impl<'a> EqualsEvidenceInterface<'a> {
 		if ! evi2.is_valid() {
 			return Err("evidence 2 is invalid".to_string());
 		}
-		if evi1 == evi2 {
+		if evi1.equals(&evi2) {
 			return Err("both evidences match".to_string());
 		}
 
-		if evi1.0 == evi2.0 {
-			return Ok(EqualsEvidence(evi1.1, evi2.1));
-		} else if evi1.0 == evi2.1 {
-			return Ok(EqualsEvidence(evi1.1, evi2.0));
-		} else if evi1.1 == evi2.1 {
-			return Ok(EqualsEvidence(evi1.0, evi2.0));
-		} else if evi1.1 == evi2.0 {
-			return Ok(EqualsEvidence(evi1.0, evi2.1));
+		if evi1.first() == evi2.first() {
+			return Ok(EqualsEvidence(evi1.second_cloned(), evi2.second_cloned()));
+		} else if evi1.first() == evi2.second() {
+			return Ok(EqualsEvidence(evi1.second_cloned(), evi2.first_cloned()));
+		} else if evi1.second() == evi2.second() {
+			return Ok(EqualsEvidence(evi1.first_cloned(), evi2.first_cloned()));
+		} else if evi1.second() == evi2.first() {
+			return Ok(EqualsEvidence(evi1.first_cloned(), evi2.second_cloned()));
 		} else {
 			return Err("both evidences have nothing in common".to_string());
 		}
+	}
+}
+
+pub struct EqualsEvidence(Cell, Cell);
+
+impl Evidence for EqualsEvidence {
+	fn first(&self) -> &Cell {
+		&self.0
+	}
+
+	fn second(&self) -> &Cell {
+		&self.1
 	}
 }
