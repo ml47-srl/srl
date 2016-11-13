@@ -26,8 +26,8 @@ impl<'a> EqualsEvidenceInterface<'a> {
 		}
 		let cell = rule_id.get_cell(&self.0);
 		match cell {
-			Cell::SimpleCell { string : _ } => return Err("rule_id points to simple cell".to_string()),
-			Cell::ComplexCell { cells : cells_out } => {
+			Cell::Simple { string : _ } => return Err("rule_id points to simple cell".to_string()),
+			Cell::Complex { cells : cells_out } => {
 				if cells_out.len() != 3 {
 					return Err(format!("rule_id points to cell with {} arguments", cells_out.len()));
 				}
@@ -45,6 +45,6 @@ impl<'a> EqualsEvidenceInterface<'a> {
 		if ! rule_id.is_valid(self.0) {
 			return Err("rule_id is invalid".to_string());
 		}
-		Ok(EqualsEvidence(rule_id.get_cell(self.0), Cell::simple_by_str("'true'")))
+		Ok(EqualsEvidence(rule_id.get_cell(self.0), Cell::true_cell()))
 	}
 }

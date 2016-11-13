@@ -18,8 +18,8 @@ fn one_layer_paren_tokens(mut vec : Vec<String>) -> Vec<String> {
 
 #[derive(PartialEq, Clone)]
 pub enum Cell {
-	SimpleCell { string : String },
-	ComplexCell { cells: Vec<Cell> } 
+	Simple { string : String },
+	Complex { cells: Vec<Cell> }
 }
 
 impl fmt::Debug for Cell {
@@ -35,23 +35,35 @@ impl fmt::Display for Cell {
 }
 
 impl Cell {
+	pub fn true_cell() -> Cell {
+		Cell::simple_by_str("'true'")
+	}
+
+	pub fn false_cell() -> Cell {
+		Cell::simple_by_str("'false'")
+	}
+
+	pub fn equals_cell(cell1 : Cell, cell2 : Cell) -> Cell {
+		Cell::complex(vec![Cell::simple_by_str("equals"), cell1, cell2])
+	}
+
 	pub fn is_constant(&self) -> bool {
 		match &self {
-			&&Cell::SimpleCell { string : ref string_out } => return string_out.starts_with('\'') && string_out.ends_with('\''),
-			&&Cell::ComplexCell { cells : _ } => return false
+			&&Cell::Simple { string : ref string_out } => return string_out.starts_with('\'') && string_out.ends_with('\''),
+			&&Cell::Complex { cells : _ } => return false
 		}
 	}
 
 	pub fn is_valid(&self) -> bool {
 		match &self {
-			&&Cell::SimpleCell { string : ref string_out } => {
+			&&Cell::Simple { string : ref string_out } => {
 				let mut too_many_ticks = string_out.matches('\'').count();
 				if self.is_constant() {
 					too_many_ticks -= 2;
 				}
 				return too_many_ticks == 0;
 			}
-			&&Cell::ComplexCell { cells : ref cells_out } => {
+			&&Cell::Complex { cells : ref cells_out } => {
 				for cell in cells_out {
 					if ! cell.is_valid() {
 						return false;
@@ -63,21 +75,21 @@ impl Cell {
 	}
 
 	pub fn simple(string_arg : String) -> Cell {
-		Cell::SimpleCell { string : string_arg }
+		Cell::Simple { string : string_arg }
 	}
 
 	pub fn simple_by_str(string_arg : &str) -> Cell {
-		Cell::SimpleCell { string : string_arg.to_string() }
+		Cell::Simple { string : string_arg.to_string() }
 	}
 
 	pub fn complex(cells_arg : Vec<Cell>) -> Cell {
-		Cell::ComplexCell { cells : cells_arg }
+		Cell::Complex { cells : cells_arg }
 	}
 
 	pub fn to_string(&self) -> String {
 		match &self {
-			&&Cell::SimpleCell { string : ref string_out } => string_out.to_string(),
-			&&Cell::ComplexCell { cells : ref cells_out } => {
+			&&Cell::Simple { string : ref string_out } => string_out.to_string(),
+			&&Cell::Complex { cells : ref cells_out } => {
 				let mut string = String::new();
 				string.push_str(&cells_out[0].to_string());
 				for cell in cells_out.iter().skip(1) {

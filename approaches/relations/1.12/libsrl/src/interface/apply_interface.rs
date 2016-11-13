@@ -15,7 +15,7 @@ impl<'a> ApplyInterface<'a> {
 		if ! evi.is_valid() {
 			return Err("evidence is invalid".to_string());
 		}
-		let result = Cell::complex(vec![Cell::simple_by_str("equals"), evi.0, evi.1]);
+		let result = Cell::equals_cell(evi.0, evi.1);
 		self.0.push(result.clone());
 		Ok(result)
 	}
@@ -25,21 +25,21 @@ impl<'a> ApplyInterface<'a> {
 		if ! equals_evidence.is_valid() {
 			return Err("evidence is invalid".to_string());
 		}
-		if target_cell_id.is_valid(&self.0) {
-			let cell = target_cell_id.get_cell(&self.0);
-			if equals_evidence.0 == cell {
-				let c = target_cell_id.replace_by(&self.0, equals_evidence.1.clone());
-				self.0.push(c.clone());
-				return Ok(c);
-			} else if equals_evidence.1 == cell {
-				let c = target_cell_id.replace_by(&self.0, equals_evidence.0.clone());
-				self.0.push(c.clone());
-				return Ok(c);
-			} else {
-				return Err("wrong member of equals_evidence".to_string());
-			}
+		if ! target_cell_id.is_valid(&self.0) {
+			return Err("target_cell_id is invalid".to_string());
+		}
+
+		let cell = target_cell_id.get_cell(&self.0);
+		if equals_evidence.0 == cell {
+			let c = target_cell_id.replace_by(&self.0, equals_evidence.1.clone());
+			self.0.push(c.clone());
+			return Ok(c);
+		} else if equals_evidence.1 == cell {
+			let c = target_cell_id.replace_by(&self.0, equals_evidence.0.clone());
+			self.0.push(c.clone());
+			return Ok(c);
 		} else {
-			Err("target_cell_id is invalid".to_string())
+			return Err("wrong member of equals_evidence".to_string());
 		}
 	}
 
@@ -48,7 +48,7 @@ impl<'a> ApplyInterface<'a> {
 		if ! evi.is_valid() {
 			return Err("evidence is invalid".to_string());
 		}
-		let result = Cell::complex(vec![Cell::complex(vec![Cell::simple_by_str("equals"), evi.0, evi.1]), Cell::simple_by_str("'false'")]);
+		let result = Cell::equals_cell(Cell::equals_cell(evi.0, evi.1), Cell::false_cell());
 		self.0.push(result.clone());
 		Ok(result)
 	}

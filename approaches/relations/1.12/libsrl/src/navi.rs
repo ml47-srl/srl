@@ -29,8 +29,8 @@ impl CellID {
 			let mut cell : Cell = self.rule_id.get_cell(rules); // obtain copy
 			for index in self.indices.clone() {
 				match cell {
-					Cell::SimpleCell { string : string_out } => panic!("expected ComplexCell, got SimpleCell: '{}'", string_out),
-					Cell::ComplexCell { cells : cells_out } => {
+					Cell::Simple { string : string_out } => panic!("expected ComplexCell, got SimpleCell: '{}'", string_out),
+					Cell::Complex { cells : cells_out } => {
 						cell = cells_out[index].clone()
 					}
 				}
@@ -42,39 +42,40 @@ impl CellID {
 	}
 	
 	pub fn replace_by(&self, rules : &Vec<Cell>, mut cell : Cell) -> Cell {
-		if self.rule_id.is_valid(rules) {
-			let mut indices = self.indices.clone();
-			let mut last_index;
-
-			while indices.len() > 0 {
-				match indices.pop() {
-					Some(x) => last_index = x,
-					None => panic!("impossibrü!")
-				}
-				let cell_id = CellID { rule_id : self.rule_id.clone(), indices : indices.clone() };
-				match cell_id.get_cell(rules) {
-					Cell::ComplexCell { cells : mut cells_out } => {
-						cells_out[last_index] = cell;
-						cell = Cell::complex(cells_out);
-					}
-					Cell::SimpleCell { string : _ } => panic!("wot? Denkfehler")
-				}
-			}
-			return cell;
-		} else {
-			panic!("CellID::get_cell(): rule_id is invalid");
+		if ! self.rule_id.is_valid(rules) {
+			panic!("CellID::replace_by(): rule_id is invalid");
 		}
+
+		let mut indices = self.indices.clone();
+		let mut last_index;
+
+		while indices.len() > 0 {
+			match indices.pop() {
+				Some(x) => last_index = x,
+				None => panic!("CellID::replace_by(): failure 1")
+			}
+			let cell_id = CellID { rule_id : self.rule_id.clone(), indices : indices.clone() };
+			match cell_id.get_cell(rules) {
+				Cell::Complex { cells : mut cells_out } => {
+					cells_out[last_index] = cell;
+					cell = Cell::complex(cells_out);
+				}
+				Cell::Simple { string : _ } => panic!("CellID::replace_by: failure 2")
+			}
+		}
+		return cell;
 	}
 
 	pub fn is_valid(&self, rules : &Vec<Cell>) -> bool {
 		if ! self.rule_id.is_valid(rules) {
 			return false;
 		}
+
 		let mut cell : Cell = self.rule_id.get_cell(rules); // obtain copy
 		for index in self.indices.clone() {
 			match cell {
-				Cell::SimpleCell { string : _ } => return false,
-				Cell::ComplexCell { cells : cells_out } => {
+				Cell::Simple { string : _ } => return false,
+				Cell::Complex { cells : cells_out } => {
 					cell = cells_out[index].clone();
 				}
 			}

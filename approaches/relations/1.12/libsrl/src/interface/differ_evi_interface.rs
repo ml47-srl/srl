@@ -17,8 +17,8 @@ impl<'a> DifferEvidenceInterface<'a> {
 		}
 		let cell = rule_id.get_cell(&self.0);
 		match cell {
-			Cell::SimpleCell { string : _ } => return Err("argument is simple cell".to_string()),
-			Cell::ComplexCell { cells : cells_out }  => {
+			Cell::Simple { string : _ } => return Err("argument is simple cell".to_string()),
+			Cell::Complex { cells : cells_out }  => {
 				if cells_out.len() != 3 {
 					return Err("argument should contain 3 cells \"equals 'false' <cell>\"".to_string());
 				}
@@ -35,8 +35,8 @@ impl<'a> DifferEvidenceInterface<'a> {
 				}
 
 				match othercell {
-					Cell::SimpleCell { string : _ } => return Err("inner argument is simple cell".to_string()),
-					Cell::ComplexCell { cells : cells_out } => {
+					Cell::Simple { string : _ } => return Err("inner argument is simple cell".to_string()),
+					Cell::Complex { cells : cells_out } => {
 						if cells_out.len() != 3 {
 							return Err("inner argument should contain 3 cell \"equal".to_string());
 						}
