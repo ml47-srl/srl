@@ -14,6 +14,7 @@ impl<'a> ParadoxInterface<'a> {
 		panic!("PARADOX!");
 	}
 
+	// R13.1
 	pub fn equal_and_differ(&self, equals_evidence : &EqualsEvidence, differ_evidence : &DifferEvidence) -> Result<(), String> {
 		if (equals_evidence.0 == differ_evidence.0 && equals_evidence.1 == differ_evidence.1) || (equals_evidence.0 == differ_evidence.1 && equals_evidence.1 == differ_evidence.0) {
 			self.on_paradox();
@@ -23,4 +24,7 @@ impl<'a> ParadoxInterface<'a> {
 		}
 	}
 
+	// R13.2
+	// equals (equals a b) 'fish'
+	// TODO pub fn malformed_equals(&self, rule_id : &RuleID) -> Result<(), String> { }
 }

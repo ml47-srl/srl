@@ -9,6 +9,7 @@ impl<'a> EqualsEvidenceInterface<'a> {
 		EqualsEvidenceInterface(x)
 	}
 
+	// R3
 	pub fn single_cell(&self, cell : Cell) -> Result<EqualsEvidence, String> {
 		if cell.is_valid() {
 			Ok(EqualsEvidence(cell.clone(), cell))
@@ -17,6 +18,7 @@ impl<'a> EqualsEvidenceInterface<'a> {
 		}
 	}
 
+	// R2.2
 	// equals a b
 	pub fn equals_rule(&self, rule_id : &RuleID) -> Result<EqualsEvidence, String> {
 		if ! rule_id.is_valid(&self.0) {

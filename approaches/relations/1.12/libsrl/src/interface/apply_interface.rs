@@ -1,5 +1,6 @@
 use cell::Cell;
 use evi::EqualsEvidence;
+use evi::DifferEvidence;
 use navi::CellID;
 
 pub struct ApplyInterface<'a>(&'a mut Vec<Cell>);
@@ -9,13 +10,21 @@ impl<'a> ApplyInterface<'a> {
 		ApplyInterface(x)
 	}
 
+	// R2.1
 	pub fn create_equals_rule(&mut self, evi : EqualsEvidence) -> Result<Cell, String> {
+		if ! evi.is_valid() {
+			return Err("evidence is invalid".to_string());
+		}
 		let result = Cell::complex(vec![Cell::simple_by_str("equals"), evi.0, evi.1]);
 		self.0.push(result.clone());
 		Ok(result)
 	}
 
+	// R1
 	pub fn equals_replace(&mut self, equals_evidence : &EqualsEvidence, target_cell_id : &CellID) -> Result<Cell, String> { // returns and adds rule
+		if ! equals_evidence.is_valid() {
+			return Err("evidence is invalid".to_string());
+		}
 		if target_cell_id.is_valid(&self.0) {
 			let cell = target_cell_id.get_cell(&self.0);
 			if equals_evidence.0 == cell {
@@ -32,5 +41,15 @@ impl<'a> ApplyInterface<'a> {
 		} else {
 			Err("target_cell_id is invalid".to_string())
 		}
+	}
+
+	// R12.1
+	pub fn create_equals_false_rule(&mut self, evi : DifferEvidence) -> Result<Cell, String> {
+		if ! evi.is_valid() {
+			return Err("evidence is invalid".to_string());
+		}
+		let result = Cell::complex(vec![Cell::complex(vec![Cell::simple_by_str("equals"), evi.0, evi.1]), Cell::simple_by_str("'false'")]);
+		self.0.push(result.clone());
+		Ok(result)
 	}
 }

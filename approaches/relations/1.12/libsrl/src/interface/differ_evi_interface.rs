@@ -9,6 +9,7 @@ impl<'a> DifferEvidenceInterface<'a> {
 		DifferEvidenceInterface(x)
 	}
 
+	// R12.2
 	// equals 'false' (equals a b)
 	pub fn equals_false_rule(&self, rule_id : RuleID) -> Result<DifferEvidence, String> {
 		if ! rule_id.is_valid(&self.0) {
@@ -49,6 +50,7 @@ impl<'a> DifferEvidenceInterface<'a> {
 		}
 	}
 
+	// R4
 	pub fn constants(&self, cell1 : Cell, cell2 : Cell) -> Result<DifferEvidence, String> {
 		if ! cell1.is_valid() {
 			return Err("cell1 is invalid".to_string());
