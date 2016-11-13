@@ -39,4 +39,12 @@ impl<'a> EqualsEvidenceInterface<'a> {
 			}
 		}
 	}
+
+	// R5
+	pub fn true_rule(&self, rule_id : &RuleID) -> Result<EqualsEvidence, String> {
+		if ! rule_id.is_valid(self.0) {
+			return Err("rule_id is invalid".to_string());
+		}
+		Ok(EqualsEvidence(rule_id.get_cell(self.0), Cell::simple_by_str("'true'")))
+	}
 }
