@@ -31,6 +31,8 @@ fn test_count_parens() {
 	assert_eq!(count_parens("((wow (great)))"), 2);
 	assert_eq!(count_parens("wow"), 0);
 	assert_eq!(count_parens("(wow good)"), 1);
+	assert_eq!(count_parens("(first) (second)"), 0);
+	assert_eq!(count_parens("(first with args) (second with args)"), 0);
 }
 
 pub fn one_layer_parens(string : &str) -> String {
