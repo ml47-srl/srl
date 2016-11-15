@@ -109,10 +109,24 @@ impl Cell {
 	}
 
 	pub fn complex(cells_arg : Vec<Cell>) -> Cell {
+		if cells_arg.len() < 2 {
+			panic!("complex cell neeeds more than 1 argument");
+		}
 		Cell::Complex { cells : cells_arg }
 	}
 
-	pub fn to_string(&self) -> String {
+	pub fn to_string(&self) -> String { // (equals a b); a
+		return match &self {
+			&&Cell::Simple { string : _ } => {
+				self.to_unwrapped_string()
+			},
+			&&Cell::Complex { cells : _ } => {
+				"(".to_string() + &self.to_unwrapped_string() + ")"
+			}
+		}
+	}
+
+	pub fn to_unwrapped_string(&self) -> String { // equals a b | a
 		match &self {
 			&&Cell::Simple { string : ref string_out } => string_out.to_string(),
 			&&Cell::Complex { cells : ref cells_out } => {
@@ -122,13 +136,13 @@ impl Cell {
 					string.push(' ');
 					string.push_str(&cell.to_string());
 				}
-				return one_layer_parens(&string);
+				return string;
 			}
 		}
 	}
 
 	pub fn to_rule_string(&self) -> String {
-		zero_layer_parens(&self.to_string()) + "."
+		self.to_unwrapped_string() + "."
 	}
 
 	pub fn by_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {

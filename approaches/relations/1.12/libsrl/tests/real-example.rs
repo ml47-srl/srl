@@ -20,4 +20,5 @@ fn main() {
 	}
 	assert_eq!(&db.get_rule(1).to_rule_string(), "equals a a.");
 	assert_eq!(&db.get_rule(1).to_string(), "(equals a a)");
+	assert_eq!(&db.get_rule(1).to_unwrapped_string(), "equals a a");
 }

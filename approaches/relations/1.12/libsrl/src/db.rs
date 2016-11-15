@@ -21,7 +21,6 @@ impl Database {
 		let rule_strings = split_rules(string);
 		let mut rules : Vec<Cell> = Vec::new();
 		for rule_string in rule_strings {
-			let rule_string : String = one_layer_parens(&rule_string);
 			let tokens : Vec<String> = split_tokens(rule_string);
 			match Cell::by_tokens(tokens) {
 				Ok(x) => {
