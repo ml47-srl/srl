@@ -96,6 +96,15 @@ fn test_find_invalid_char() {
 pub fn split_rules(string : String) -> Vec<String> {
 	let mut vec : Vec<String> = Vec::new();
 	let mut string : String = string.to_string();
+
+	if string.is_empty() {
+		return Vec::new();
+	}
+
+	if ! string.ends_with(".") {
+		panic!("string does not end with '.'");
+	}
+
 	loop {
 		match string.find(".") {
 			Some(x) => {
@@ -125,6 +134,7 @@ pub fn split_rules(string : String) -> Vec<String> {
 #[test]
 fn test_split_rules() {
 	assert_eq!(split_rules("wow.nice.good.".to_string()), vec!["wow".to_string(), "nice".to_string(), "good".to_string()]);
+	assert!(split_rules("".to_string()).is_empty());
 }
 
 #[test]
@@ -137,6 +147,12 @@ fn test_split_rules2() {
 #[should_panic]
 fn test_split_rules3() {
 	split_rules("nice..good.".to_string());
+}
+
+#[test]
+#[should_panic]
+fn test_split_rules4() {
+	split_rules("good".to_string());
 }
 
 pub fn split_tokens(mut string : String) -> Vec<String> {
