@@ -1,5 +1,7 @@
-static VALID_CHARS : &'static str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ _=().\n\t'";
+static VALID_CHARS : &'static str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ _=().\n\t'{}[]";
 static VALID_ID_CHARS : &'static str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_='";
+static LPARENS : &'static str = "{[(";
+static RPARENS : &'static str = "}])";
 
 pub fn is_valid_id(string : &str) -> bool {
 	for chr in string.chars() {
@@ -43,18 +45,29 @@ pub fn fix_whitespaces(string : &str) -> String {
 		}
 		None => {}
 	}
+
 	// "( " => "("
-	loop {
-		match string.find("( ") {
-			Some(x) => { string.remove(x+1); }
-			None => break
+	for paren in LPARENS.chars() {
+		loop {
+			let mut pattern : String = String::new();
+			pattern.push(paren);
+			pattern.push(' ');
+
+			match string.find(&pattern) {
+				Some(x) => { string.remove(x+1); }
+				None => break
+			}
 		}
 	}
 	// " )" => ")"
-	loop {
-		match string.find(" )") {
-			Some(x) => { string.remove(x); }
-			None => break
+	for paren in RPARENS.chars() {
+		loop {
+			let mut pattern : String = " ".to_string();
+			pattern.push(paren);
+			match string.find(&pattern) {
+				Some(x) => { string.remove(x); }
+				None => break
+			}
 		}
 	}
 	string
@@ -155,19 +168,19 @@ pub fn split_tokens(mut string : String) -> Vec<String> {
 	let mut tmp_string = String::new();
 	while string.len() > 0 {
 		match string.remove(0) {
-			'(' => {
+			chr if LPARENS.contains(chr) => {
 				if ! tmp_string.is_empty() {
 					tokens.push(tmp_string);
 					tmp_string = String::new();
 				}
-				tokens.push("(".to_string());
+				tokens.push(chr.to_string());
 			},
-			')' => {
+			chr if RPARENS.contains(chr) => {
 				if ! tmp_string.is_empty() {
 					tokens.push(tmp_string);
 					tmp_string = String::new();
 				}
-				tokens.push(")".to_string());
+				tokens.push(chr.to_string());
 			},
 			' ' => {
 				if ! tmp_string.is_empty() {
@@ -194,4 +207,6 @@ pub fn split_tokens(mut string : String) -> Vec<String> {
 fn test_split_tokens() {
 	assert_eq!(split_tokens("(wow good)".to_string()), vec!["(".to_string(), "wow".to_string(), "good".to_string(), ")".to_string()]);
 	assert_eq!(split_tokens("wow".to_string()), vec!["wow".to_string()]);
+	assert_eq!(split_tokens("{x}".to_string()), vec!["{".to_string(), "x".to_string(), "}".to_string()]);
+	assert_eq!(split_tokens("[x]".to_string()), vec!["[".to_string(), "x".to_string(), "]".to_string()]);
 }
