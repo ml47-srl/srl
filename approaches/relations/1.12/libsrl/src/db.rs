@@ -73,6 +73,9 @@ impl Database {
 
 	pub fn get_rule(&self, index : usize) -> Cell
 	{
+		if index > self.rules.len()-1 {
+			panic!(format!("Database::get_rule({}): index out of range", index));
+		}
 		self.rules[index].clone()
 	}
 }

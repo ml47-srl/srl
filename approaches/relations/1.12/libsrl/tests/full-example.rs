@@ -5,8 +5,8 @@ use libsrl::interface::equals_evi::EqualsEvidence;
 use libsrl::cell::Cell;
 
 #[test]
-fn main() {
-	let mut db = match Database::by_string("equals x y.") {
+fn full_example () {
+	let mut db = match Database::by_string("") {
 		Ok(x) => x,
 		Err(y) => panic!(format!("ERR1={}", y))
 	};
@@ -18,7 +18,7 @@ fn main() {
 		Err(x) => panic!(format!("ERR3={}", x)),
 		Ok(_) => {}
 	}
-	assert_eq!(&db.get_rule(1).to_rule_string(), "equals a a.");
-	assert_eq!(&db.get_rule(1).to_string(), "(equals a a)");
-	assert_eq!(&db.get_rule(1).to_unwrapped_string(), "equals a a");
+	assert_eq!(&db.get_rule(0).to_rule_string(), "equals a a.");
+	assert_eq!(&db.get_rule(0).to_string(), "(equals a a)");
+	assert_eq!(&db.get_rule(0).to_unwrapped_string(), "equals a a");
 }

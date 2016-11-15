@@ -26,28 +26,22 @@ pub fn fix_whitespaces(string : &str) -> String {
 		}
 	}
 	// "equals a b. " => "equals a b."
-	loop {
-		match string.chars().rev().nth(0) {
-			Some(x) => {
-				if x == ' ' {
-					string.pop();
-				}
-				break;
+	match string.chars().rev().nth(0) {
+		Some(x) => {
+			if x == ' ' {
+				string.pop();
 			}
-			None => panic!("fix_whitespaces(): string is empty")
 		}
+		None => {}
 	}
 	// " equals a b." => "equals a b."
-	loop {
-		match string.chars().nth(0) {
-			Some(x) => {
-				if x == ' ' {
-					string = string.chars().skip(1).collect();
-				}
-				break;
+	match string.chars().nth(0) {
+		Some(x) => {
+			if x == ' ' {
+				string = string.chars().skip(1).collect();
 			}
-			None => panic!("fix_whitespaces(): string is empty")
 		}
+		None => {}
 	}
 	// "( " => "("
 	loop {
