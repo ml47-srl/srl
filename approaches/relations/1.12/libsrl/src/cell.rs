@@ -1,19 +1,42 @@
 use std::fmt;
 use parse::*;
 
-fn zero_layer_paren_tokens(mut vec : Vec<String>) -> Vec<String> {
-	while vec[0] == "(" && vec[vec.len()-1] == ")" {
-		vec.pop();
+// remove optional outer parens
+fn trim_tokens(mut vec : Vec<String>) -> Vec<String> {
+	loop {
+		let len = vec.len();
+
+		if ! (vec[0] == "(" && vec[len-1] == ")") {
+			return vec;
+		}
+
+		let mut parens = 0;
+
+		for index in 0..len {
+			let element : String = vec[index].clone();
+
+			if element == "(" { parens += 1; }
+			else if element == ")" { parens -= 1; }
+
+			if parens == 0 && index > 0 && index < len-1 {
+				return vec;
+			}
+		}
+
+		vec.remove(len-1);
 		vec.remove(0);
 	}
-	vec
 }
 
-fn one_layer_paren_tokens(mut vec : Vec<String>) -> Vec<String> {
-	vec = zero_layer_paren_tokens(vec);
-	vec.insert(0, "(".to_string());
-	vec.push(")".to_string());
-	vec
+#[test]
+fn test_trim_tokens() {
+	let mut tokens : Vec<String>;
+
+	tokens = vec!["(".to_string(), "wow".to_string(), "nice".to_string(), ")".to_string(), "(".to_string(), "very".to_string(), "interesting".to_string(), ")".to_string()];
+	assert_eq!(trim_tokens(tokens.clone()), tokens);
+
+	tokens = vec!["(".to_string(), "wow".to_string(), "nice".to_string(), ")".to_string()];
+	assert_eq!(trim_tokens(tokens), vec!["wow".to_string(), "nice".to_string()]);
 }
 
 #[derive(PartialEq, Clone)]
@@ -146,7 +169,7 @@ impl Cell {
 	}
 
 	pub fn by_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {
-		tokens = zero_layer_paren_tokens(tokens);
+		tokens = trim_tokens(tokens);
 
 		// if there is only one token => return it as simple cell
 		if tokens.len() == 0 {
