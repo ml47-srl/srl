@@ -98,7 +98,7 @@ fn scope_by_trimmed_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {
 	// cut { and }
 	let len = tokens.len();
 
-	if len < 2 { return Err(()); }
+	if len < 3 { return Err(()); }
 	if "}" != &tokens.remove(len-1) { return Err(()); }
 	if "{" != &tokens.remove(0) { return Err(()); }
 
@@ -141,15 +141,17 @@ fn scope_by_trimmed_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {
 fn test_scope_by_trimmed_tokens() {
 	assert_eq!(Ok(scope(simple_by_str("a"), simple_by_str("b"))), scope_by_trimmed_tokens(vec!["{".to_string(), "a".to_string(), "b".to_string(), "}".to_string()]));
 	assert_eq!(Err(()), scope_by_trimmed_tokens(vec!["{".to_string(), "a".to_string(), "b".to_string(), "c".to_string(), "}".to_string()]));
+	assert_eq!(Err(()), scope_by_trimmed_tokens(vec!["{".to_string(), "a".to_string(), "}".to_string()]));
 	assert_eq!(Err(()), scope_by_trimmed_tokens(vec!["a".to_string(), "b".to_string(), "c".to_string(), "}".to_string()]));
 	assert_eq!(Err(()), scope_by_trimmed_tokens(vec!["a".to_string(), "b".to_string(), "c".to_string()]));
 	assert_eq!(Err(()), scope_by_trimmed_tokens(vec!["a".to_string()]));
+	assert_eq!(Err(()), scope_by_trimmed_tokens(vec!["{".to_string(), "}".to_string()]));
 }
 
 fn var_by_trimmed_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {
 	let len = tokens.len();
 
-	if len < 2 { return Err(()); }
+	if len < 3 { return Err(()); }
 	if "]" != &tokens.remove(len-1) { return Err(()); }
 	if "[" != &tokens.remove(0) { return Err(()); }
 
@@ -164,6 +166,7 @@ fn test_var_by_trimmed_tokens() {
 	assert_eq!(Ok(var(simple_by_str("a"))), var_by_trimmed_tokens(vec!["[".to_string(), "a".to_string(), "]".to_string()]));
 	assert_eq!(Err(()), var_by_trimmed_tokens(vec!["a".to_string(), "]".to_string()]));
 	assert_eq!(Err(()), var_by_trimmed_tokens(vec!["]".to_string(), "a".to_string(), "]".to_string()]));
+	assert_eq!(Err(()), var_by_trimmed_tokens(vec!["[".to_string(), "]".to_string()]));
 }
 
 // trims and then calls <sub>_by_trimmed_tokens
