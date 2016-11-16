@@ -83,4 +83,40 @@ impl Cell {
 	pub fn to_rule_string(&self) -> String {
 		self.to_unwrapped_string() + "."
 	}
+
+	pub fn count_subcells(&self) -> usize {
+		return match &self {
+			&&Cell::Simple {..} => 0,
+			&&Cell::Complex { cells : ref cells_out } => cells_out.len(),
+			&&Cell::Scope {..} => 2,
+			&&Cell::Var {..} => 1
+		};
+	}
+
+	pub fn get_subcell(&self, index : usize) -> Cell {
+		return match &self {
+			&&Cell::Complex { cells : ref cells_out } => {
+				if index > cells_out.len()-1 {
+					panic!("Cell::get_subcell(): Complex: index out of range")
+				}
+				cells_out[index].clone()
+			}
+			&&Cell::Scope { id : ref id_out, body : ref body_out } => {
+				if index == 0 {
+					id_out.as_ref().clone()
+				} else if index == 1 {
+					body_out.as_ref().clone()
+				} else {
+					panic!("Cell::get_subcell(): Scope: index out of range")
+				}
+			},
+			&&Cell::Var { id: ref id_out } => {
+				if index != 0 {
+					panic!("Cell::get_subcell(): Var: index out of range");
+				}
+				id_out.as_ref().clone()
+			},
+			&&Cell::Simple { .. } => panic!("Cell::get_subcell(): Simple: index out of range")
+		};
+	}
 }

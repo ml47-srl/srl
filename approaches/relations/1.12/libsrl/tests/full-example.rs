@@ -2,7 +2,6 @@ extern crate libsrl;
 
 use libsrl::db::Database;
 use libsrl::interface::equals_evi::EqualsEvidence;
-use libsrl::cell::Cell;
 use libsrl::cell::mani::simple_by_str;
 
 #[test]
