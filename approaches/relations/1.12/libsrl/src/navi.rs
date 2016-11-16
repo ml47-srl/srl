@@ -1,5 +1,6 @@
 use cell::Cell;
 use cell::mani::*;
+use misc::*;
 
 #[derive(Clone)]
 pub struct RuleID(usize);
@@ -20,7 +21,7 @@ impl RuleID {
 	}
 
 	pub fn is_valid(&self, rules : &Vec<Cell>) -> bool {
-		rules.len()-1 >= self.0
+		index_in_len(self.0, rules.len())
 	}
 }
 
@@ -29,28 +30,7 @@ impl CellID {
 		if self.rule_id.is_valid(rules) {
 			let mut cell : Cell = self.rule_id.get_cell(rules); // obtain copy
 			for index in self.indices.clone() {
-				match cell {
-					Cell::Simple { string : string_out } => panic!("expected ComplexCell, got SimpleCell: '{}'", string_out),
-					Cell::Complex { cells : cells_out } => {
-						cell = cells_out[index].clone()
-					},
-					Cell::Scope { id : id_out, body : body_out } => {
-						if index == 0 {
-							cell = *id_out;
-						} else if index == 1 {
-							cell = *body_out;
-						} else {
-							panic!("CellID::get_cell(): index different than 0 or 1 for scope cell");
-						}
-					},
-					Cell::Var { id : id_out } => {
-						if index == 0 {
-							cell = *id_out;
-						} else {
-							panic!("CellID::get_cell(): index different than 0 for var cell");
-						}
-					}
-				}
+				cell = cell.get_subcell(index)
 			}
 			return cell;
 		} else {
@@ -109,28 +89,10 @@ impl CellID {
 
 		let mut cell : Cell = self.rule_id.get_cell(rules); // obtain copy
 		for index in self.indices.clone() {
-			match cell {
-				Cell::Simple {..} => return false,
-				Cell::Complex { cells : cells_out } => {
-					cell = cells_out[index].clone();
-				},
-				Cell::Scope { id : id_out, body : body_out } => {
-					if index == 0 {
-						cell = *id_out;
-					} else if index == 1 {
-						cell = *body_out;
-					} else {
-						panic!("CellID::is_valid(): index different than 0 or 1 for scope cell");
-					}
-				},
-				Cell::Var { id : id_out } => {
-					if index == 0 {
-						cell = *id_out;
-					} else {
-						panic!("CellID::is_valid(): index different than 0 for var cell");
-					}
-				}
+			if ! index_in_len(index, cell.count_subcells()) {
+				return false;
 			}
+			cell = cell.get_subcell(index);
 		}
 		true
 	}

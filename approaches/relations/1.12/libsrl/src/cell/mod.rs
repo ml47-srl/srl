@@ -1,6 +1,8 @@
 pub mod mani;
 pub mod create;
 
+use misc::*;
+
 use std::fmt;
 
 #[derive(PartialEq, Clone)]
@@ -96,7 +98,7 @@ impl Cell {
 	pub fn get_subcell(&self, index : usize) -> Cell {
 		return match &self {
 			&&Cell::Complex { cells : ref cells_out } => {
-				if index > cells_out.len()-1 {
+				if ! index_in_len(index, cells_out.len()) {
 					panic!("Cell::get_subcell(): Complex: index out of range")
 				}
 				cells_out[index].clone()

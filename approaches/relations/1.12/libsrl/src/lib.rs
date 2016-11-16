@@ -1,3 +1,4 @@
+pub mod misc;
 pub mod db;
 pub mod parse;
 pub mod cell;

@@ -7,6 +7,7 @@ use interface::apply::ApplyInterface;
 use interface::paradox::ParadoxInterface;
 use interface::equals_evi::EqualsEvidenceInterface;
 use interface::differ_evi::DifferEvidenceInterface;
+use misc::*;
 
 pub struct Database {
 	rules : Vec<Cell>
@@ -74,7 +75,7 @@ impl Database {
 
 	pub fn get_rule(&self, index : usize) -> Cell
 	{
-		if index > self.rules.len()-1 {
+		if ! index_in_len(index, self.rules.len()) {
 			panic!(format!("Database::get_rule({}): index out of range", index));
 		}
 		self.rules[index].clone()
