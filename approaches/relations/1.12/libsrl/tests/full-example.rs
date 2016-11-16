@@ -3,6 +3,7 @@ extern crate libsrl;
 use libsrl::db::Database;
 use libsrl::interface::equals_evi::EqualsEvidence;
 use libsrl::cell::Cell;
+use libsrl::cell::mani::simple_by_str;
 
 #[test]
 fn full_example () {
@@ -10,7 +11,7 @@ fn full_example () {
 		Ok(x) => x,
 		Err(y) => panic!(format!("ERR1={}", y))
 	};
-	let evi : EqualsEvidence = match db.equals_evi_i().single_cell(Cell::simple_by_str("a")) {
+	let evi : EqualsEvidence = match db.equals_evi_i().single_cell(simple_by_str("a")) {
 		Ok(x) => x,
 		Err(y) => panic!(format!("ERR2={}", y))
 	};

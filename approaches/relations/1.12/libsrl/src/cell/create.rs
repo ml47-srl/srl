@@ -126,9 +126,9 @@ pub fn cell_by_str_tokens(tokens : Vec<&str>) -> Result<Cell, ()> {
 #[test]
 fn test_cell_by_tokens() {
 	assert_eq!(complex(vec![simple_by_str("a"), simple_by_str("b")]),
-		by_str_tokens(vec!["(", "a", ")", "b"]).unwrap());
+		cell_by_str_tokens(vec!["(", "a", ")", "b"]).unwrap());
 	assert_eq!(simple_by_str("wow"),
-		Cell::by_str_tokens(vec!["wow"]).unwrap());
-	assert_eq!(Cell::complex(vec![Cell::simple_by_str("equals"), Cell::simple_by_str("a"), Cell::simple_by_str("b")]),
-		Cell::by_str_tokens(vec!["(", "equals", "a", "b", ")"]).unwrap());
+		cell_by_str_tokens(vec!["wow"]).unwrap());
+	assert_eq!(complex(vec![simple_by_str("equals"), simple_by_str("a"), simple_by_str("b")]),
+		cell_by_str_tokens(vec!["(", "equals", "a", "b", ")"]).unwrap());
 }
