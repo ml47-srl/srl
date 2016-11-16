@@ -134,3 +134,12 @@ impl Cell {
 		};
 	}
 }
+
+#[test]
+fn test_to_string() {
+	use cell::mani::*;
+	assert_eq!(&simple_by_str("a").to_string(), "a");
+	assert_eq!(&complex(vec![simple_by_str("a"), simple_by_str("b")]).to_string(), "(a b)");
+	assert_eq!(&scope(simple_by_str("a"), simple_by_str("b")).to_string(), "{a b}");
+	assert_eq!(&var(simple_by_str("a")).to_string(), "[a]");
+}
