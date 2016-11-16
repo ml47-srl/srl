@@ -77,7 +77,7 @@ impl CellID {
 					cells_out[last_index] = cell;
 					cell = complex(cells_out);
 				}
-				Cell::Simple { string : _ } => panic!("CellID::replace_by: failure 2"),
+				Cell::Simple {..} => panic!("CellID::replace_by: failure 2"),
 				Cell::Scope { id : mut id_out, body : mut body_out } => {
 					if last_index == 0 {
 						id_out = Box::new(cell);
@@ -110,7 +110,7 @@ impl CellID {
 		let mut cell : Cell = self.rule_id.get_cell(rules); // obtain copy
 		for index in self.indices.clone() {
 			match cell {
-				Cell::Simple { string : _ } => return false,
+				Cell::Simple {..} => return false,
 				Cell::Complex { cells : cells_out } => {
 					cell = cells_out[index].clone();
 				},

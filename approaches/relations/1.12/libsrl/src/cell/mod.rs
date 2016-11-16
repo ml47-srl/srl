@@ -54,10 +54,10 @@ impl Cell {
 
 	pub fn to_string(&self) -> String { // (equals a b); a
 		return match &self {
-			&&Cell::Simple { string : _ } => {
+			&&Cell::Simple {..} => {
 				self.to_unwrapped_string()
 			},
-			&&Cell::Complex { cells : _ } => {
+			&&Cell::Complex {..} => {
 				"(".to_string() + &self.to_unwrapped_string() + ")"
 			},
 			_ => "<tmp>".to_string() // TODO
@@ -116,7 +116,7 @@ impl Cell {
 				}
 				id_out.as_ref().clone()
 			},
-			&&Cell::Simple { .. } => panic!("Cell::get_subcell(): Simple: index out of range")
+			&&Cell::Simple {..} => panic!("Cell::get_subcell(): Simple: index out of range")
 		};
 	}
 }
