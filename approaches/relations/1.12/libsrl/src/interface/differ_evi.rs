@@ -1,6 +1,7 @@
 use cell::Cell;
 use navi::RuleID;
 use evi::Evidence;
+use cell::mani::*;
 
 pub struct DifferEvidenceInterface<'a>(&'a Vec<Cell>);
 
@@ -16,11 +17,11 @@ impl<'a> DifferEvidenceInterface<'a> {
 			return Err("invalid rule_id".to_string());
 		}
 		let cell = rule_id.get_cell(&self.0);
-		match Cell::destructure_equals_cell(cell) {
+		match destructure_equals_cell(cell) {
 			Ok((cell1, cell2)) => {
 
 				let othercell : Cell;
-				let false_cell = Cell::false_cell();
+				let false_cell = false_cell();
 
 				if cell1 == false_cell {
 					othercell = cell2;
@@ -30,7 +31,7 @@ impl<'a> DifferEvidenceInterface<'a> {
 					return Err("there is no false cell".to_string());
 				}
 
-				match Cell::destructure_equals_cell(othercell) {
+				match destructure_equals_cell(othercell) {
 					Ok((cell1, cell2)) => return Ok(DifferEvidence(cell1, cell2)),
 					Err(x) => return Err(x)
 				}

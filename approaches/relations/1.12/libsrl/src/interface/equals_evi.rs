@@ -1,6 +1,7 @@
 use cell::Cell;
 use navi::RuleID;
 use evi::Evidence;
+use cell::mani::*;
 
 pub struct EqualsEvidenceInterface<'a>(&'a Vec<Cell>);
 
@@ -25,7 +26,7 @@ impl<'a> EqualsEvidenceInterface<'a> {
 			return Err("rule_id is invalid".to_string());
 		}
 		let cell = rule_id.get_cell(&self.0);
-		return match Cell::destructure_equals_cell(cell) {
+		return match destructure_equals_cell(cell) {
 			Ok((cell1, cell2)) => return Ok(EqualsEvidence(cell1, cell2)),
 			Err(x) => Err(x)
 		}
@@ -36,7 +37,7 @@ impl<'a> EqualsEvidenceInterface<'a> {
 		if ! rule_id.is_valid(self.0) {
 			return Err("rule_id is invalid".to_string());
 		}
-		Ok(EqualsEvidence(rule_id.get_cell(self.0), Cell::true_cell()))
+		Ok(EqualsEvidence(rule_id.get_cell(self.0), true_cell()))
 	}
 
 	// R6

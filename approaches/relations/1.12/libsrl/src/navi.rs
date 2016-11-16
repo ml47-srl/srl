@@ -1,4 +1,5 @@
 use cell::Cell;
+use cell::mani::*;
 
 #[derive(Clone)]
 pub struct RuleID(usize);
@@ -74,7 +75,7 @@ impl CellID {
 			match cell_id.get_cell(rules) {
 				Cell::Complex { cells : mut cells_out } => {
 					cells_out[last_index] = cell;
-					cell = Cell::complex(cells_out);
+					cell = complex(cells_out);
 				}
 				Cell::Simple { string : _ } => panic!("CellID::replace_by: failure 2"),
 				Cell::Scope { id : mut id_out, body : mut body_out } => {
@@ -85,7 +86,7 @@ impl CellID {
 					} else {
 						panic!("CellID::replace_by(): index different than 0 or 1 for scope cell");
 					}
-					cell = Cell::scope(*id_out, *body_out);
+					cell = scope(*id_out, *body_out);
 				},
 				Cell::Var { id : mut id_out } => {
 					if last_index == 0 {
@@ -94,7 +95,7 @@ impl CellID {
 						panic!("CellID::replace_by(): index different than 0 for var cell");
 					}
 
-					cell = Cell::var(*id_out);
+					cell = var(*id_out);
 				}
 			}
 		}

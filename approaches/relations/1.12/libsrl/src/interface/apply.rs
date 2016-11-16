@@ -3,6 +3,7 @@ use interface::equals_evi::EqualsEvidence;
 use interface::differ_evi::DifferEvidence;
 use evi::Evidence;
 use navi::CellID;
+use cell::mani::*;
 
 pub struct ApplyInterface<'a>(&'a mut Vec<Cell>);
 
@@ -16,7 +17,7 @@ impl<'a> ApplyInterface<'a> {
 		if ! evi.is_valid() {
 			return Err("evidence is invalid".to_string());
 		}
-		let result = Cell::equals_cell(evi.first_cloned(), evi.second_cloned());
+		let result = equals_cell(evi.first_cloned(), evi.second_cloned());
 		self.0.push(result.clone());
 		Ok(result)
 	}
@@ -49,7 +50,7 @@ impl<'a> ApplyInterface<'a> {
 		if ! evi.is_valid() {
 			return Err("evidence is invalid".to_string());
 		}
-		let result = Cell::equals_cell(Cell::equals_cell(evi.first_cloned(), evi.second_cloned()), Cell::false_cell());
+		let result = equals_cell(equals_cell(evi.first_cloned(), evi.second_cloned()), false_cell());
 		self.0.push(result.clone());
 		Ok(result)
 	}

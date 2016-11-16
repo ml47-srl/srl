@@ -1,5 +1,6 @@
 use parse::*;
 use cell::Cell;
+use cell::create::cell_by_tokens;
 use std::fs::File;
 use std::io::Read;
 use interface::apply::ApplyInterface;
@@ -22,7 +23,7 @@ impl Database {
 		let mut rules : Vec<Cell> = Vec::new();
 		for rule_string in rule_strings {
 			let tokens : Vec<String> = split_tokens(rule_string);
-			match Cell::by_tokens(tokens) {
+			match cell_by_tokens(tokens) {
 				Ok(x) => {
 					rules.push(x);
 				},
