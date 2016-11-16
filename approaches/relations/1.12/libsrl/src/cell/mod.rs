@@ -56,13 +56,10 @@ impl Cell {
 
 	pub fn to_string(&self) -> String { // (equals a b); a
 		return match &self {
-			&&Cell::Simple {..} => {
-				self.to_unwrapped_string()
-			},
 			&&Cell::Complex {..} => {
 				"(".to_string() + &self.to_unwrapped_string() + ")"
 			},
-			_ => "<tmp>".to_string() // TODO
+			_ => self.to_unwrapped_string()
 		}
 	}
 
@@ -78,7 +75,22 @@ impl Cell {
 				}
 				return string;
 			},
-			_ => "<tmp>".to_string() // TODO
+			&&Cell::Scope { id : ref id_out, body : ref body_out } => {
+				let mut string = String::new();
+				string.push('{');
+				string.push_str(&id_out.to_string());
+				string.push(' ');
+				string.push_str(&body_out.to_string());
+				string.push('}');
+				string
+			},
+			&&Cell::Var { id : ref id_out } => {
+				let mut string = String::new();
+				string.push('[');
+				string.push_str(&id_out.to_string());
+				string.push(']');
+				string
+			},
 		}
 	}
 
