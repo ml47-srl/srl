@@ -32,6 +32,22 @@ impl CellID {
 					Cell::Simple { string : string_out } => panic!("expected ComplexCell, got SimpleCell: '{}'", string_out),
 					Cell::Complex { cells : cells_out } => {
 						cell = cells_out[index].clone()
+					},
+					Cell::Scope { id : id_out, body : body_out } => {
+						if index == 0 {
+							cell = *id_out;
+						} else if index == 1 {
+							cell = *body_out;
+						} else {
+							panic!("CellID::get_cell(): index different than 0 or 1 for scope cell");
+						}
+					},
+					Cell::Var { id : id_out } => {
+						if index == 0 {
+							cell = *id_out;
+						} else {
+							panic!("CellID::get_cell(): index different than 0 for var cell");
+						}
 					}
 				}
 			}
@@ -60,7 +76,26 @@ impl CellID {
 					cells_out[last_index] = cell;
 					cell = Cell::complex(cells_out);
 				}
-				Cell::Simple { string : _ } => panic!("CellID::replace_by: failure 2")
+				Cell::Simple { string : _ } => panic!("CellID::replace_by: failure 2"),
+				Cell::Scope { id : mut id_out, body : mut body_out } => {
+					if last_index == 0 {
+						id_out = Box::new(cell);
+					} else if last_index == 1 {
+						body_out = Box::new(cell);
+					} else {
+						panic!("CellID::replace_by(): index different than 0 or 1 for scope cell");
+					}
+					cell = Cell::scope(*id_out, *body_out);
+				},
+				Cell::Var { id : mut id_out } => {
+					if last_index == 0 {
+						id_out = Box::new(cell);
+					} else {
+						panic!("CellID::replace_by(): index different than 0 for var cell");
+					}
+
+					cell = Cell::var(*id_out);
+				}
 			}
 		}
 		return cell;
@@ -77,6 +112,22 @@ impl CellID {
 				Cell::Simple { string : _ } => return false,
 				Cell::Complex { cells : cells_out } => {
 					cell = cells_out[index].clone();
+				},
+				Cell::Scope { id : id_out, body : body_out } => {
+					if index == 0 {
+						cell = *id_out;
+					} else if index == 1 {
+						cell = *body_out;
+					} else {
+						panic!("CellID::is_valid(): index different than 0 or 1 for scope cell");
+					}
+				},
+				Cell::Var { id : id_out } => {
+					if index == 0 {
+						cell = *id_out;
+					} else {
+						panic!("CellID::is_valid(): index different than 0 for var cell");
+					}
 				}
 			}
 		}

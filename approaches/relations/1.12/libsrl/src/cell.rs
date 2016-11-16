@@ -42,7 +42,9 @@ fn test_trim_tokens() {
 #[derive(PartialEq, Clone)]
 pub enum Cell {
 	Simple { string : String },
-	Complex { cells: Vec<Cell> }
+	Complex { cells: Vec<Cell> },
+	Scope { id : Box<Cell>, body : Box<Cell> }, // { ... }
+	Var { id : Box<Cell> } // [ ... ]
 }
 
 impl fmt::Debug for Cell {
@@ -76,30 +78,30 @@ impl Cell {
 		}
 
 		match equals_cell {
-			Cell::Simple { string : _ } => return Err("equals_cell is a simple cell".to_string()),
 			Cell::Complex { cells : cells_out } => {
 				if cells_out.len() != 3 {
 					return Err("equals_cell should have 2 arguments".to_string());
 				}
 
 				match cells_out[0] {
-					Cell::Complex { cells : _ } => return Err("first argument of equals cell is complex".to_string()),
 					Cell::Simple { string : ref string_out } => {
 						if string_out != "equals" {
 							return Err("first equals argument is not \"equals\"".to_string());
 						}
-					}
+					},
+					_ => return Err("first argument of equals cell isn't simple ".to_string()),
 				}
 
 				return Ok((cells_out[1].clone(), cells_out[2].clone()));
 			}
+			_ => return Err("equals_cell is no complex_cell".to_string()),
 		}
 	}
 
 	pub fn is_constant(&self) -> bool {
 		match &self {
 			&&Cell::Simple { string : ref string_out } => return string_out.starts_with('\'') && string_out.ends_with('\''),
-			&&Cell::Complex { cells : _ } => return false
+			_ => return false
 		}
 	}
 
@@ -120,6 +122,7 @@ impl Cell {
 				}
 				return true;
 			}
+			_ => return true // TODO Scope / Var
 		}
 	}
 
@@ -138,6 +141,14 @@ impl Cell {
 		Cell::Complex { cells : cells_arg }
 	}
 
+	pub fn scope(id : Cell, body : Cell) -> Cell {
+		return Cell::Scope { id : Box::new(id), body : Box::new(body) };
+	}
+
+	pub fn var(cell : Cell) -> Cell {
+		return Cell::Var { id : Box::new(cell) };
+	}
+
 	pub fn to_string(&self) -> String { // (equals a b); a
 		return match &self {
 			&&Cell::Simple { string : _ } => {
@@ -145,7 +156,8 @@ impl Cell {
 			},
 			&&Cell::Complex { cells : _ } => {
 				"(".to_string() + &self.to_unwrapped_string() + ")"
-			}
+			},
+			_ => "<tmp>".to_string() // TODO
 		}
 	}
 
@@ -160,7 +172,8 @@ impl Cell {
 					string.push_str(&cell.to_string());
 				}
 				return string;
-			}
+			},
+			_ => "<tmp>".to_string() // TODO
 		}
 	}
 
@@ -168,48 +181,78 @@ impl Cell {
 		self.to_unwrapped_string() + "."
 	}
 
+	pub fn simple_by_tokens(tokens : Vec<String>) -> Result<Cell, ()> {
+		if ! is_valid_id(&tokens[0]) {
+			panic!("Cell::by_tokens(): invalid id");
+		}
+
+		return Ok(Cell::simple(tokens[0].clone()));
+	}
+
+	pub fn complex_by_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {
+		let mut cells : Vec<Cell> = Vec::new();
+		let mut tmp_tokens : Vec<String> = Vec::new();
+		let mut parens = 0;
+
+		while ! tokens.is_empty() {
+			let token : String = tokens.remove(0).to_string();
+			tmp_tokens.push(token.clone());
+			if ! is_valid_id(&token) {
+				if token == "(" {
+					parens += 1;
+				}
+				else if token == ")" {
+					parens -= 1;
+				} else {
+					panic!("Cell::by_tokens(): weird invalid token='{}'", token);
+				}
+			}
+			if parens == 0 {
+				match Cell::by_tokens(tmp_tokens) {
+					Ok(x) => {
+						cells.push(x);
+					},
+					_ => panic!("Cell::by_tokens(): recursive call failed")
+				}
+				tmp_tokens = Vec::new();
+			}
+		}
+		return Ok(Cell::complex(cells));
+	}
+
+	pub fn scope_by_tokens(tokens : Vec<String>) -> Result<Cell, ()> {
+		Err(())
+		// TODO
+	}
+
+	pub fn var_by_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {
+		let len = tokens.len();
+
+		tokens.remove(0);
+		tokens.remove(len-1);
+
+		return match Cell::by_tokens(tokens) {
+			Ok(x) => Ok(Cell::var(x)),
+			Err(x) => Err(x)
+		};
+	}
+
 	pub fn by_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {
 		tokens = trim_tokens(tokens);
 
+		let len = tokens.len();
+
 		// if there is only one token => return it as simple cell
-		if tokens.len() == 0 {
+		if len == 0 {
 			panic!("Cell::by_tokens(): no tokens!");
 		} else if tokens.len() == 1 {
-			if ! is_valid_id(&tokens[0]) {
-				panic!("Cell::by_tokens(): invalid id");
-			}
-
-			return Ok(Cell::simple(tokens[0].clone()));
+			return Cell::simple_by_tokens(tokens);
+		} else if tokens[0] == "{" && tokens[len-1] == "}" {
+			return Cell::scope_by_tokens(tokens);
+		} else if tokens[0] == "[" && tokens[len-1] == "]" {
+			return Cell::var_by_tokens(tokens);
 		} else {
-
-			let mut cells : Vec<Cell> = Vec::new();
-			let mut tmp_tokens : Vec<String> = Vec::new();
-			let mut parens = 0;
-
-			while ! tokens.is_empty() {
-				let token : String = tokens.remove(0).to_string();
-				tmp_tokens.push(token.clone());
-				if ! is_valid_id(&token) {
-					if token == "(" {
-						parens += 1;
-					}
-					else if token == ")" {
-						parens -= 1;
-					} else {
-						panic!("Cell::by_tokens(): weird invalid token='{}'", token);
-					}
-				}
-				if parens == 0 {
-					match Cell::by_tokens(tmp_tokens) {
-						Ok(x) => {
-							cells.push(x);
-						},
-						_ => panic!("Cell::by_tokens(): recursive call failed")
-					}
-					tmp_tokens = Vec::new();
-				}
-			}
-			return Ok(Cell::complex(cells));
+			return Cell::complex_by_tokens(tokens);
 		}
 	}
 
