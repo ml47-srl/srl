@@ -7,6 +7,7 @@ use interface::apply::ApplyInterface;
 use interface::paradox::ParadoxInterface;
 use interface::equals_evi::EqualsEvidenceInterface;
 use interface::differ_evi::DifferEvidenceInterface;
+use interface::scope::ScopeInterface;
 use misc::*;
 
 pub struct Database {
@@ -66,6 +67,10 @@ impl Database {
 
 	pub fn differ_evi_i(&self) -> DifferEvidenceInterface {
 		DifferEvidenceInterface::new(&self.rules)
+	}
+
+	pub fn scope_i(&mut self) -> ScopeInterface {
+		ScopeInterface::new(&mut self.rules)
 	}
 
 	pub fn count_rules(&self) -> usize
