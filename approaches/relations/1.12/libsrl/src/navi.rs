@@ -97,3 +97,41 @@ impl CellID {
 		true
 	}
 }
+
+#[test]
+fn test_cell_id() {
+	let mut rules : Vec<Cell> = Vec::new();
+	rules.push(simple_by_str("truth"));
+	rules.push(complex(vec![simple_by_str("truth"), simple_by_str("wot")]));
+
+	assert!(CellID { rule_id : RuleID(0), indices : Vec::new() }.is_valid(&rules));
+	assert!(CellID { rule_id : RuleID(1), indices : Vec::new() }.is_valid(&rules));
+	assert!(! CellID { rule_id : RuleID(2), indices : Vec::new() }.is_valid(&rules));
+
+	assert_eq!(
+		CellID { rule_id : RuleID(0), indices : Vec::new() }.get_cell(&rules),
+		simple_by_str("truth")
+	);
+
+	assert_eq!(
+		CellID { rule_id : RuleID(1), indices : vec![0] }.get_cell(&rules),
+		simple_by_str("truth")
+	);
+
+	assert_eq!(
+		CellID { rule_id : RuleID(1), indices : vec![1] }.get_cell(&rules),
+		simple_by_str("wot")
+	);
+}
+
+#[test]
+fn test_cell_id_replace_by() {
+	let mut rules : Vec<Cell> = Vec::new();
+	rules.push(simple_by_str("truth"));
+	rules.push(complex(vec![simple_by_str("truth"), simple_by_str("wot")]));
+
+	assert_eq!(
+		CellID { rule_id : RuleID(1), indices : vec![1] }.replace_by(&rules, simple_by_str("wow")),
+		complex(vec![simple_by_str("truth"), simple_by_str("wow")])
+	);
+}
