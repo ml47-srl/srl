@@ -1,20 +1,16 @@
 # tests
 
-# <unsure>
-= 'false' (= x y ).
-= 'false' (= (a (b x)) (a (b y))).
-= 'false' (= (a x) (a y))?
-# </unsure>
+{ a { b (p <a> <b>)}}.
+{ a (p <a> <a>)}? # y
 
 { a { b (p <a> <b>)}}.
-{ a (p <a> <a>)}?
+{ a { b (p <b> <a>)}}? # y
 
 { a { b (p <a> <b>)}}.
-{ a { b (p <b> <a>)}}?
-
-{ a { b (p <a> <b>)}}.
-{ b { a (p <a> <b>)}}?
+{ b { a (p <a> <b>)}}? # y
 
 implies { a { b (p <a> <b>)}} { a (p <a> <a>)}?
 
-{ a (= <a> <a>)}?
+{ a (= <a> <a>)}? # y
+
+= 'false' { a (= <a> any_cell)}?
