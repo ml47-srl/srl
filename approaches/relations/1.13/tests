@@ -14,3 +14,5 @@ implies { a { b (p <a> <b>)}} { a (p <a> <a>)}?
 { a (= <a> <a>)}? # y
 
 = 'false' { a (= <a> any_cell)}?
+
+= 'false' { a (= 'false' (= <a> any_cell))}?
