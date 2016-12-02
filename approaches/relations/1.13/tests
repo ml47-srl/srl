@@ -45,3 +45,9 @@ p x.
 
 = 'false' { a (= <a> any_cell) }.
 = 'false' (= a_cell any_cell)!? # y
+
+{ a (= 'false' { b (= <b> any_cell)})}.
+{ a (= 'false' (= <a> any_cell))}!?
+
+{ a (= (= 'false' (= <a> <a>)) { b (= <b> any_cell)})}.
+{ a (= (= 'false' (= <a> <a>)) (= <a> any_cell))}!?
