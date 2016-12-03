@@ -11,6 +11,37 @@ die() {
 	exit
 }
 
+get_status() { # lawset test
+	lawset="$1"
+	_test="$2"
+
+	if [ "$(awk '/^''$/{print "1"}' "lawsets/$lawset/successful-tests.txt")" == 1 ]; then
+		return "y"
+	elif [ "$(awk '/^''$/{print "1"}' "lawsets/$lawset/failed-tests.txt")" == 1 ]; then
+		return "n"
+	fi
+	return "?"
+}
+
+set_status() { # lawset test status
+	lawset="$1"
+	_test="$2"
+	status="$3"
+
+	if [ "$status" == "y" ]; then
+		sed '/^'"$_test"'$/d' "lawsets/$lawset/failed-tests.txt"
+		echo "$_test" >> "lawsetes/$lawset/successful-tests.txt"
+	elif [ "$status" == "n" ]; then
+		sed '/^'"$_test"'$/d' "lawsets/$lawset/successful-tests.txt"
+		echo "$_test" >> "lawsetes/$lawset/failed-tests.txt"
+	elif [ "$status" == "?" ]; then
+		sed '/^'"$_test"'$/d' "lawsets/$lawset/successful-tests.txt"
+		sed '/^'"$_test"'$/d' "lawsets/$lawset/failed-tests.txt"
+	else
+		die "set_status called with invalid status: $status"
+	fi
+}
+
 call_add_test() {
 	mkdir "tests/$1"
 	vi "tests/$1/code.txt"
@@ -20,6 +51,7 @@ call_add_test() {
 call_add_lawset() {
 	mkdir "lawsets/$1"
 	touch "lawsets/$1/successful-tests.txt"
+	touch "lawsets/$1/failed-tests.txt"
 	vi "lawsets/$1/definition.txt"
 	echo "adding lawset '$1'"
 }
@@ -33,10 +65,11 @@ call_test_with_lawset_definition() { # lawset lawsetdefinition test
 		for __test in $(ls tests); do
 			call_test_with_lawset_definition "$_lawtest" "$lawset_defitinion" "$__test"
 		done
-	elif [ "$_test" == "n" ]; then
+	elif [ "$_test" == "?" ]; then
 		for __test in $(ls tests); do
-			# if not here yet TODO
-			call_test_with_lawset_definition "$_lawtest" "$lawset_defitinion" "$__test"
+			if [ "$(get_status "$lawset" "$_test")" == "?" ]; then
+				call_test_with_lawset_definition "$_lawtest" "$lawset_defitinion" "$__test"
+			fi
 		done
 	else
 		if [ ! -f "tests/$_test/code.txt" ]; then
@@ -54,11 +87,12 @@ call_test_with_lawset_definition() { # lawset lawsetdefinition test
 			printf ">> "
 			read answer
 			if [ "$answer" == "y" ]; then
-				if [ ! -f "lawsets/$lawset/successful-tests.txt" ]; then
-					die "could not find 'lawsets/$lawset/successful-tests.txt'"
-				fi
-				echo "$_test\n" >> "lawsets/$lawset/successful-tests.txt"
-			elif [ ! "$answer" == "n" ]; then
+				set_status "$lawset" "$_test" "y"
+			elif [ "$answer" == "n" ]; then
+				set_status "$lawset" "$_test" "n"
+			elif [ "$answer" == "?" ]; then
+				set_status "$lawset" "$_test" "?"
+			else
 				reset
 				echo -e 'What?\n'
 				continue
@@ -81,7 +115,6 @@ call_test() { # lawset test
 			die "could not find 'lawsets/$lawset/definition.txt'"
 		fi
 		lawset_definition="$(cat lawsets/$lawset/definition.txt)"
-		# echo "lsd=$lawset_definition"
 		call_test_with_lawset_definition "$lawset" "$lawset_definition" "$_test"
 	fi
 
