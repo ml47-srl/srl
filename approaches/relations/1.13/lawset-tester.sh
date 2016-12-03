@@ -13,30 +13,31 @@ die() {
 
 get_status() { # lawset test
 	lawset="$1"
-	_test="$2"
+	tst="$2"
 
-	if [ "$(awk '/^''$/{print "1"}' "lawsets/$lawset/successful-tests.txt")" == 1 ]; then
+	if [ "a$(awk '/^'"$tst"'$/{print "1"}' "lawsets/$lawset/successful-tests.txt")" == a1 ]; then
 		echo "y"
-	elif [ "$(awk '/^''$/{print "1"}' "lawsets/$lawset/failed-tests.txt")" == 1 ]; then
+	elif [ "a$(awk '/^'"$tst"'$/{print "1"}' "lawsets/$lawset/failed-tests.txt")" == a1 ]; then
 		echo "n"
+	else
+		echo "?"
 	fi
-	echo "?"
 }
 
 set_status() { # lawset test status
 	lawset="$1"
-	_test="$2"
+	tst="$2"
 	status="$3"
 
 	if [ "$status" == "y" ]; then
-		sed '/^'"$_test"'$/d' "lawsets/$lawset/failed-tests.txt"
-		echo "$_test" >> "lawsets/$lawset/successful-tests.txt"
+		sed '/^'"$tst"'$/d' "lawsets/$lawset/failed-tests.txt"
+		echo "$tst" >> "lawsets/$lawset/successful-tests.txt"
 	elif [ "$status" == "n" ]; then
-		sed '/^'"$_test"'$/d' "lawsets/$lawset/successful-tests.txt"
-		echo "$_test" >> "lawsets/$lawset/failed-tests.txt"
+		sed '/^'"$tst"'$/d' "lawsets/$lawset/successful-tests.txt"
+		echo "$tst" >> "lawsets/$lawset/failed-tests.txt"
 	elif [ "$status" == "?" ]; then
-		sed '/^'"$_test"'$/d' "lawsets/$lawset/successful-tests.txt"
-		sed '/^'"$_test"'$/d' "lawsets/$lawset/failed-tests.txt"
+		sed '/^'"$tst"'$/d' "lawsets/$lawset/successful-tests.txt"
+		sed '/^'"$tst"'$/d' "lawsets/$lawset/failed-tests.txt"
 	else
 		die "set_status called with invalid status: $status"
 	fi
@@ -59,39 +60,39 @@ call_add_lawset() {
 call_test_with_lawset_definition() { # lawset lawsetdefinition test
 	lawset="$1"
 	lawset_definition="$2"
-	_test="$3"
+	tst="$3"
 
-	if [ "$_test" == "all" ]; then
-		for __test in $(ls tests); do
-			call_test_with_lawset_definition "$_lawset" "$lawset_definition" "$__test"
+	if [ "$tst" == "all" ]; then
+		for for_tst in $(ls tests); do
+			call_test_with_lawset_definition "$lawset" "$lawset_definition" "$for_tst"
 		done
-	elif [ "$_test" == "new" ]; then
-		for __test in $(ls tests); do
-			if [ "$(get_status "$lawset" "$_test")" == "?" ]; then
-				call_test_with_lawset_definition "$_lawset" "$lawset_definition" "$__test"
+	elif [ "$tst" == "new" ]; then
+		for for_tst in $(ls tests); do
+			if [ "$(get_status "$lawset" "$for_tst")" == "?" ]; then
+				call_test_with_lawset_definition "$lawset" "$lawset_definition" "$for_tst"
 			fi
 		done
 	else
-		if [ ! -f "tests/$_test/code.txt" ]; then
-			die "could not find 'tests/$_test/code.txt'"
+		if [ ! -f "tests/$tst/code.txt" ]; then
+			die "could not find 'tests/$tst/code.txt'"
 		fi
-		test_code="$(cat tests/$_test/code.txt)"
+		test_code="$(cat tests/$tst/code.txt)"
 		tput reset
 		while true; do
 			echo -e "Lawset: $lawset\n"
 			echo "$lawset_definition"
 			echo "_______________________________________________________________________"
-			echo -e "Test: $_test\n"
+			echo -e "Test: $tst\n"
 			echo "$test_code"
 			echo "_______________________________________________________________________"
 			printf ">> "
 			read answer
 			if [ "$answer" == "y" ]; then
-				set_status "$lawset" "$_test" "y"
+				set_status "$lawset" "$tst" "y"
 			elif [ "$answer" == "n" ]; then
-				set_status "$lawset" "$_test" "n"
+				set_status "$lawset" "$tst" "n"
 			elif [ "$answer" == "?" ]; then
-				set_status "$lawset" "$_test" "?"
+				set_status "$lawset" "$tst" "?"
 			else
 				tput reset
 				echo -e 'What?\n'
@@ -105,17 +106,17 @@ call_test_with_lawset_definition() { # lawset lawsetdefinition test
 
 call_test() { # lawset test
 	lawset="$1"
-	_test="$2"
+	tst="$2"
 	if [ "$lawset" == "all" ]; then
-		for _lawset in $(ls lawsets); do
-			call_test "$_lawset" "$_test"
+		for for_lawset in $(ls lawsets); do
+			call_test "$for_lawset" "$tst"
 		done
 	else
 		if [ ! -f "lawsets/$lawset/definition.txt" ]; then
 			die "could not find 'lawsets/$lawset/definition.txt'"
 		fi
 		lawset_definition="$(cat lawsets/$lawset/definition.txt)"
-		call_test_with_lawset_definition "$lawset" "$lawset_definition" "$_test"
+		call_test_with_lawset_definition "$lawset" "$lawset_definition" "$tst"
 	fi
 
 }
