@@ -30,10 +30,10 @@ set_status() { # lawset test status
 
 	if [ "$status" == "y" ]; then
 		sed '/^'"$_test"'$/d' "lawsets/$lawset/failed-tests.txt"
-		echo "$_test" >> "lawsetes/$lawset/successful-tests.txt"
+		echo "$_test" >> "lawsets/$lawset/successful-tests.txt"
 	elif [ "$status" == "n" ]; then
 		sed '/^'"$_test"'$/d' "lawsets/$lawset/successful-tests.txt"
-		echo "$_test" >> "lawsetes/$lawset/failed-tests.txt"
+		echo "$_test" >> "lawsets/$lawset/failed-tests.txt"
 	elif [ "$status" == "?" ]; then
 		sed '/^'"$_test"'$/d' "lawsets/$lawset/successful-tests.txt"
 		sed '/^'"$_test"'$/d' "lawsets/$lawset/failed-tests.txt"
@@ -63,12 +63,12 @@ call_test_with_lawset_definition() { # lawset lawsetdefinition test
 
 	if [ "$_test" == "all" ]; then
 		for __test in $(ls tests); do
-			call_test_with_lawset_definition "$_lawset" "$lawset_defitinion" "$__test"
+			call_test_with_lawset_definition "$_lawset" "$lawset_definition" "$__test"
 		done
 	elif [ "$_test" == "new" ]; then
 		for __test in $(ls tests); do
 			if [ "$(get_status "$lawset" "$_test")" == "?" ]; then
-				call_test_with_lawset_definition "$_lawset" "$lawset_defitinion" "$__test"
+				call_test_with_lawset_definition "$_lawset" "$lawset_definition" "$__test"
 			fi
 		done
 	else
