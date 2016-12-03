@@ -16,11 +16,11 @@ get_status() { # lawset test
 	_test="$2"
 
 	if [ "$(awk '/^''$/{print "1"}' "lawsets/$lawset/successful-tests.txt")" == 1 ]; then
-		return "y"
+		echo "y"
 	elif [ "$(awk '/^''$/{print "1"}' "lawsets/$lawset/failed-tests.txt")" == 1 ]; then
-		return "n"
+		echo "n"
 	fi
-	return "?"
+	echo "?"
 }
 
 set_status() { # lawset test status
@@ -61,14 +61,14 @@ call_test_with_lawset_definition() { # lawset lawsetdefinition test
 	lawset_definition="$2"
 	_test="$3"
 
-	if [ "$_test" == "*" ]; then
+	if [ "$_test" == "all" ]; then
 		for __test in $(ls tests); do
-			call_test_with_lawset_definition "$_lawtest" "$lawset_defitinion" "$__test"
+			call_test_with_lawset_definition "$_lawset" "$lawset_defitinion" "$__test"
 		done
-	elif [ "$_test" == "?" ]; then
+	elif [ "$_test" == "new" ]; then
 		for __test in $(ls tests); do
 			if [ "$(get_status "$lawset" "$_test")" == "?" ]; then
-				call_test_with_lawset_definition "$_lawtest" "$lawset_defitinion" "$__test"
+				call_test_with_lawset_definition "$_lawset" "$lawset_defitinion" "$__test"
 			fi
 		done
 	else
@@ -106,9 +106,9 @@ call_test_with_lawset_definition() { # lawset lawsetdefinition test
 call_test() { # lawset test
 	lawset="$1"
 	_test="$2"
-	if [ "$lawset" == "*" ]; then
+	if [ "$lawset" == "all" ]; then
 		for _lawset in $(ls lawsets); do
-			call_test "$_lawtest" "$_test"
+			call_test "$_lawset" "$_test"
 		done
 	else
 		if [ ! -f "lawsets/$lawset/definition.txt" ]; then
@@ -122,7 +122,9 @@ call_test() { # lawset test
 
 
 if [[ $# < 1 ]]; then
-	die "not enough arguments"
+	echo "not enough arguments"
+	print_usage
+	exit
 fi
 
 if [ "$1" == "add-test" ]; then
