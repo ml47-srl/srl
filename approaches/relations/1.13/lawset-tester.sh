@@ -76,7 +76,7 @@ call_test_with_lawset_definition() { # lawset lawsetdefinition test
 			die "could not find 'tests/$_test/code.txt'"
 		fi
 		test_code="$(cat tests/$_test/code.txt)"
-		reset
+		tput reset
 		while true; do
 			echo -e "Lawset: $lawset\n"
 			echo "$lawset_definition"
@@ -93,7 +93,7 @@ call_test_with_lawset_definition() { # lawset lawsetdefinition test
 			elif [ "$answer" == "?" ]; then
 				set_status "$lawset" "$_test" "?"
 			else
-				reset
+				tput reset
 				echo -e 'What?\n'
 				continue
 			fi

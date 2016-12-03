@@ -1,0 +1,2 @@
+= 'false' { a (= <a> any_cell }.
+= 'false' (= a_cell any_cell)? should not
