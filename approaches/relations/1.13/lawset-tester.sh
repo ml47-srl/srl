@@ -1,6 +1,6 @@
 #!/bin/bash
 
-usage="Usage:\tlawset-tester add-test [test-name]\n\tlawset-tester add-lawset [lawset-name]\n\tlawset-tester test [lawset] [test]\n\t"
+usage="Usage:\tlawset-tester add-test [test-name]\n\tlawset-tester add-lawset [lawset-name]\n\tlawset-tester test [lawset] [test]\n\tlawset-tester dump-failed [lawset]"
 
 print_usage() {
 	echo -e "$usage"
@@ -121,6 +121,16 @@ call_test() { # lawset test
 
 }
 
+call_dump_failed() { # lawset
+	lawset="$1"
+	for for_tst in $(ls tests); do
+		if [ "$(get_status "$lawset" "$for_tst")" == "n" ]; then
+			echo "Test: $for_tst:"
+			cat tests/$for_tst/code.txt
+			echo
+		fi
+	done
+}
 
 if [[ $# < 1 ]]; then
 	echo "not enough arguments"
@@ -143,6 +153,11 @@ elif [ "$1" == "test" ]; then
 		die "test needs one argument"
 	fi
 	call_test "$2" "$3"
+elif [ "$1" == "dump-failed" ]; then
+	if [ ! $# == 2 ]; then
+		die "dump-failed needs one argument"
+	fi
+	call_dump_failed "$2"
 else
 	echo "invalid argument"
 	print_usage
