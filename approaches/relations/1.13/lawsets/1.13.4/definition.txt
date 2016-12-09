@@ -40,7 +40,7 @@ Dies ist kein Bestandteil von SRL sondern lediglich ein Erkl&auml;rsyntax.
 9. For-one Implikation
 10. Man kann anliegende Scopes austauschen
 11. Man kann die ID und alle Vars einer Scope-zelle umbenennen,
-    falls dadurch nicht zwei verschaltelte Scope-zellen mit gleicher ID auftreten
+    falls dadurch nicht zwei verschachtelte Scope-zellen mit gleicher ID auftreten
 
 ### Algemeine Informationen
 - Vars/Constants sind keine simplen Zellen<br />
