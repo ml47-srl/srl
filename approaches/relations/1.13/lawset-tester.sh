@@ -1,6 +1,17 @@
 #!/bin/bash
 
-usage="Usage:\tlawset-tester add-test [test]\n\tlawset-tester add-lawset [lawset]\n\tlawset-tester test [lawset] [test]\n\tlawset-tester dump-failed [lawset]\n\tlawset-tester ls-tests\n\tlawset-tester ls-lawsets\n\tlawset-tester print-test [testname]\n\tlawset-tester print-lawset [lawset]"
+usage="Usage:\tlawset-tester add-test [test]
+	lawset-tester add-lawset [lawset]
+	lawset-tester test [lawset] [test]
+	lawset-tester dump-failed [lawset]
+	lawset-tester dump-tests
+	lawset-tester dump-lawsets
+	lawset-tester ls-tests
+	lawset-tester ls-lawsets
+	lawset-tester print-test [testname]
+	lawset-tester print-lawset [lawset]"
+
+# complete -W "$(ls tests) $(ls lawsets) add-test add-lawset test dump-failed dump-tests dump-lawsets ls-tests ls-lawsets print-test print-lawset" "$0"
 
 print_usage() {
 	echo -e "$usage"
