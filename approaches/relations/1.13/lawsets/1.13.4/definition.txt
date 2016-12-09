@@ -9,15 +9,15 @@ Dies ist kein Bestandteil von SRL sondern lediglich ein Erkl&auml;rsyntax.
 1. Wenn es eine Regel "`= [[A]] [[B]].`" gibt,<br />
    wobei A und B Zellen sind,<br />
    darf man aus jeder Regel,<br />
-   ein Vorkommnis von `[[A]]` mit `[[B]]` ersetzen und die daraus resultierende Rege
-   Man darf auch ein Vorkommnis von `[[B]]` mit `[[A]]` ersetzen und die daraus resu
+   ein Vorkommnis von `[[A]]` mit `[[B]]` ersetzen und die daraus resultierende Regel gilt.<br />
+   Man darf auch ein Vorkommnis von `[[B]]` mit `[[A]]` ersetzen und die daraus resultierende Regel gilt auch.<br />
 
 2. Wenn die Regel "`'false'.`" gilt, ist die Datenbank paradox.<br />
    Alle Informationen, die man aus der Datenbank gewonnen hat sind ung&uuml;ltig.
 
 3. Die erste Regel jeder Datenbank ist immer: "`{a (= <a> <a>)}."`
 
-4. Es gilt f&uuml;r alle nicht string-gleiche Konstanten A und B: "`= 'false' (= [[A
+4. Es gilt f&uuml;r alle nicht string-gleiche Konstanten A und B: "`= 'false' (= [[A]] [[B]]).`"
 
 5. Aus jeder Regel R kann man die Regel "`= 'true' [[R]].`" ableiten.
 
