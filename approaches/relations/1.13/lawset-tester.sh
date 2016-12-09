@@ -1,6 +1,6 @@
 #!/bin/bash
 
-usage="Usage:\tlawset-tester add-test [test-name]\n\tlawset-tester add-lawset [lawset-name]\n\tlawset-tester test [lawset] [test]\n\tlawset-tester dump-failed [lawset]"
+usage="Usage:\tlawset-tester add-test [test]\n\tlawset-tester add-lawset [lawset]\n\tlawset-tester test [lawset] [test]\n\tlawset-tester dump-failed [lawset]\n\tlawset-tester ls-tests\n\tlawset-tester ls-lawsets\n\tlawset-tester print-test [testname]\n\tlawset-tester print-lawset [lawset]"
 
 print_usage() {
 	echo -e "$usage"
@@ -132,6 +132,38 @@ call_dump_failed() { # lawset
 	done
 }
 
+call_dump_tests() {
+	for for_tst in $(ls tests); do
+		echo "Test: $for_tst:"
+		cat tests/$for_tst/code.txt
+		echo
+	done
+}
+
+call_dump_lawsets() {
+	for for_tst in $(ls lawsets); do
+		echo "Lawset: $for_tst:"
+		cat tests/$for_tst/definition.txt
+		echo
+	done
+}
+
+call_ls_tests() {
+	ls tests
+}
+
+call_ls_lawsets() {
+	ls lawsets
+}
+
+call_print_test() {
+	cat "tests/$1/code.txt"
+}
+
+call_print_lawset() {
+	cat "lawsets/$1/definition.txt"
+}
+
 if [[ $# < 1 ]]; then
 	echo "not enough arguments"
 	print_usage
@@ -158,6 +190,36 @@ elif [ "$1" == "dump-failed" ]; then
 		die "dump-failed needs one argument"
 	fi
 	call_dump_failed "$2"
+elif [ "$1" == "dump-tests" ]; then
+	if [ ! $# == 1 ]; then
+		die "dump-tests needs no arguments"
+	fi
+	call_dump_tests
+elif [ "$1" == "dump-lawsets" ]; then
+	if [ ! $# == 1 ]; then
+		die "dump-lawsets needs no arguments"
+	fi
+	call_dump_lawsets
+elif [ "$1" == "ls-tests" ]; then
+	if [ ! $# == 1 ]; then
+		die "ls-tests needs no arguments"
+	fi
+	call_ls_tests
+elif [ "$1" == "ls-lawsets" ]; then
+	if [ ! $# == 1 ]; then
+		die "ls-lawsets needs no arguments"
+	fi
+	call_ls_lawsets
+elif [ "$1" == "print-test" ]; then
+	if [ ! $# == 2 ]; then
+		die "print-test needs one argument"
+	fi
+	call_print_test "$2"
+elif [ "$1" == "print-lawset" ]; then
+	if [ ! $# == 2 ]; then
+		die "print-lawset needs one argument"
+	fi
+	call_print_lawset "$2"
 else
 	echo "invalid argument"
 	print_usage
