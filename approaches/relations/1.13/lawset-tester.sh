@@ -26,6 +26,13 @@ get_status() { # lawset test
 	lawset="$1"
 	tst="$2"
 
+	if [ -z "$lawset" ]; then
+		die 'get_status; no lawset given'
+	fi
+	if [ -z "$tst" ]; then
+		die 'get_status; no test given'
+	fi
+
 	if [ "a$(awk '/^'"$tst"'$/{print "1"}' "lawsets/$lawset/successful-tests.txt")" == a1 ]; then
 		echo "y"
 	elif [ "a$(awk '/^'"$tst"'$/{print "1"}' "lawsets/$lawset/failed-tests.txt")" == a1 ]; then
@@ -39,6 +46,16 @@ set_status() { # lawset test status
 	lawset="$1"
 	tst="$2"
 	status="$3"
+
+	if [ -z "$lawset" ]; then
+		die 'set_status; no lawset given'
+	fi
+	if [ -z "$tst" ]; then
+		die 'set_status; no test given'
+	fi
+	if [ -z "$status" ]; then
+		die 'set_status; no status given'
+	fi
 
 	if [ "$status" == "y" ]; then
 		sed '/^'"$tst"'$/d' "lawsets/$lawset/failed-tests.txt"
@@ -55,12 +72,28 @@ set_status() { # lawset test status
 }
 
 call_add_test() {
+	if [ -z "$1" ]; then
+		die "call_add_test: no test-name given"
+	fi
+
+	if [ -d "tests/$1" ]; then
+		die "test already exists"
+	fi
+
 	mkdir "tests/$1"
 	vi "tests/$1/code.txt"
 	echo "adding test '$1'"
 }
 
 call_add_lawset() {
+	if [ -z "$1" ]; then
+		die "call_add_lawset: no lawset-name given"
+	fi
+
+	if [ -d "lawsets/$1" ]; then
+		die "lawset already exists"
+	fi
+
 	mkdir "lawsets/$1"
 	touch "lawsets/$1/successful-tests.txt"
 	touch "lawsets/$1/failed-tests.txt"
@@ -130,7 +163,6 @@ call_test() { # lawset test
 		lawset_definition="$(cat lawsets/$lawset/definition.txt)"
 		call_test_with_lawset_definition "$lawset" "$lawset_definition" "$tst"
 	fi
-
 }
 
 call_dump_failed() { # lawset
