@@ -2,3 +2,4 @@ everything-equals-itself
 only-outer-scope-insertion
 scope-exchange
 scope-to-scope-insertion
+implication

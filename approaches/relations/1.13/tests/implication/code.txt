@@ -1,0 +1,5 @@
+# this test should be answered with (y) if there is no implication-operator in this lawset
+
+=> x y.
+=> (= 'false' x) y.
+y?
