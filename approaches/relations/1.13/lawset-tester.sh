@@ -96,6 +96,7 @@ call_test_with_lawset_definition() { # lawset lawsetdefinition test
 			echo -e "Test: $tst\n"
 			echo "$test_code"
 			echo "_______________________________________________________________________"
+			echo "[y]: Yes, test passed	[n]: No, test failed	[?]: Answer not clear	[s]: Skip test"
 			printf ">> "
 			read answer
 			if [ "$answer" == "y" ]; then
@@ -104,7 +105,7 @@ call_test_with_lawset_definition() { # lawset lawsetdefinition test
 				set_status "$lawset" "$tst" "n"
 			elif [ "$answer" == "?" ]; then
 				set_status "$lawset" "$tst" "?"
-			else
+			elif [ ! "$answer" == "s" ]; then
 				tput reset
 				echo -e 'What?\n'
 				continue
