@@ -48,10 +48,8 @@ Dies ist kein Bestandteil von SRL sondern lediglich ein Erkl&auml;rsyntax.
 
 12. Implikations-erstellung
     Jede Regel
-    - "`=> [[scope]] [[scope]].`"
-    - "`=> (= [[cell1]] [[cell2]]) (= [[cell1]] [[cell2]]).`"
-    - "`=> [[cell]] 'true'.`"
-    - "`=> 'false' [[cell]].`"
+    - "`=> [[scope]] 'true'.`"
+    - "`=> (= [[cell1]] [[cell2]]) 'true'.`"
     gilt.
 
 13. Implikations-ableitung
@@ -64,6 +62,7 @@ Dies ist kein Bestandteil von SRL sondern lediglich ein Erkl&auml;rsyntax.
 14. Rechtsseitige-Implikations-manipulation:
     Wenn die Implikation I in der Safe-Zone ist, gilt:
     die rechte Seite einer Implikation I, kann durch Anwendung
+    - ihrer linken Implikationsseite
     - anderer Regeln gleicher linker-Implikationsseite
     - anderer Regeln ohne Implikation
     - scope-einsetzung der rechten Seite
