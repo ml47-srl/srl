@@ -55,7 +55,7 @@ Dies ist kein Bestandteil von SRL sondern lediglich ein Erkl&auml;rsyntax.
     - scope-einsetzung der rechten Seite
     verändert werden.
 
-### Algemeine Informationen
+### Allgemeine Informationen
 - Vars/Constants sind keine simplen Zellen<br />
 - Scopes sind auch keine komplexen Zellen<br />
 - Die ID einer Scope-zelle ist ihr erstes Argument<br />
