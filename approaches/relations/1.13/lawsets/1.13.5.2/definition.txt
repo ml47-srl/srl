@@ -41,25 +41,24 @@ Dies ist kein Bestandteil von SRL sondern lediglich ein Erkl&auml;rsyntax.
    F&uuml;r jede Var-Zelle die hiernach keine Scope-zelle hat,
    muss eine neue Scope-zelle ganz au&szlig;en um die Regel gelegt werden.
 
-9. For-one Implikation # TODO
-10. Man kann anliegende Scopes austauschen
-11. Man kann die ID und alle Vars einer Scope-zelle umbenennen,
+9. Man kann anliegende Scopes austauschen
+10. Man kann die ID und alle Vars einer Scope-zelle umbenennen,
     falls dadurch nicht zwei verschachtelte Scope-zellen mit gleicher ID auftreten
 
-12. Implikations-erstellung
+11. Implikations-erstellung
     Jede Regel
     - "`=> [[scope]] 'true'.`"
     - "`=> (= [[cell1]] [[cell2]]) 'true'.`"
     gilt.
 
-13. Implikations-ableitung
+12. Implikations-ableitung
     Wenn
        "`=> [[cell1]] [[cell2]].`"
     und
        "`=> (= 'false' [[cell1]]) [[cell2]].`", dann gilt:
     "`[[cell2]].`"
 
-14. Rechtsseitige-Implikations-manipulation:
+13. Rechtsseitige-Implikations-manipulation:
     Wenn die Implikation I in der Safe-Zone ist, gilt:
     die rechte Seite einer Implikation I, kann durch Anwendung
     - ihrer linken Implikationsseite

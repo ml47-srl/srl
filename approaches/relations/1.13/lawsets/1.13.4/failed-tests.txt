@@ -3,3 +3,4 @@ no-cell-equals-all-cells
 no-cell-equals-no-cells
 predicate-paradoxon
 double-negation
+forone

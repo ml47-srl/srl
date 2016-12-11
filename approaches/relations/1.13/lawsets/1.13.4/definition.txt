@@ -21,15 +21,13 @@ Dies ist kein Bestandteil von SRL sondern lediglich ein Erkl&auml;rsyntax.
 
 5. Aus jeder Regel R kann man die Regel "`= 'true' [[R]].`" ableiten.
 
-6. Ungleiches Verhalten => Ungleiche Zelle :/
-
-7. Wenn eine Zelle inkorrekt ist, darf sie nicht verwendet werden.<br />
+6. Wenn eine Zelle inkorrekt ist, darf sie nicht verwendet werden.<br />
    Inkorrekte Zellen:
    - Eine komplexe Zelle, welche inkorrekte Zellen enth&auml;lt
    - Eine Scope-zelle, die eine Scope-zelle mit der gleichen ID enth&auml;lt
    - Eine Scope-zelle, die eine eine inkorrekte Zelle enth&auml;lt
 
-8. Man alle Vorkommnisse einer Var-zelle x,
+7. Man alle Vorkommnisse einer Var-zelle x,
    aus der Regel R, mit einer beliebigen,
    aber festen Zelle austauschen,
    wenn die Scope-zelle von x ganz au&szlig;en in R steht.
@@ -37,9 +35,8 @@ Dies ist kein Bestandteil von SRL sondern lediglich ein Erkl&auml;rsyntax.
    F&uuml;r jede Var-Zelle die hiernach keine Scope-zelle hat,
    muss eine neue Scope-zelle ganz au&szlig;en um die Regel gelegt werden.
 
-9. For-one Implikation
-10. Man kann anliegende Scopes austauschen
-11. Man kann die ID und alle Vars einer Scope-zelle umbenennen,
+8. Man kann anliegende Scopes austauschen
+9. Man kann die ID und alle Vars einer Scope-zelle umbenennen,
     falls dadurch nicht zwei verschachtelte Scope-zellen mit gleicher ID auftreten
 
 ### Allgemeine Informationen

@@ -6,3 +6,4 @@ only-outer-scope-insertion
 predicate-paradoxon
 scope-exchange
 scope-to-scope-insertion
+forone
