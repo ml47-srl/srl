@@ -1,0 +1,7 @@
+= 'false' { a (p <a>) }.
+= 'false' { a (= 'true' (p <a>)) }?
+= 'false' (= 'true' { a (= 'true' (p <a>)) })?
+
+= 'false' (=> a b).
+= 'false' (=> (= 'true' a) b)?
+= 'false' (=> a (= 'true' b))?
