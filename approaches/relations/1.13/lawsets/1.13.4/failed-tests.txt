@@ -4,3 +4,6 @@ no-cell-equals-no-cells
 predicate-paradoxon
 double-negation
 forone
+bool-equiv-exchange
+in-scope
+scope-movement
