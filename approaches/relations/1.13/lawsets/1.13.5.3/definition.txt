@@ -1,0 +1,101 @@
+# SRL 1.13.5.3
+
+### Anmerkungen
+Alles, was in `[[...]]`-Klammern steht ist eine generische Angabe<br />
+und gilt f&uuml;r alles, was man dort einsetzen kann.<br />
+Dies ist kein Bestandteil von SRL sondern lediglich ein Erkl&auml;rsyntax.
+
+### Definitionen
+1. Definition Safe-Zone
+   Eine Zelle "`[[cell]]`" ist dann in der Safe-Zone von ihrer Regel R, wenn sie
+   - ganz au&szlig;en in R steht
+   - der body einer scope-zelle ist, welche in der Safe-Zone ist
+   - die rechte Seite einer Implikation ist, welche in der Safe-Zone ist
+
+2. Definition Bool-zelle
+   - regeln
+   - scopes
+   - implies-zellen
+   - equals-zellen
+   - Bodies von scopes (positional)
+   - linke/rechte Argumente von implications (positional)
+   Wenn etwas eine positional bool-zelle ist, ist sie nur dort zwangsläufig eine bool-zelle, wo sie sich gerade befindet.
+
+3. Definition Implication-set
+   Imp(a) ist die Menge aller linken Implikationsseiten einer Zelle, bezogen auf eine bestimmte Regel R.
+   Wenn a die äußerste Regel von R ist, dann ist Imp(a) = {}.
+   Andernfalls, wenn a in der Safe-Zone von R liegt, und die rechte Seite einer Implikation I ist, dann ist Imp(a) die kleinste Menge,
+   	worin alle Elemente von Imp(Parent-zelle von a) und auch die linke Seite der Implikation I enthalten sind. 
+   Andernfalls, ist Imp(a) das gleiche wie Imp(Parent-zelle von a).
+
+### Gesetze
+1. Wenn es eine Zelle z: "`= [[cell1]] [[cell2]].`" aus der Safe-zone der Regel R1 gibt,<br />
+   darf man aus jeder Regel R2, wenn Imp([[cell1]]) bezogen auf R2 eine (unechte) Teilmenge von Imp([[cell1]]) bezogen auf R1 ist:<br />
+   ein Vorkommnis von `[[cell1]]` mit `[[cell2]]` ersetzen und die daraus resultierende Regel gilt.<br />
+   Man darf auch ein Vorkommnis von `[[cell2]]` mit `[[cell1]]` ersetzen und die daraus resultierende Regel gilt auch.<br />
+
+2. Es gibt zwei core-rules:
+    "`{ a (= <a> <a>)}.`"
+    "`{ a (=> <a> 'true')}.`"
+    dies sind immer die ersten Regeln jeder Datenbank.
+
+3. Wenn [[cell1]] und [[cell2]] string-ungleiche Konstanten sind, kann man "`(= [[cell1]] [[cell2]])`" mit 'false' austauschen.
+
+4. Jede Bool-Zelle z kann man mit "`= 'true' [[z]].`" austauschen.
+   Man kann auch ein = 'true' um eine bool-zelle wegnehmen, wenn man weiß, dass die innere Zelle eine bool-zelle ist.
+
+5. Wenn eine Scope-zelle S mit der Var-zelle v in der Safe-Zone von R liegt, darf man in sie etwas einsetzen
+   Beim Einsetzen muss man alle v mit einer beliebigen,
+   aber festen Zelle austauschen,
+   Aus der Scope-zelle { a b } wird hierbei "`(= 'true' b)`"
+
+6. Man kann anliegende Scopes austauschen.
+
+7. Man kann die ID und alle Vars einer Scope-zelle umbenennen,
+   falls dadurch nicht zwei verschachtelte Scope-zellen mit gleicher ID auftreten.
+
+8. Man kann jedes Scope "{ a p }", dessen Var nicht in p vorkommt, mit "(= 'true' [[p]])" austauschen.
+   Man kann auch jede Zelle (= 'true' z), mit { a z } austauschen, falls in z kein <a> vorkommt
+   und dadurch nicht zwei verschachtelte Scope-zellen mit gleicher ID auftreten.
+
+9. Implikations-ableitung
+    Wenn die Zellen
+       "`=> (= 'true' [[cell1]]) [[cell2]].`"
+    und
+       "`=> (= 'false' (= 'true' [[cell1]])) [[cell2]].`", in einer Safe-zone stehen, dann kann man in die gleiche Safe-zone das folgende ableiten:
+    "`[[cell2]].`"
+
+10. Rechtsseitige-Implikations-manipulation:
+    Wenn die Implikation I in der Safe-Zone ist, gilt:
+    die rechte Seite einer Implikation I, kann durch Anwendung
+    - ihrer linken Implikationsseite
+    - anderer Regeln gleicher linker-Implikationsseite
+    - anderer Regeln ohne Implikation
+    verändert werden.
+
+11. Wenn eine Regel eine Var-zelle ohne Scope enth&auml;lt, ist die einzige korrekte Operation,
+    die man mit dieser Regel machen kann, ganz au&szlig;en um die Regel die ben&ouml;tigte Scope-zelle zu legen.
+
+### Allgemeine Informationen
+- Vars/Constants sind keine simplen Zellen<br />
+- Scopes sind auch keine komplexen Zellen<br />
+- Die ID einer Scope-zelle ist ihr erstes Argument<br />
+- Die ID einer Scope-zelle dient zur Zuordnung der Vars zur Scope-zelle<br />
+
+1. Wenn die Regel "`'false'.`" gilt, ist die Datenbank paradox.<br />
+   Alle Informationen, die man aus der Datenbank gewonnen hat sind ung&uuml;ltig.
+
+2. Wenn eine Zelle inkorrekt ist, darf sie nicht verwendet werden.<br />
+   Inkorrekte Zellen: (siehe Zellendifferenzierung)
+   - Eine komplexe Zelle, welche inkorrekte Zellen enth&auml;lt
+   - Eine Scope-zelle, die eine Scope-zelle mit der gleichen ID enth&auml;lt
+   - Eine Scope-zelle, die eine eine inkorrekte Zelle enth&auml;lt
+
+### Zellendifferenzierung
+- Zellen sind eins von den folgenden: scope, complex, simple, constant, var<br />
+- Scope = "`{[[simple]] [[cell]]}`"<br />
+- complex = "`([[cell]] [[cell]] ...)`"<br />
+- simple = Zeichenkette nur aus Buchstaben von A-Z, a-z, 0-9 und _
+- constant = "`'[[simple]]'`"<br />
+- var = "`<[[simple]]>`"<br />
+- Alle Zellen die keinen oder mehreren dieser Definitionen entsprechen, sind inkorrekt
