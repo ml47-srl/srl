@@ -7,3 +7,4 @@ forone
 bool-equiv-exchange
 in-scope
 scope-movement
+equals-exchangability

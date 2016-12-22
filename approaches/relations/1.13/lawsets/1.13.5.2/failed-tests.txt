@@ -1,0 +1,4 @@
+bool-equiv-exchange
+equals-exchangability
+in-scope
+scope-movement
