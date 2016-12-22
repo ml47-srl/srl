@@ -9,7 +9,8 @@ usage="Usage:\tlawset-tester add-test [test]
 	lawset-tester ls-tests
 	lawset-tester ls-lawsets
 	lawset-tester print-test [testname]
-	lawset-tester print-lawset [lawset]"
+	lawset-tester print-lawset [lawset]
+	lawset-tester table"
 
 # complete -W "$(ls tests) $(ls lawsets) add-test add-lawset test dump-failed dump-tests dump-lawsets ls-tests ls-lawsets print-test print-lawset" "$0"
 
@@ -208,6 +209,68 @@ call_print_lawset() {
 	cat "lawsets/$1/definition.txt"
 }
 
+call_table() {
+	#   L L L L 
+	# T
+	# T
+	# T
+
+	lawsets=($(ls lawsets))
+	tests=($(ls tests))
+	lawsets_len=${#lawsets[*]}
+	tests_len=${#tests[*]}
+
+	# determine lengths
+	lengths[0]=0
+	for tst in ${tests[*]}; do
+		if [ "${#tst}" -gt "${lengths[0]}" ]; then
+			lengths[0]="${#tst}"
+		fi
+	done
+
+	for ((i=0;i<$lawsets_len;i++)); do
+		lengths[$(($i+1))]=${#lawsets[$i]}
+	done
+
+	# first line
+	for ((i=0;i<${lengths[0]};i++)); do
+		resultstring=" $resultstring"
+	done
+
+	for lawset in ${lawsets[*]}; do
+		resultstring="$resultstring | $lawset"
+	done
+	resultstring="$resultstring\n"
+
+	# all other lines
+	pause="==========================================================================================================================================="
+	for tst in ${tests[*]}; do
+		resultstring="$resultstring$pause\n"
+		resultstring="$resultstring$tst"
+		buffer=$(( ${lengths[0]} - ${#tst} ))
+		for ((i=0;i<$buffer;i++)); do
+			resultstring="$resultstring "
+		done
+		lawset_i=0
+		for lawset in ${lawsets[*]}; do
+			stats=$(get_status $lawset $tst)
+			if [ $stats == "?" ]; then
+				stats=" "
+			fi
+			resultstring="$resultstring | $stats"
+			buffer=$(( ${lengths[$(( $lawset_i + 1 ))]} - 1 )) # 1 == ${#stats}
+			for ((i=0;i<$buffer;i++)); do
+				resultstring="$resultstring "
+			done
+			lawset_i="$(($lawset_i + 1))"
+		done
+		resultstring="$resultstring\n"
+	done
+
+	# output
+	echo -e "$resultstring" | less -S
+}
+
 if [[ $# < 1 ]]; then
 	echo "not enough arguments"
 	print_usage
@@ -264,6 +327,11 @@ elif [ "$1" == "print-lawset" ]; then
 		die "print-lawset needs one argument"
 	fi
 	call_print_lawset "$2"
+elif [ "$1" == "table" ]; then
+	if [ ! $# == 1 ]; then
+		die "table needs no arguments"
+	fi
+	call_table
 else
 	echo "invalid argument"
 	print_usage
