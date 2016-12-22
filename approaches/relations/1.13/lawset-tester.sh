@@ -231,6 +231,18 @@ call_table() {
 	for ((i=0;i<$lawsets_len;i++)); do
 		lengths[$(($i+1))]=${#lawsets[$i]}
 	done
+	lengths_len=${#lengths[*]}
+
+	# calculate pause = "==========================+=====+===+====+=====..."
+	pause=""
+	for ((i=0;i<$lengths_len;i++)); do
+		for ((j=0;j<${lengths[$i]};j++)); do
+			pause="$pause="
+		done
+		if [ "$(( $i + 1 ))" -lt "$lengths_len" ]; then # if this is not the last iteration
+			pause="$pause=+="
+		fi
+	done
 
 	# first line
 	for ((i=0;i<${lengths[0]};i++)); do
@@ -241,9 +253,8 @@ call_table() {
 		resultstring="$resultstring | $lawset"
 	done
 	resultstring="$resultstring\n"
-
+	
 	# all other lines
-	pause="==========================================================================================================================================="
 	for tst in ${tests[*]}; do
 		resultstring="$resultstring$pause\n"
 		resultstring="$resultstring$tst"
