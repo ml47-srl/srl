@@ -1,0 +1,14 @@
+bool-equiv-exchange
+different-behaviour---different-cell
+double-negation
+everything-equals-itself
+forone
+implication
+in-scope
+no-cell-equals-all-cells
+no-cell-equals-no-cells
+only-outer-scope-insertion
+predicate-paradoxon
+scope-exchange
+scope-movement
+scope-to-scope-insertion

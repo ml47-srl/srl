@@ -1,5 +1,13 @@
 # this test should be answered with (y) if there is no implication-operator in this lawset
 
-=> x y.
-=> (= 'false' x) y.
-y?
+=> (= x y) z.
+=> (= 'false' (= x y)) z.
+z?
+
+=> (=> x y) z.
+=> (= 'false' (=> x y)) z.
+z?
+
+=> { a (p <a>) } z.
+=> (= 'false' { a (p <a>) }) z.
+z?
