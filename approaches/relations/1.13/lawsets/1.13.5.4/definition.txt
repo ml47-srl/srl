@@ -5,6 +5,37 @@ Alles, was in `[[...]]`-Klammern steht ist eine generische Angabe<br />
 und gilt f&uuml;r alles, was man dort einsetzen kann.<br />
 Dies ist kein Bestandteil von SRL sondern lediglich ein Erkl&auml;rsyntax.
 
+Wenn man die Zelle X mit der Zelle Y *ersetzen* kann,
+heißt das, dass man aus einer Regel R eine neue Regel hinzufügen kann, die gleich R ist,
+nur dass ein Vorkommnis von X mit Y ersetzt wurde.
+
+Wenn man die Zellen X und Y *umtauschen* kann, kann man
+- X mit Y *ersetzen*
+- Y mit X *ersetzen*
+
+### Allgemeine Informationen
+1.
+	- Vars/Constants sind keine simplen Zellen<br />
+	- Scopes sind auch keine komplexen Zellen<br />
+	- Die ID einer Scope-zelle ist ihr erstes Argument<br />
+	- Die ID einer Scope-zelle dient zur Zuordnung der Vars zur Scope-zelle<br />
+
+2. Wenn
+	- die Regel "`'false'.`" gilt,<br />
+	- eine Var-zelle nicht in eine Scope-zelle gleicher ID eingebettet ist
+	- Zwei Scope-zellen, welche ineinander liegen, die gleiche ID haben oder
+	- eine Zelle keiner der Zellenform entspricht (siehe Zellendifferenzierung)
+   ist die Datenbank paradox.
+   Alle Informationen, die man aus der Datenbank gewonnen hat sind ung&uuml;ltig.
+
+### Zellendifferenzierung
+- Zellen sind eins von den folgenden: scope, complex, simple, constant, var<br />
+- Scope = "`{[[simple]] [[cell]]}`"<br />
+- complex = "`([[cell]] [[cell]] ...)`"<br />
+- simple = Zeichenkette nur aus Buchstaben von A-Z, a-z, 0-9 und _
+- constant = "`'[[simple]]'`"<br />
+- var = "`<[[simple]]>`"<br />
+
 ### Definitionen
 1. Definition Wrapper
    Ein Wrapper W:(Cell, Cell) ist eine Funktion.
@@ -20,31 +51,30 @@ Dies ist kein Bestandteil von SRL sondern lediglich ein Erkl&auml;rsyntax.
 
 2. Definition bool
    Die folgenden Zellen sind Bool-zellen:
-   - rules
-   - equals-cells
-   - implies-cells
-   - scope-cells
+   - Regeln
+   - (= [[a]] [[b]]), also Gleichheits-zellen
+   - (=> [[a]] [[b]]), also Implikationen
+   - { [[id]] [[body]] }, also Scopes
    - 'true'
    - 'false'
-   - => __this__ __this__ (positional)
-   - { a __this__ } (positional)
+   Argumente von Implikationen und Körper von Scopes zählen als (positional) Bool-zellen.
 
 ### Gesetze
 1. Equals-replace
-   Wenn es eine Regel R1 = W(a) gibt, wobei W der Wrapper um a ist,
-   darf ich, falls es eine Regel R2 = "W(= b c)" gibt, b und c in R1's a umtauschen.
+   Wenn es eine Regel R1 = W([[a]]) gibt, wobei W der Wrapper um a ist,
+   darf ich, falls es eine Regel R2 = W("= [[b]] [[c]]") gibt, b und c in R1's a umtauschen.
 
 2. core-rules:
    Jede Datenbank beginnt mit folgenden Regeln:
    - "`{a (= <a> <a>)}.`"
-   - "`{a (=> <a> 'true').`"
+   - "`{a (=> <a> 'true')}.`"
 
 3. Es gilt f&uuml;r alle nicht string-gleichen Konstanten A und B,
-   dass man "(= [[A]] [[B]])" mit 'false' austauschen kann.
+   dass man "(= [[A]] [[B]])" mit 'false' ersetzen kann.
 
-4. Jede Bool-zelle b kann man mit "`= 'true' [[b]].`" austauschen.
-   Man kann dann auch aus "`= 'true' [[b]]`" ein "`[[b]]`" machen.
-   Beide Umwandlungen gehen auch für positional bools.
+4. Man darf c mit "`= 'true' [[c]]`" ersetzen, wenn c eine Bool-zelle ist.
+   Man darf auch "`= 'true' [[c]]`" mit c ersetzen,
+   solange das eingesetze c, nach der Einsetzung, eine Bool-zelle ist.
 
 5. Scope-Einsetzung
    Man kann in ein Scope S = { a p } aus der Regel R etwas einsetzen, wenn es einen Wrapper W gibt, mit W(S) = R.
@@ -57,15 +87,16 @@ Dies ist kein Bestandteil von SRL sondern lediglich ein Erkl&auml;rsyntax.
    falls dadurch nicht zwei verschachtelte Scope-zellen mit gleicher ID auftreten
 
 7. Implikations-ableitung
+   Sei W(x) ein Wrapper.
    Wenn
-	"`=> [[bool]] [[cell]].`"
+	W("`=> [[bool]] [[cell]]`")
    und
-	"`=> (= 'false' [[bool]]) [[cell]].`", dann gilt:
-   "`[[cell]].`"
+	W("`=> (= 'false' [[bool]]) [[cell]]`"), dann gilt:
+   W("`[[cell]]`")
    [[bool]] muss dabei eine bool-zelle sein.
 
 8. X1 und X2 seien Elementare Wrapper,
-   Man kann X1(X2(x)) mit X2(X1(x)) austauschen, wenn
+   Man kann X1(X2(x)) mit X2(X1(x)) ersetzen, wenn
    - X1 und X2 den gleichen Typ haben (Scope oder Implikation)
    - X1 eine Implikation ist, X2 ein Scope ist
      und die linke Implikationsseite von X1 kein Scope mit der gleichen ID, wie X2's Scope enthält
@@ -75,27 +106,4 @@ Dies ist kein Bestandteil von SRL sondern lediglich ein Erkl&auml;rsyntax.
 9. Implikations-effekt
    Seien W1 und W2 Wrapper, X ein elementarer Implikations-wrapper
    und die linke Implikationsseite von X ist (= [[b]] [[c]]).
-   In jeder Regel R = W1(X(W2(a))) kann man in a, durch die linke Implikationsseite b und c vertauschen.
-
-### Allgemeine Informationen
-1. 
-	- Vars/Constants sind keine simplen Zellen<br />
-	- Scopes sind auch keine komplexen Zellen<br />
-	- Die ID einer Scope-zelle ist ihr erstes Argument<br />
-	- Die ID einer Scope-zelle dient zur Zuordnung der Vars zur Scope-zelle<br />
-
-2. Wenn
-	- die Regel "`'false'.`" gilt,<br />
-   	- eine Var-zelle nicht in eine Scope-zelle gleicher ID eingebettet ist
-   	- Zwei Scope-zellen, welche ineinander liegen, die gleiche ID haben oder
-	- eine Zelle keiner der Zellenform entspricht (siehe Zellendifferenzierung)
-   ist die Datenbank paradox.
-   Alle Informationen, die man aus der Datenbank gewonnen hat sind ung&uuml;ltig.
-
-### Zellendifferenzierung
-- Zellen sind eins von den folgenden: scope, complex, simple, constant, var<br />
-- Scope = "`{[[simple]] [[cell]]}`"<br />
-- complex = "`([[cell]] [[cell]] ...)`"<br />
-- simple = Zeichenkette nur aus Buchstaben von A-Z, a-z, 0-9 und _
-- constant = "`'[[simple]]'`"<br />
-- var = "`<[[simple]]>`"<br />
+   In jeder Regel R = W1(X(W2(a))) kann man in a, durch die linke Implikationsseite b und c umtauschen.
