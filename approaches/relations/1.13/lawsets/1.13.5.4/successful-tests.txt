@@ -12,3 +12,4 @@ predicate-paradoxon
 scope-exchange
 scope-movement
 scope-to-scope-insertion
+everything-implies-itself
