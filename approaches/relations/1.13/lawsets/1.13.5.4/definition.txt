@@ -62,7 +62,8 @@ Wenn man die Zellen X und Y *umtauschen* kann, kann man
 ### Gesetze
 1. Equals-replace
    Wenn es eine Regel R1 = W([[a]]) gibt, wobei W der Wrapper um a ist,
-   darf ich, falls es eine Regel R2 = W("= [[b]] [[c]]") gibt, b und c in R1's a umtauschen.
+   darf ich, falls es eine Regel R2 = W("= [[b]] [[c]]") gibt, b und c in R1's a umtauschen,
+   falls dadurch keine integrierten Scopes gleicher ID entstehen.
 
 2. core-rules:
    Jede Datenbank beginnt mit folgenden Regeln:
