@@ -1,0 +1,214 @@
+# equals-exchangability
+
+{a {b (= (= <a> <b>) (= <b> <a>))}}?
+
+{a (= <a> <a>)}.
+{a (= 'true' (= <a> <a>))}.
+{a 'true' }.
+= 'true' {a 'true' }.
+= 'true' {b 'true' }.
+{a {b 'true' } }.
+{c (= <c> <c>)}.
+= 'true' {c (= <c> <c>)}.
+{a {b {c (= <c> <c>)} } }.
+{a {b (= (= <a> <b>) (= <a> <b>)) }}.
+
+# base:
+{a {b 'true' }}.
+{a {b (= (= <a> <b>) (= <a> <b>)) }}.
+
+{a (=> <a> 'true')}.
+= 'true' {a (=> <a> 'true')}.
+= 'true' {c (=> <c> 'true')}.
+
+{a {b {c
+	(=>
+		<c>
+		'true'
+	)
+}}}.
+
+# next base:
+{a {b
+	(=>
+		(= <b> <a>)
+		'true'
+	)
+}}.
+
+{a {b
+	(=>
+		(= 'false' (= <b> <a>))
+		'true'
+	)
+}}.
+
+{a {b # old
+	(=
+		'true'
+		(= (= <a> <b>) (= <a> <b>))
+	)
+}}.
+
+# working out one half
+{a {b
+	(=>
+		(= <b> <a>)
+		(= (= <a> <b>) (= <a> <b>))
+	)
+}}.
+
+{a {b
+	(=>
+		(= <b> <a>)
+		(= (= <a> <b>) (= <a> <a>))
+	)
+}}.
+
+{a {b
+	(=>
+		(= <b> <a>)
+		(= (= <a> <b>) (= <b> <a>))
+	)
+}}. # half!
+
+# working out other half
+{a {b
+	(=>
+		(= 'false' (= <b> <a>))
+		(= (= <a> <b>) (= <a> <b>)) # i want them changed!
+	)
+}}.
+
+{a {b
+	(=>
+		(= 'false' (= <b> <a>))
+		(= 'true' (= (= <a> <b>) (= <a> <b>))) # i want them changed!
+	)
+}}.
+
+{a {b
+	(=>
+		(= 'false' (= <b> <a>))
+		'true'
+	)
+}}.
+
+{ a (=> <a> 'true') }.
+{ c (=> <c> 'true') }.
+= 'true' { c (=> <c> 'true') }.
+
+{a {b
+	(=>
+		(= 'false' (= <b> <a>))
+		{ c (=> <c> 'true') }
+	)
+}}.
+
+# next fucking base:
+{a {b
+	(=>
+		(= 'false' (= <b> <a>))
+		(=>
+			(= <a> <b>)
+			'true'
+		)
+	)
+}}.
+
+{a {b
+	(=>
+		(= 'false' (= <b> <a>))
+		(=>
+			(= 'false' (= <a> <b>))
+			'true'
+		)
+	)
+}}.
+
+# next next fucking base:
+{a {b
+	(=>
+		(= 'false' (= <b> <a>))
+		(=>
+			(= <a> <b>)
+			(= (= <a> <b>) (= <a> <b>))
+		)
+	)
+}}.
+
+{a {b
+	(=>
+		(= 'false' (= <b> <a>))
+		(=>
+			(= 'false' (= <a> <b>))
+			(= (= <a> <b>) (= <a> <b>))
+		)
+	)
+}}.
+
+# next next ... fucking base:
+{a {b
+	(=>
+		(= 'false' (= <b> <a>))
+		(=>
+			(= <a> <b>)
+			(= (= <a> <b>) (= <a> <a>))
+		)
+	)
+}}.
+
+{a {b
+	(=>
+		(= 'false' (= <b> <a>))
+		(=>
+			(= 'false' (= <a> <b>))
+			(= (= <a> <b>) 'false')
+		)
+	)
+}}.
+
+# next next ... fucking base:
+{a {b
+	(=>
+		(= 'false' (= <b> <a>))
+		(=>
+			(= <a> <b>)
+			(= (= <a> <b>) (= <b> <a>))
+		)
+	)
+}}.
+
+{a {b
+	(=>
+		(= 'false' (= <b> <a>))
+		(=>
+			(= 'false' (= <a> <b>))
+			(= (= <a> <b>) (= <b> <a>))
+		)
+	)
+}}.
+
+# and this makes:
+{a {b
+	(=>
+		(= 'false' (= <b> <a>))
+		(= (= <a> <b>) (= <b> <a>))
+	)
+}}.
+
+# combined with:
+{a {b
+	(=>
+		(= <b> <a>)
+		(= (= <a> <b>) (= <b> <a>))
+	)
+}}.
+
+# ==>
+
+{a {b
+	(= (= <a> <b>) (= <b> <a>))
+}}.
+
+# PROVE!
