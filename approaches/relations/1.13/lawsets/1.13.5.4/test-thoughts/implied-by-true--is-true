@@ -1,0 +1,182 @@
+# implied-by-true--is-true
+
+{a
+	(=
+		(=> 'true' <a>)
+		(= 'true' <a>)
+	)
+}?
+
+{a
+	(=
+		(= 'true' <a>)
+		(= 'true' <a>)
+	)
+}.
+
+# b1
+{a
+	(=> (= 'true' <a>))
+		(=
+			(= 'true' <a>)
+			(= 'true' <a>)
+		)
+	)
+}.
+
+# core rule
+{a (=> <a> 'true')}.
+=> 'true' 'true'.
+= 'true' (=> 'true' 'true').
+
+{a
+	(=> (= 'true' <a>))
+		(=
+			(= 'true' 'true')
+			(= 'true' <a>)
+		)
+	)
+}.
+
+{a
+	(=> (= 'true' <a>))
+		(=
+			'true'
+			(= 'true' <a>)
+		)
+	)
+}.
+
+{a
+	(=> (= 'true' <a>))
+		(=
+			(=> 'true' 'true')
+			(= 'true' <a>)
+		)
+	)
+}.
+
+{a
+	(=> (= 'true' <a>))
+		(=
+			(=> 'true' <a>)
+			(= 'true' <a>)
+		)
+	)
+}. # did
+
+# b2
+{a
+	(=> (= 'false' (= 'true' <a>)))
+		(=
+			(= 'true' <a>)
+			(= 'true' <a>)
+		)
+	)
+}.
+
+# excourse:
+{a
+	(=> (= 'false' (= 'true' <a>)))
+		(=
+			'false'
+			(=> 'true' <a>)
+		)
+	)
+}?
+
+{a
+	(=> (= 'false' (= 'true' <a>)))
+		(=
+			(=> 'true' <a>)
+			(=> 'true' <a>)
+		)
+	)
+}.
+
+{a
+	(=> (= 'false' (= 'true' <a>)))
+		(=
+			(=> 'true' (= 'true' <a>))
+			(=> 'true' <a>)
+		)
+	)
+}.
+
+{a
+	(=> (= 'false' (= 'true' <a>)))
+		(=
+			(=> 'true' 'false')
+			(=> 'true' <a>)
+		)
+	)
+}.
+
+# TODO proof (= (=> 'true' 'false') 'false')
+
+{a
+	(=> (= 'false' (= 'true' <a>)))
+		(=
+			'false'
+			(=> 'true' <a>)
+		)
+	)
+}.
+
+# excourse over
+
+{a
+	(=> (= 'false' (= 'true' <a>)))
+		(=
+			(= 'true' <a>)
+			(= 'true' <a>)
+		)
+	)
+}.
+
+{a
+	(=> (= 'false' (= 'true' <a>)))
+		(=
+			'false'
+			(= 'true' <a>)
+		)
+	)
+}.
+
+{a
+	(=> (= 'false' (= 'true' <a>)))
+		(=
+			(=> 'true' <a>)
+			(= 'true' <a>)
+		)
+	)
+}. # did
+
+# with b1 and b2
+
+{a
+	(=> (= 'true' <a>))
+		(=
+			(=> 'true' <a>)
+			(= 'true' <a>)
+		)
+	)
+}.
+
+{a
+	(=> (= 'false' (= 'true' <a>)))
+		(=
+			(=> 'true' <a>)
+			(= 'true' <a>)
+		)
+	)
+}.
+
+# we get:
+
+{a
+	(=
+		(=> 'true' <a>)
+		(= 'true' <a>)
+	)
+}. #, which is, what we wanted
