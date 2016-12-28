@@ -14,3 +14,4 @@ scope-movement
 scope-to-scope-insertion
 everything-implies-itself
 equals-exchangability
+false-implies-everything

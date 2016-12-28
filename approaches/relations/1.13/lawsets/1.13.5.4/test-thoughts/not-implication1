@@ -1,0 +1,245 @@
+# not-implication1
+{a {b
+	(=>
+		(= 'false' (=> <a> <b>))
+		(= 'true' <a>)
+	)
+}}?
+
+# init
+{a (= <a> <a>)}.
+{a (= 'true' (= <a> <a>))}.
+{a 'true' }.
+= 'true' {a 'true' }.
+= 'true' {b 'true' }.
+{a {b 'true' }}.
+{a (=> <a> 'true')}.
+{c (=> <c> 'true')}.
+= 'true' {c (=> <c> 'true')}.
+
+{a {b
+	{c (=> <c> 'true') }
+}}.
+
+# base:
+{a {b
+	(=>
+		(= 'false' (=> <a> <b>))
+		'true'
+	)
+}}.
+
+{a {b
+	(= 'true'
+		(=>
+			(= 'false' (=> <a> <b>))
+			'true'
+		)
+	)
+}}.
+
+# remember:
+
+{a {b
+	{c (=> <c> 'true') }
+}}.
+
+{a {b
+	(=> <a> 'true')
+}}.
+
+{a {b
+	(=> (= 'false' <a>) 'true')
+}}.
+
+# b1
+{a {b
+	(=> (= 'true' <a>)
+		(=>
+			(= 'false' (=> <a> <b>))
+			'true' # should become <a>
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'true' <a>)
+		(=>
+			(= 'false' (=> <a> <b>))
+			<a>
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'true' <a>)
+		(=>
+			(= 'false' (=> <a> <b>))
+			(= 'true' <a>)
+		)
+	)
+}}. # gg
+
+# b2
+{a {b
+	(=> (= 'false' (= 'true' <a>))
+		(=>
+			(= 'false' (=> <a> <b>))
+			'true' # should become (= 'true' <a>)
+		)
+	)
+}}.
+
+
+# TODO go on, now!
+
+
+
+
+
+
+
+{a {b
+	(=> (= 'false' <a>)
+		(=>
+			(= 'false' (=> 'false' <b>))
+			'true'
+		)
+	)
+}}.
+
+# how? TODO
+
+{a {b
+	(=> (= 'false' <a>)
+		(=>
+			(= 'false' 'true')
+			'true'
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'false' <a>)
+		(=>
+			'false'
+			'true'
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'false' <a>)
+		(=>
+			'false'
+			(= 'true' 'true')
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'false' <a>)
+		(=>
+			(= 'true' 'false')
+			(= 'true' 'true')
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'false' <a>)
+		(=>
+			(= 'true' 'false')
+			(= 'true' 'false')
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'false' <a>)
+		(=>
+			(= 'true' 'false')
+			(= 'true' <a>)
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'false' <a>)
+		(=>
+			(= 'true' 'false')
+			(= 'true' <a>)
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'false' <a>)
+		(=>
+			'false'
+			(= 'true' <a>)
+		)
+	)
+}}.
+
+# by core-rule:
+= (= 'false' 'true') (= 'false' 'true').
+= 'false' (= 'false' 'true').
+
+{a {b
+	(=> (= 'false' <a>)
+		(=>
+			(= 'false' 'true') # 'true' should be (=> <a> <b>)
+			(= 'true' <a>)
+		)
+	)
+}}.
+
+# how? TODO
+
+{a {b
+	(=> (= 'false' <a>)
+		(=>
+			(= 'false' (=> 'false' <b>))
+			(= 'true' <a>)
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'false' <a>)
+		(=>
+			(= 'false' (=> <a> <b>))
+			(= 'true' <a>)
+		)
+	)
+}}. # yup, done
+
+# combine b1, b2
+
+{a {b
+	(=> <a>
+		(=>
+			(= 'false' (=> <a> <b>))
+			(= 'true' <a>)
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'false' <a>)
+		(=>
+			(= 'false' (=> <a> <b>))
+			(= 'true' <a>)
+		)
+	)
+}}.
+
+# makes:
+
+{a {b
+	(=>
+		(= 'false' (=> <a> <b>))
+		(= 'true' <a>)
+	)
+}}.
