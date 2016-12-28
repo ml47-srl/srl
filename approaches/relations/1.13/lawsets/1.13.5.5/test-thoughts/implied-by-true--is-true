@@ -1,0 +1,180 @@
+# implied-by-true--is-true
+
+{0
+	(=
+		(=> 'true' 0)
+		(= 'true' 0)
+	)
+}?
+
+{0
+	(=
+		(= 'true' 0)
+		(= 'true' 0)
+	)
+}.
+
+# b1
+{0
+	(=> (= 'true' 0))
+		(=
+			(= 'true' 0)
+			(= 'true' 0)
+		)
+	)
+}.
+
+# core rule
+{0 (=> 0 'true')}.
+=> 'true' 'true'.
+= 'true' (=> 'true' 'true').
+
+{0
+	(=> (= 'true' 0))
+		(=
+			(= 'true' 'true')
+			(= 'true' 0)
+		)
+	)
+}.
+
+{0
+	(=> (= 'true' 0))
+		(=
+			'true'
+			(= 'true' 0)
+		)
+	)
+}.
+
+{0
+	(=> (= 'true' 0))
+		(=
+			(=> 'true' 'true')
+			(= 'true' 0)
+		)
+	)
+}.
+
+{0
+	(=> (= 'true' 0))
+		(=
+			(=> 'true' 0)
+			(= 'true' 0)
+		)
+	)
+}. # did
+
+# b2
+{0
+	(=> (= 'false' (= 'true' 0)))
+		(=
+			(= 'true' 0)
+			(= 'true' 0)
+		)
+	)
+}.
+
+# excourse:
+{0
+	(=> (= 'false' (= 'true' 0)))
+		(=
+			'false'
+			(=> 'true' 0)
+		)
+	)
+}?
+
+{0
+	(=> (= 'false' (= 'true' 0)))
+		(=
+			(=> 'true' 0)
+			(=> 'true' 0)
+		)
+	)
+}.
+
+{0
+	(=> (= 'false' (= 'true' 0)))
+		(=
+			(=> 'true' (= 'true' 0))
+			(=> 'true' 0)
+		)
+	)
+}.
+
+{0
+	(=> (= 'false' (= 'true' 0)))
+		(=
+			(=> 'true' 'false')
+			(=> 'true' 0)
+		)
+	)
+}.
+
+{0
+	(=> (= 'false' (= 'true' 0)))
+		(=
+			'false'
+			(=> 'true' 0)
+		)
+	)
+}.
+
+# excourse over
+
+{0
+	(=> (= 'false' (= 'true' 0)))
+		(=
+			(= 'true' 0)
+			(= 'true' 0)
+		)
+	)
+}.
+
+{0
+	(=> (= 'false' (= 'true' 0)))
+		(=
+			'false'
+			(= 'true' 0)
+		)
+	)
+}.
+
+{0
+	(=> (= 'false' (= 'true' 0)))
+		(=
+			(=> 'true' 0)
+			(= 'true' 0)
+		)
+	)
+}. # did
+
+# with b1 and b2
+
+{0
+	(=> (= 'true' 0))
+		(=
+			(=> 'true' 0)
+			(= 'true' 0)
+		)
+	)
+}.
+
+{0
+	(=> (= 'false' (= 'true' 0)))
+		(=
+			(=> 'true' 0)
+			(= 'true' 0)
+		)
+	)
+}.
+
+# we get:
+
+{0
+	(=
+		(=> 'true' 0)
+		(= 'true' 0)
+	)
+}. #, which is, what we wanted
