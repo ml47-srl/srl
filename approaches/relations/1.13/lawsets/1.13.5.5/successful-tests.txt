@@ -18,3 +18,4 @@ false-implies-everything
 not-implication
 true-not-impl-false
 implied-by-true--is-true
+implies-false--is-false

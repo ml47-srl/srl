@@ -1,6 +1,6 @@
 {a
 	(=
-		(= <a> 'false')
+		(= 'false' (= 'true' <a>))
 		(=> <a> 'false')
 	)
 }?

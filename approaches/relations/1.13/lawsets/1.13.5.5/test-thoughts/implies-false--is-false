@@ -1,0 +1,173 @@
+# implies-false--is-false
+
+{0
+	(=
+		(= 'false' (= 'true' 0))
+		(=> 0 'false')
+	)
+}?
+
+# b1
+{0
+	(=>
+		(= 'true' 0)
+		(=
+			(= 'false' (= 'true' 0))
+			(= 'false' (= 'true' 0))
+		)
+	)
+}.
+
+{0
+	(=>
+		(= 'true' 0)
+		(=
+			(= 'false' (= 'true' 0))
+			(= 'false' (= 'true' 'true'))
+		)
+	)
+}.
+
+{0
+	(=>
+		(= 'true' 0)
+		(=
+			(= 'false' (= 'true' 0))
+			(= 'false' 'true')
+		)
+	)
+}.
+
+{0
+	(=>
+		(= 'true' 0)
+		(=
+			(= 'false' (= 'true' 0))
+			'false'
+		)
+	)
+}.
+
+{0
+	(=>
+		(= 'true' 0)
+		(=
+			(= 'false' (= 'true' 0))
+			(=> 'true' 'false')
+		)
+	)
+}.
+
+{0
+	(=>
+		(= 'true' 0)
+		(=
+			(= 'false' (= 'true' 0))
+			(=> 0 'false')
+		)
+	)
+}.
+
+# b2
+{0
+	(=>
+		(= 'false' (= 'true' 0))
+		(=
+			(=> 0 'false')
+			(=> 0 'false')
+		)
+	)
+}.
+
+{0
+	(=>
+		(= 'false' (= 'true' 0))
+		(=
+			(=> (= 'true' 0) 'false')
+			(=> 0 'false')
+		)
+	)
+}.
+
+{0
+	(=>
+		(= 'false' (= 'true' 0))
+		(=
+			(=> 'false' 'false')
+			(=> 0 'false')
+		)
+	)
+}.
+
+# see proof everything-implies-itself
+
+{0
+	(=>
+		(= 'false' (= 'true' 0))
+		(=
+			'true'
+			(=> 0 'false')
+		)
+	)
+}.
+
+{0
+	(=>
+		(= 'true' (= 'false' (= 'true' 0)))
+		(=
+			'true'
+			(=> 0 'false')
+		)
+	)
+}.
+
+{0
+	(=>
+		(= 'true' (= 'false' (= 'true' 0)))
+		(=
+			(= 'false' (= 'true' 0))
+			(=> 0 'false')
+		)
+	)
+}.
+
+{0
+	(=>
+		(= 'false' (= 'true' 0))
+		(=
+			(= 'false' (= 'true' 0))
+			(=> 0 'false')
+		)
+	)
+}. # did
+
+# with b1 and b2 ...
+
+{0
+	(=>
+		(= 'true' 0)
+		(=
+			(= 'false' (= 'true' 0))
+			(=> 0 'false')
+		)
+	)
+}.
+
+{0
+	(=>
+		(= 'false' (= 'true' 0))
+		(=
+			(= 'false' (= 'true' 0))
+			(=> 0 'false')
+		)
+	)
+}.
+
+# we get:
+
+{0
+	(=
+		(= 'false' (= 'true' 0))
+		(=> 0 'false')
+	)
+}.
