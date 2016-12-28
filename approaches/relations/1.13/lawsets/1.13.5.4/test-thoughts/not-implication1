@@ -90,14 +90,14 @@
 	)
 }}.
 
-
-# TODO go on, now!
-
-
-
-
-
-
+{a {b
+	(=> (= 'false' (= 'true' <a>))
+		(=>
+			(= 'false' (=> (= 'true' <a>) <b>))
+			'true' # should become (= 'true' <a>)
+		)
+	)
+}}.
 
 {a {b
 	(=> (= 'false' <a>)
@@ -108,7 +108,7 @@
 	)
 }}.
 
-# how? TODO
+# see false-implies-everything for proof
 
 {a {b
 	(=> (= 'false' <a>)
@@ -195,7 +195,7 @@
 	)
 }}.
 
-# how? TODO
+# see false-implies-everything for proof
 
 {a {b
 	(=> (= 'false' <a>)
