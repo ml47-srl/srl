@@ -20,3 +20,4 @@ true-not-impl-false
 implied-by-true--is-true
 implies-false--is-false
 nothing-equals-its-opposite
+double-implication
