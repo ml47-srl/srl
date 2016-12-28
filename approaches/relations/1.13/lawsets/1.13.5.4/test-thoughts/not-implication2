@@ -1,8 +1,167 @@
 # not-implication2
 
-{ a { b
+{a {b
 	(=>
 		(= 'false' (=> <a> <b>))
 		(= 'false' (= 'true' <b>))
 	)
 }}?
+
+# b1
+{a {b
+	(=> (= 'false' (= 'true' <b>))
+		(=>
+			(= 'false' (=> <a> <b>))
+			'true'
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'true' (= 'false' (= 'true' <b>)))
+		(=>
+			(= 'false' (=> <a> <b>))
+			'true'
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'true' (= 'false' (= 'true' <b>)))
+		(=>
+			(= 'false' (=> <a> <b>))
+			(= 'false' (= 'true' <b>))
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'false' (= 'true' <b>))
+		(=>
+			(= 'false' (=> <a> <b>))
+			(= 'false' (= 'true' <b>))
+		)
+	)
+}}. # wow, such tough
+
+# b2
+{a {b
+	(=> (= 'true' <b>)
+		(=>
+			(= 'false' (=> <a> <b>))
+			'true'
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'true' <b>)
+		(=>
+			(= 'false' (=> <a> 'true'))
+			'true'
+		)
+	)
+}}.
+
+# everything implies true
+
+{a {b
+	(=> (= 'true' <b>)
+		(=>
+			(= 'false' 'true')
+			'true'
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'true' <b>)
+		(=>
+			(= 'false' 'true')
+			(= 'true' 'true')
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'true' <b>)
+		(=>
+			(= 'false' 'true')
+			(= 'true' 'true')
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'true' <b>)
+		(=>
+			(= 'false' 'true')
+			(= 'true' (= 'true' 'true'))
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'true' <b>)
+		(=>
+			(= 'false' 'true')
+			(= 'false' (= 'true' 'true'))
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'true' <b>)
+		(=>
+			(= 'false' 'true')
+			(= 'false' (= 'true' <b>))
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'true' <b>)
+		(=>
+			(= 'false' (=> <a> 'true'))
+			(= 'false' (= 'true' <b>))
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'true' <b>)
+		(=>
+			(= 'false' (=> <a> <b>))
+			(= 'false' (= 'true' <b>))
+		)
+	)
+}}. # did
+
+# and with combining b1 and b2:
+
+{a {b
+	(=> (= 'false' (= 'true' <b>))
+		(=>
+			(= 'false' (=> <a> <b>))
+			(= 'false' (= 'true' <b>))
+		)
+	)
+}}.
+
+{a {b
+	(=> (= 'true' <b>)
+		(=>
+			(= 'false' (=> <a> <b>))
+			(= 'false' (= 'true' <b>))
+		)
+	)
+}}.
+
+# we prove:
+
+{a {b
+	(=>
+		(= 'false' (=> <a> <b>))
+		(= 'false' (= 'true' <b>))
+	)
+}}.
