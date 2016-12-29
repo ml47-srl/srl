@@ -22,3 +22,4 @@ implies-false--is-false
 nothing-equals-its-opposite
 double-implication
 add-useless-impl
+scope-negation1
