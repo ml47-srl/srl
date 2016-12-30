@@ -93,10 +93,12 @@ Wenn man die Zellen X und Y *umtauschen* kann, kann man
    Diese Ersatz-zelle darf keine Vars enthalten, dessen Scopes nach der Einsetzung nicht umliegen.
 
 6. Existenz-gesetz:
-   Wenn es eine Regel R = "= 'false' {[[number]] [[cell]]}" gibt,
-   und die simple Zelle [[z]] noch nie/nirgends in der Datenbank vorliegt, # such global == optimal?, doesnt work in Wrappers too
+   Sei W(x) ein Wrapper.
+   Wenn es eine Regel R = W("= 'false' {[[number]] [[cell]]}") gibt,
+   und die simple Zelle [[z]] noch nie/nirgends in der Datenbank vorliegt,
    kann man sich daraus folgendes ableiten:
-   "= 'false' (= 'true' [[cell]]).", wobei alle Vorkommnisse von [[number]] mit [[z]] ersetzt werden.
+   W("= 'false' (= 'true' [[cell]])."),
+   wobei alle Vorkommnisse von [[number]] mit [[z]] ersetzt werden.
 
 7. Implikations-ableitung
    Sei W(x) ein Wrapper.
