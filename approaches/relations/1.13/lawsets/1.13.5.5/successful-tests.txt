@@ -25,3 +25,4 @@ add-useless-impl
 scope-negation1
 scope-negation2
 scope-negation3
+contraposition
