@@ -23,3 +23,5 @@ nothing-equals-its-opposite
 double-implication
 add-useless-impl
 scope-negation1
+scope-negation2
+scope-negation3
