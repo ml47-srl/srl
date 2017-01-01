@@ -1,0 +1,114 @@
+# SRL 1.13.5.6
+
+### Anmerkungen
+Alles, was in `[[...]]`-Klammern steht ist eine generische Angabe<br />
+und gilt f&uuml;r alles, was man dort einsetzen kann.<br />
+Dies ist kein Bestandteil von SRL sondern lediglich ein Erkl&auml;rsyntax.
+
+Wenn man die Zelle X mit der Zelle Y *ersetzen* kann,
+heißt das, dass man aus einer Regel R eine neue Regel hinzufügen kann, die gleich R ist,
+nur dass ein Vorkommnis von X mit Y ersetzt wurde.
+
+Wenn man die Zellen X und Y *umtauschen* kann, kann man
+- X mit Y *ersetzen*
+- Y mit X *ersetzen*
+
+### Zellendifferenzierung
+- Zellen sind eins von den folgenden: scope, complex, simple, constant, var<br />
+- Scope = "`{[[number]] [[cell]]}`"<br />
+- complex = "`([[cell]] [[cell]] ...)`"<br />
+- simple = Zeichenkette nur aus Buchstaben von A-Z, a-z und _
+- constant = "`'[[simple]]'`"<br />
+- var = [[number]]
+- number = Zeichenkette aus 0-9
+
+### Allgemeine Informationen
+1. Die Quelldatenbank ist eine Menge an Regeln, welche die Axiome eines Systems repräsentieren.
+   Man kann mit den unten genannten Gesetzen aus der Quelldatenbank neue Informationen ableiten.
+   In der Quelldatenbank dürfen keine "=>" Zellen enthalten sein.
+
+2. Wenn
+	- die Regel "`'false'.`" gilt,<br />
+	- eine Var-zelle nicht in eine Scope-zelle gleicher ID eingebettet ist
+	- Zwei Scope-zellen, aus einer Regel, die gleiche ID haben oder
+	- eine Zelle keiner der Zellenform entspricht (siehe Zellendifferenzierung)
+   ist die Datenbank paradox.
+   Alle Informationen, die man aus der Datenbank gewonnen hat sind ung&uuml;ltig.
+
+3. Bevor zwei Zellen/Regeln durch beliebige Gesetze miteinander kombiniert werden, werden alle Scope-IDs ihrer Scopes eindeutig voneinander getrennt.
+   Die Trennung kann z.B. dadurch geschehen, dass auf die IDs der einen Zelle die größte ID der anderen Zelle + 1 addiert werden.
+
+   Jede Regel muss, bevor sie der Datenbank hinzugefügt werden kann erst normalisiert werden:
+   Die Normalisierung bedeutet, dass die IDs wieder in eine gut-lesbare chronologische Form kommen, so, dass alle IDs in aufsteigender Reihenfolge stehen.
+   z.B.: normalisiert("{3 {2 (= {12 {33 (= x {44 (lel 3) })}} {234 {4 (= 'true' 4) }})}}") = "{0 {1 (= {2 {3 (= x {4 (lel 0) })}} {5 {6 (= 'true' 6) }})}}"
+
+4.
+	- Vars/Constants sind keine simplen Zellen<br />
+	- Scopes sind auch keine komplexen Zellen<br />
+	- Die ID einer Scope-zelle ist ihr erstes Argument<br />
+	- Die ID einer Scope-zelle dient zur Zuordnung der Vars zur Scope-zelle<br />
+
+
+### Definitionen
+1. Definition Wrapper
+   Ein Wrapper W:(Cell, Cell) ist eine Funktion.
+   Alle Wrapper bilden sich folgenderma&szlig;en rekursiv:
+	   W(c) = c, oder
+	   W(c) = {[[number]] X(c) }, oder
+	   W(c) = (=> [[cell]] X(c)),
+   wobei X(c) auch ein Wrapper ist.
+
+   Elementare Wrapper sind:
+   W(c) = {[[number]] c } und (Elementarer Wrapper vom Typ Scope)
+   W(c) = (=> [[cell]] x) (Elementarer Wrapper vom Typ Implikation)
+
+2. Definition bool
+   Die folgenden Zellen sind Bool-zellen:
+   - Regeln
+   - (= [[a]] [[b]]), also Gleichheits-zellen
+   - {[[number]] [[body]] }, also Scopes
+   - 'true'
+   - 'false'
+   Argumente von Implikationen und Körper von Scopes zählen als (positional) Bool-zellen.
+
+### Gesetze
+1. Equals-replace
+   Wenn es eine Regel R1 = W([[a]]) gibt, wobei W der Wrapper um a ist,
+   darf ich,
+	- falls es eine Regel R2 = W("= [[b]] [[c]]") gibt,
+	- oder falls es W einen elementaren Implikationswrapper, dessen linke Implikationsseite "(= [[b]] [[c]])" ist, enthält
+   b und c in R1's a umtauschen.
+
+2. core-rules:
+   Jede Datenbank beginnt mit folgenden Regeln:
+   - "`{0 (= 0 0)}.`"
+
+3. Es gilt f&uuml;r alle nicht string-gleichen Konstanten A und B,
+   dass man "(= [[A]] [[B]])" mit 'false' ersetzen kann.
+
+4. Man darf c mit "`= 'true' [[c]]`" ersetzen, wenn c eine Bool-zelle ist.
+   Man darf auch "`= 'true' [[c]]`" mit c ersetzen,
+   solange das eingesetze c, nach der Einsetzung, eine Bool-zelle ist.
+
+5. Scope-Einsetzung
+   Man kann in ein Scope S = "{[[number]] p }" aus der Regel R etwas einsetzen, wenn es einen Wrapper W gibt, mit W(S) = R.
+   Beim Einsetzen, wird aus {[[number]] p } ein p,
+   wobei alle Vorkommnisse von `number` mit einer beliebigen, aber festen Ersatz-zelle ersetzt werden.
+   Diese Ersatz-zelle darf keine Vars enthalten, dessen Scopes nach der Einsetzung nicht umliegen.
+
+6. Implikations-ableitung
+   Sei W(x) ein Wrapper.
+   Wenn
+	W("`=> [[bool]] [[cell]]`")
+   und
+	W("`=> (= 'false' [[bool]]) [[cell]]`"), dann gilt:
+   W("`[[cell]]`")
+   [[bool]] muss dabei eine bool-zelle sein.
+
+8. Wenn es eine Regel R = W(a) gibt, wobei W ein Wrapper und a eine Zelle ist,
+   dann darf man daraus die Regel W("(=> [[cell]] a)") ableiten, wobei [[cell]] eine beliebige Zelle ist, welche keine Vars nicht-umliegender scopes enthält.
+
+# TODO reichen diese Gesetze? oder braucht man noch:
+# - man kann elementare Wrapper austauschen?
+# - exlaw, or something equivalent
+# - full definition of implication
