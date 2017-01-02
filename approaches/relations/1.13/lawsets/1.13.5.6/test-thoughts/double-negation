@@ -1,55 +1,62 @@
 # double-negation
 
-#1
-= 'false' (= 'false' { a (p <a>)})!
-{ a (p <a>)}?
+= 'false' (= 'false' {0 (p 0)})!
+{0 (p 0)}?
 
-#2
 = 'false' (= 'false' (= x y))!
 = x y?
 
 
-#1 
-= 'false' (= 'false' { a (p <a>)})!
+= 'false' (= 'false' {0 (p 0)})!
 
-=>
-	(= 'true' { a (p <a>)})
-	'true'.
+[=>
+	(= 'true' {0 (p 0)})
+	'true'
+].
 
-=>
-	(= 'true' { a (p <a>)})
-	{ a (p <a>)}
+[=>
+	(= 'true' {0 (p 0)})
+	{1 (p 1)}
+].
 
-=>
-	{ a (p <a>)}
-	{ a (p <a>)}
+[=>
+	{0 (p 0)}
+	{1 (p 1)}
+].
 
 
 
-=>
-	(= 'false' { a (p <a>)})
-	(= 'false' (= 'false' { a (p <a>)})).
+[=>
+	(= 'false' {0 (p 0)})
+	(= 'false' (= 'false' {1 (p 1)}))
+].
 
-=>
-	(= 'false' { a (p <a>)})
-	(= 'false' (= 'false' 'false')).
+[=>
+	(= 'false' {0 (p 0)})
+	(= 'false' (= 'false' 'false'))
+].
 
-=>
-	(= 'false' { a (p <a>)})
-	(= 'false' 'true').
+[=>
+	(= 'false' {0 (p 0)})
+	(= 'false' 'true')
+].
 
-=>
-	(= 'false' { a (p <a>)})
-	(= 'true' (= 'false' { a (p <a>)})).
+[=>
+	(= 'false' {0 (p 0)})
+	(= 'true' (= 'false' {1 (p 1)}))
+].
 
-=>
-	(= 'false' { a (p <a>)})
-	(= 'true' (= 'true' { a (p <a>)})).
+[=>
+	(= 'false' {0 (p 0)})
+	(= 'true' (= 'true' {1 (p 1)}))
+].
 
-=>
-	(= 'false' { a (p <a>)})
-	(= 'true' { a (p <a>)}).
+[=>
+	(= 'false' {0 (p 0)})
+	(= 'true' {1 (p 1)})
+].
 
-=>
-	(= 'false' { a (p <a>)})
-	{ a (p <a>)}.
+[=>
+	(= 'false' {0 (p 0)})
+	{1 (p 1)}
+].

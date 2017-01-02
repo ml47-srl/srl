@@ -1,0 +1,75 @@
+# forone
+
+p x.
+= 'false' {0 (= 'false' (p 0))}?
+= 'false' {0 (= 'false' (0 x))}?
+= 'false' {0 {1 (= 'false' (0 1))}}?
+
+# init
+p x.
+= 'true' (p x).
+'true'.
+
+#1
+[=>
+	(= 'false' {0 (= 'false' (p 0))})
+	'true'
+].
+
+[=>
+	(= 'true' (= 'false' {0 (= 'false' (p 0))}))
+	'true'
+].
+
+[=>
+	(= 'true' (= 'false' {0 (= 'false' (p 0))}))
+	(= 'false' {1 (= 'false' (p 1))})
+].
+
+[=>
+	(= 'false' {0 (= 'false' (p 0))})
+	(= 'false' {1 (= 'false' (p 1))})
+].
+
+#2
+[=>
+	{0 (= 'false' (p 0))}
+	'true'
+].
+
+# ...
+
+[=>
+	{0 (= 'false' (p 0))}
+	{1 (= 'false' (p 1))}
+].
+
+[=>
+	{0 (= 'false' (p 0))}
+	(= 'false' (p x))
+].
+
+[=>
+	{0 (= 'false' (p 0))}
+	(= 'false' 'true')
+].
+
+[=>
+	(= 'true' {0 (= 'false' (p 0))})
+	(= 'false' 'true')
+].
+
+[=>
+	(= 'true' {0 (= 'false' (p 0))})
+	(= 'false' {1 (= 'false' (p 1))})
+].
+
+[=>
+	{0 (= 'false' (p 0))}
+	(= 'false' {1 (= 'false' (p 1))})
+].
+
+# with 1 and 2 we get:
+= 'false' {0 (= 'false' (p 0))}.
+
+# the other tests work with the exact same way
