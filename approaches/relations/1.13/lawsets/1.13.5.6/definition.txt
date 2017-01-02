@@ -16,6 +16,7 @@ Wenn man die Zellen X und Y *umtauschen* kann, kann man
 ### Zellendifferenzierung
 - Zellen sind eins von den folgenden: scope, complex, simple, constant, var<br />
 - Scope = "`{[[number]] [[cell]]}`"<br />
+- Implication = "`[=> [[cell1]] [[cell2]]]`"<br />
 - complex = "`([[cell]] [[cell]] ...)`"<br />
 - simple = Zeichenkette nur aus Buchstaben von A-Z, a-z und _
 - constant = "`'[[simple]]'`"<br />
@@ -55,12 +56,12 @@ Wenn man die Zellen X und Y *umtauschen* kann, kann man
    Alle Wrapper bilden sich folgenderma&szlig;en rekursiv:
 	   W(c) = c, oder
 	   W(c) = {[[number]] X(c) }, oder
-	   W(c) = (=> [[cell]] X(c)),
+	   W(c) = [=> [[cell]] X(c)],
    wobei X(c) auch ein Wrapper ist.
 
    Elementare Wrapper sind:
    W(c) = {[[number]] c } und (Elementarer Wrapper vom Typ Scope)
-   W(c) = (=> [[cell]] x) (Elementarer Wrapper vom Typ Implikation)
+   W(c) = [=> [[cell]] x] (Elementarer Wrapper vom Typ Implikation)
 
 2. Definition bool
    Die folgenden Zellen sind Bool-zellen:
@@ -99,16 +100,13 @@ Wenn man die Zellen X und Y *umtauschen* kann, kann man
 6. Implikations-ableitung
    Sei W(x) ein Wrapper.
    Wenn
-	W("`=> [[bool]] [[cell]]`")
+	W("`[=> [[bool]] [[cell]]]`")
    und
-	W("`=> (= 'false' [[bool]]) [[cell]]`"), dann gilt:
+	W("`[=> (= 'false' [[bool]]) [[cell]]]`"), dann gilt:
    W("`[[cell]]`")
    [[bool]] muss dabei eine bool-zelle sein.
 
-8. Wenn es eine Regel R = W(a) gibt, wobei W ein Wrapper und a eine Zelle ist,
-   dann darf man daraus die Regel W("(=> [[cell]] a)") ableiten, wobei [[cell]] eine beliebige Zelle ist, welche keine Vars nicht-umliegender scopes enthält.
+7. Man kann anliegende Scopes austauschen
 
-# TODO reichen diese Gesetze? oder braucht man noch:
-# - man kann elementare Wrapper austauschen?
-# - exlaw, or something equivalent
-# - full definition of implication
+8. Wenn es eine Regel R = W(a) gibt, wobei W ein Wrapper und a eine Zelle ist,
+   dann darf man daraus die Regel W("[=> [[cell]] a]") ableiten, wobei [[cell]] eine beliebige Zelle ist, welche keine Vars nicht-umliegender scopes enthält.
