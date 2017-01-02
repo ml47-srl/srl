@@ -20,3 +20,5 @@ scope-to-scope-insertion
 true-not-impl-false
 scope-negation1
 scope-negation2
+forone
+in-scope
