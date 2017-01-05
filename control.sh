@@ -199,7 +199,7 @@ call_fs_table() {
 
 	featuresets=($(ls featuresets))
 	tests=($(ls featureset-tests))
-	featuresets_len=${#lawsets[*]}
+	featuresets_len=${#featuresets[*]}
 	tests_len=${#tests[*]}
 
 	# determine lengths
@@ -231,8 +231,8 @@ call_fs_table() {
 		resultstring=" $resultstring"
 	done
 
-	for lawset in ${lawsets[*]}; do
-		resultstring="$resultstring | $lawset"
+	for featureset in ${featuresets[*]}; do
+		resultstring="$resultstring | $featureset"
 	done
 	resultstring="$resultstring\n"
 	
@@ -244,9 +244,9 @@ call_fs_table() {
 		for ((i=0;i<$buffer;i++)); do
 			resultstring="$resultstring "
 		done
-		lawset_i=0
-		for lawset in ${featuresets[*]}; do
-			stats=$(get_ls_status $featureset $tst)
+		featureset_i=0
+		for featureset in ${featuresets[*]}; do
+			stats=$(get_fs_status $featureset $tst)
 			if [ $stats == "?" ]; then
 				stats=" "
 			fi
@@ -255,7 +255,7 @@ call_fs_table() {
 			for ((i=0;i<$buffer;i++)); do
 				resultstring="$resultstring "
 			done
-			lawset_i="$(($featureset_i + 1))"
+			featureset_i="$(($featureset_i + 1))"
 		done
 		resultstring="$resultstring\n"
 	done
