@@ -407,12 +407,12 @@ elif [ "$1" == "open-fs" ]; then
 	if [ ! $# == 2 ]; then
 		die "open-fs needs one argument"
 	fi
-	vi "featuresets/$2"
+	vi "featuresets/$2/definition.txt"
 elif [ "$1" == "open-ls" ]; then
 	if [ ! $# == 2 ]; then
 		die "open-ls needs one argument"
 	fi
-	vi "lawsets/$2"
+	vi "lawsets/$2/definition.txt"
 elif [ "$1" == "fs-table" ]; then
 	if [ ! $# == 1 ]; then
 		die "fs-table needs no arguments"
