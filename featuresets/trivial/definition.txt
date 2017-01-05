@@ -1,0 +1,7 @@
+The Trivial Featureset contains
+- simple cells ("a word containing the letters a-z and A-Z, _, =; they work like Variables in some ways")
+- constants ("simple cells in quotes, like the bools 'true' and 'false'; the equality of constants is equal to its string-equality")
+- complex cells ("A List of cells, seperated with spaces")
+- equality ("The complex cell "(= a b)", represents as a bool ('true' or 'false'), whether a and b are equal, which means interchangeable; All cells are equal to itself")
+
+All cells have a constant, which they are equal to. This constant is in many cases unknown.
