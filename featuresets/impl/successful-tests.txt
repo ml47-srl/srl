@@ -1,0 +1,2 @@
+forall
+equality

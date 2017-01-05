@@ -59,14 +59,14 @@ set_ls_status() { # lawset test status
 	fi
 
 	if [ "$status" == "y" ]; then
-		sed '/^'"$tst"'$/d' "lawsets/$lawset/failed-tests.txt"
+		sed '/^'"$tst"'$/d' "lawsets/$lawset/failed-tests.txt" > /dev/null
 		echo "$tst" >> "lawsets/$lawset/successful-tests.txt"
 	elif [ "$status" == "n" ]; then
-		sed '/^'"$tst"'$/d' "lawsets/$lawset/successful-tests.txt"
+		sed '/^'"$tst"'$/d' "lawsets/$lawset/successful-tests.txt" > /dev/null
 		echo "$tst" >> "lawsets/$lawset/failed-tests.txt"
 	elif [ "$status" == "?" ]; then
-		sed '/^'"$tst"'$/d' "lawsets/$lawset/successful-tests.txt"
-		sed '/^'"$tst"'$/d' "lawsets/$lawset/failed-tests.txt"
+		sed '/^'"$tst"'$/d' "lawsets/$lawset/successful-tests.txt" > /dev/null
+		sed '/^'"$tst"'$/d' "lawsets/$lawset/failed-tests.txt" > /dev/null
 	else
 		die "set_ls_status called with invalid status: $status"
 	fi
@@ -108,14 +108,14 @@ set_fs_status() { # featureset test status
 	fi
 
 	if [ "$status" == "y" ]; then
-		sed '/^'"$tst"'$/d' "featuresets/$featureset/failed-tests.txt"
+		sed '/^'"$tst"'$/d' "featuresets/$featureset/failed-tests.txt" > /dev/null
 		echo "$tst" >> "featuresets/$featureset/successful-tests.txt"
 	elif [ "$status" == "n" ]; then
-		sed '/^'"$tst"'$/d' "featuresets/$featureset/successful-tests.txt"
+		sed '/^'"$tst"'$/d' "featuresets/$featureset/successful-tests.txt" > /dev/null
 		echo "$tst" >> "featuresets/$featureset/failed-tests.txt"
 	elif [ "$status" == "?" ]; then
-		sed '/^'"$tst"'$/d' "featuresets/$featureset/successful-tests.txt"
-		sed '/^'"$tst"'$/d' "featuresets/$featureset/failed-tests.txt"
+		sed '/^'"$tst"'$/d' "featuresets/$featureset/successful-tests.txt" > /dev/null
+		sed '/^'"$tst"'$/d' "featuresets/$featureset/failed-tests.txt" > /dev/null
 	else
 		die "set_fs_status called with invalid status: $status"
 	fi
