@@ -1,0 +1,62 @@
+# double-negation
+
+= 'false' (= 'false' {0 (p 0)})!
+{0 (p 0)}?
+
+= 'false' (= 'false' (= x y))!
+= x y?
+
+
+= 'false' (= 'false' {0 (p 0)})!
+
+[=>
+	(= 'true' {0 (p 0)})
+	'true'
+].
+
+[=>
+	(= 'true' {0 (p 0)})
+	{1 (p 1)}
+].
+
+[=>
+	{0 (p 0)}
+	{1 (p 1)}
+].
+
+
+
+[=>
+	(= 'false' {0 (p 0)})
+	(= 'false' (= 'false' {1 (p 1)}))
+].
+
+[=>
+	(= 'false' {0 (p 0)})
+	(= 'false' (= 'false' 'false'))
+].
+
+[=>
+	(= 'false' {0 (p 0)})
+	(= 'false' 'true')
+].
+
+[=>
+	(= 'false' {0 (p 0)})
+	(= 'true' (= 'false' {1 (p 1)}))
+].
+
+[=>
+	(= 'false' {0 (p 0)})
+	(= 'true' (= 'true' {1 (p 1)}))
+].
+
+[=>
+	(= 'false' {0 (p 0)})
+	(= 'true' {1 (p 1)})
+].
+
+[=>
+	(= 'false' {0 (p 0)})
+	{1 (p 1)}
+].

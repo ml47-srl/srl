@@ -1,0 +1,11 @@
+wow { a (p <a>) }.
+wow { a (= 'true' (p <a>)) }?
+wow (= 'true' { a (p <a>) })?
+
+wow (=> a b).
+wow (=> (= 'true' a) b)?
+wow (=> a (= 'true' b))?
+wow (= 'true' (=> a b))?
+
+wow (= a b).
+wow (= 'true' (= a b)).

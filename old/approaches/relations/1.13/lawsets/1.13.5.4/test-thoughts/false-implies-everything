@@ -1,0 +1,97 @@
+# false-implies-everything
+
+{a (=> 'false' <a>)}?
+
+{a (= <a> <a>)}.
+{a (= 'true' (= <a> <a>))}.
+{a 'true' }.
+{a (=> <a> 'true')}.
+{b (=> <b> 'true')}.
+= 'true' {b (=> <b> 'true')}.
+
+{a {b
+	(=> <b> 'true')
+}}.
+
+# fake
+
+# b1
+{a
+	(=>
+		(= 'true' <a>)
+		'true'
+	)
+}.
+
+{a (=> <a> 'true')}.
+=> 'false' 'true'.
+= 'true' (=> 'false' 'true').
+
+{a
+	(=>
+		(= 'true' <a>)
+		(=> 'false' 'true')
+	)
+}.
+
+{a
+	(=>
+		(= 'true' <a>)
+		(=> 'false' <a>)
+	)
+}.
+
+# b2
+{a
+	(=>
+		(= 'false' (= 'true' <a>))
+		'true'
+	)
+}.
+
+{a (=> <a> <a>)}.
+{a (= 'true' (=> <a> <a>))}.
+
+{a
+	(=>
+		(= 'false' (= 'true' <a>))
+		(=> <a> <a>)
+	)
+
+}.
+
+{a
+	(=>
+		(= 'false' (= 'true' <a>))
+		(=> (= 'true' <a>) <a>)
+	)
+}.
+
+{a
+	(=>
+		(= 'false' (= 'true' <a>))
+		(=> 'false' <a>)
+	)
+}.
+
+# b1 and b2:
+
+{a
+	(=>
+		(= 'true' <a>)
+		(=> 'false' <a>)
+	)
+}.
+
+{a
+	(=>
+		(= 'false' (= 'true' <a>))
+		(=> 'false' <a>)
+	)
+}.
+
+# ==>
+
+{a
+	(=> 'false' <a>)
+}.

@@ -1,0 +1,197 @@
+# add-useless-impl
+
+# not working yet
+
+{l{c
+	(=
+		(=> <l> <c>)
+		(=> <l> (=> <l> <c>))
+	)
+}}?
+
+{ a (= <a> <a>) }.
+{ a (= 'true' (= <a> <a>)) }.
+{ a 'true' }.
+{ a (= 'true' 'true') }.
+= 'true' { a 'true' }.
+= 'true' { b 'true' }.
+{ a { b 'true' }}.
+{ l { b 'true' }}.
+{ l { c 'true' }}.
+{ a (= <a> <a>) }.
+= 'true' { a (= <a> <a>) }.
+{ l { c { a (= <a> <a>) }}}.
+
+# base:
+{ l { c
+	(=
+		(=> <l> (=> <l> <c>))
+		(=> <l> (=> <l> <c>))
+	)
+}}.
+
+
+{ l { c
+	(=
+		'true'
+		(=
+			(=> <l> (=> <l> <c>))
+			(=> <l> (=> <l> <c>))
+		)
+	)
+}}.
+
+# remember: { l { c 'true' }}.
+{ l { c
+	{ a (=> <a> 'true')}.
+}}.
+
+{ l { c
+	(=>
+		(=> <l> <c>)
+		'true'
+	)
+}}.
+
+{ l { c
+	(=>
+		(= 'false' (=> <l> <c>))
+		'true'
+	)
+}}.
+
+# base:
+
+# b1
+{ l { c
+	(=>
+		(=> <l> <c>)
+		(=
+			(=> <l> (=> <l> <c>))
+			(=> <l> (=> <l> <c>))
+		)
+	)
+}}.
+
+# b2
+{ l { c
+	(=>
+		(= 'false' (=> <l> <c>))
+		(=
+			(=> <l> (=> <l> <c>))
+			(=> <l> (=> <l> <c>))
+		)
+	)
+}}.
+
+# lets do b1
+
+{ l { c
+	(=>
+		(= 'true' (=> <l> <c>))
+		(=
+			(=> <l> (=> <l> <c>))
+			(=> <l> (=> <l> <c>))
+		)
+	)
+}}.
+
+{ l { c
+	(=>
+		(= 'true' (=> <l> <c>))
+		(=
+			(=> <l> 'true')
+			(=> <l> (=> <l> <c>))
+		)
+	)
+}}.
+
+# excourse: replace (=> <l> 'true') with 'true'
+# remember: { l { c 'true' }}.
+{ a (=> <a> 'true')}.
+= 'true' { a (=> <a> 'true')}.
+
+{ l { c
+	{a (=> <a> 'true') }
+}}.
+
+{ l { c
+	(=> <l> 'true')
+}}.
+
+{ l { c
+	(= 'true' (=> <l> 'true'))
+}}.
+
+# yup there we go, excourse over
+{ l { c
+	(=>
+		(= 'true' (=> <l> <c>))
+		(=
+			'true'
+			(=> <l> (=> <l> <c>))
+		)
+	)
+}}.
+
+{ l { c
+	(=>
+		(= 'true' (=> <l> <c>))
+		(=
+			(=> <l> <c>)
+			(=> <l> (=> <l> <c>))
+		)
+	)
+}}.
+
+{ l { c
+	(=>
+		(=> <l> <c>)
+		(=
+			(=> <l> <c>)
+			(=> <l> (=> <l> <c>))
+		)
+	)
+}}. # woohoo, what we wanted
+
+# lets take on b2
+{ l { c
+	(=>
+		(= 'false' (=> <l> <c>))
+		(=
+			(=> <l> (=> <l> <c>))
+			(=> <l> (=> <l> <c>))
+		)
+	)
+}}.
+
+{ l { c
+	(=>
+		(= 'false' (=> <l> <c>))
+		(=
+			(=> <l> 'false')
+			(=> <l> (=> <l> <c>))
+		)
+	)
+}}.
+
+# ... TODO
+
+{ l { c
+	(=>
+		(= 'false' (=> <l> <c>))
+		(=
+			(=> <l> <c>)
+			(=> <l> (=> <l> <c>))
+		)
+	)
+}}. # woohoo
+
+# with b1 and b2 we get
+
+{ l { c
+	(=
+		(=> <l> <c>)
+		(=> <l> (=> <l> <c>))
+	)
+}}. # what we wanted :D

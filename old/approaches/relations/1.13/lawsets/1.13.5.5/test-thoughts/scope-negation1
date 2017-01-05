@@ -1,0 +1,40 @@
+# scope-negation1
+
+{0 (=> (p 0) (q 0))}.
+= 'false' {0 (= 'false' (= 'true' (p 0)))}.
+# ==>
+= 'false' {0 (= 'false' (= 'true' (q 0)))}?
+
+#
+#
+#
+
+# usage of existance-law on "wow"
+= 'false' (= 'false' (= 'true' (p wow))).
+# using double-negation proof
+= 'true' (p wow).
+p wow.
+
+{0 (=> (p 0) (q 0))}.
+=> (p wow) (q wow).
+=> 'true' (q wow).
+# using implied-by-true--is-true proof
+= 'true' (q wow).
+q wow.
+
+# b1
+=> (= 'true' (= 'false' {0 (= 'false' (= 'true' (q 0)))})) 'true'.
+=> (= 'true' (= 'false' {0 (= 'false' (= 'true' (q 0)))})) (= 'false' {1 (= 'false' (= 'true' (q 1)))}).
+=> (= 'false' {0 (= 'false' (= 'true' (q 0)))}) (= 'false' {1 (= 'false' (= 'true' (q 1)))}). # did
+
+# b2
+=> {0 (= 'false' (= 'true' (q 0)))} 'true'.
+=> {0 (= 'false' (= 'true' (q 0)))} {1 (= 'false' (= 'true' (q 1)))}.
+=> {0 (= 'false' (= 'true' (q 0)))} (= 'false' (= 'true' (q wow))).
+=> {0 (= 'false' (= 'true' (q 0)))} (= 'false' (= 'true' 'true')).
+=> {0 (= 'false' (= 'true' (q 0)))} (= 'false' 'true').
+=> {0 (= 'false' (= 'true' (q 0)))} (= 'false' {1 (= 'false' (= 'true' (q 1)))}).
+
+# with b1 and b2 we get:
+
+(= 'false' {0 (= 'false' (= 'true' (q 0)))}).

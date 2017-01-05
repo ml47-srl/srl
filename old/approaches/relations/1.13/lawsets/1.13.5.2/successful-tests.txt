@@ -1,0 +1,11 @@
+different-behaviour---different-cell
+double-negation
+everything-equals-itself
+implication
+no-cell-equals-all-cells
+no-cell-equals-no-cells
+only-outer-scope-insertion
+predicate-paradoxon
+scope-exchange
+scope-to-scope-insertion
+forone

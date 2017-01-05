@@ -1,0 +1,6 @@
+= x (= 'true' x).
+= 'false' (= 'c' x)?
+
+= 'false' (= x (= 'true' x)).
+= 'false' (= 'true' x)?
+= 'false' (= 'false' x)?
