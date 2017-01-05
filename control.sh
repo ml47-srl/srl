@@ -148,6 +148,10 @@ call_add_ls_test() { # name featureset
 		die "ls-test already exists"
 	fi
 
+	if [ ! -d "lawsets/$2" ]; then
+		die "lawset does not exist"
+	fi
+
 	mkdir "lawset-tests/$1"
 	echo "$2" > "lawset-tests/$1/featureset.txt"
 	vi "lawset-tests/$1/code.txt"
