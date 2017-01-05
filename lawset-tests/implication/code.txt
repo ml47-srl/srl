@@ -1,5 +1,3 @@
-# this test should be answered with (y) if there is no implication-operator in this lawset
-
 => (= x y) z.
 => (= 'false' (= x y)) z.
 z?

@@ -1,11 +1,14 @@
+# for impl, basic
 wow { a (p <a>) }.
 wow { a (= 'true' (p <a>)) }?
 wow (= 'true' { a (p <a>) })?
 
+# for impl
 wow (=> a b).
 wow (=> (= 'true' a) b)?
 wow (=> a (= 'true' b))?
 wow (= 'true' (=> a b))?
 
+# for all
 wow (= a b).
 wow (= 'true' (= a b)).

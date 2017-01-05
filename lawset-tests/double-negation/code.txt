@@ -1,5 +1,7 @@
+# not for trivial
 = 'false' (= 'false' { a (p <a>)})!
 { a (p <a>)}?
 
+# for trivial
 = 'false' (= 'false' (= x y))!
 = x y?

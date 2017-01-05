@@ -1,6 +1,10 @@
+# not for trivial
 { a { b
 	(=
 		(= <a> <b>)
 		(= <b> <a>)
 	)
 }}?
+
+# for trivial
+= (= a b) (= b a)?
