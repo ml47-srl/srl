@@ -1,0 +1,40 @@
+# SRL t.0
+
+### Anmerkungen
+Alles, was in `[[...]]`-Klammern steht ist eine generische Angabe<br />
+und gilt f&uuml;r alles, was man dort einsetzen kann.<br />
+Dies ist kein Bestandteil von SRL sondern lediglich ein Erkl&auml;rsyntax.
+
+### Gesetze
+1. Wenn es eine Regel "`= [[A]] [[B]].`" gibt,<br />
+   wobei A und B Zellen sind,<br />
+   darf man aus jeder Regel,<br />
+   ein Vorkommnis von `[[A]]` mit `[[B]]` ersetzen und die daraus resultierende Regel gilt.<br />
+   Man darf auch ein Vorkommnis von `[[B]]` mit `[[A]]` ersetzen und die daraus resultierende Regel gilt auch.<br />
+
+2. Wenn die Regel "`'false'.`" gilt, ist die Datenbank paradox.<br />
+   Alle Informationen, die man aus der Datenbank gewonnen hat sind ung&uuml;ltig.
+
+3. Jede Regel R = "`= [[A] [[A]]`" gilt.
+
+4. Es gilt f&uuml;r alle nicht string-gleiche Konstanten A und B: "`= 'false' (= [[A]] [[B]]).`"
+
+5. Man kann jede Regel "= 'true' [[A]]." mit "[[A]]." vertauschen und umgekehrt.
+   Man kann jede Zelle "= 'true' (= [[A]] [[B]])" mit "(= [[A]] [[B]])" vertauschen und umgekehrt.
+
+6. Wenn eine Zelle inkorrekt ist, darf sie nicht verwendet werden.<br />
+   Inkorrekte Zellen:
+   - Eine komplexe Zelle, welche inkorrekte Zellen enth&auml;lt
+
+### Allgemeine Informationen
+- Vars/Constants sind keine simplen Zellen<br />
+- Scopes sind auch keine komplexen Zellen<br />
+- Die ID einer Scope-zelle ist ihr erstes Argument<br />
+- Die ID einer Scope-zelle dient zur Zuordnung der Vars zu dem Scopes<br />
+
+### Zellendifferenzierung
+- Zellen sind eins von den folgenden: scope, complex, simple, constant, var<br />
+- complex = "`([[cell]] [[cell]] ...)`"<br />
+- simple = Zeichenkette nur aus Buchstaben von A-Z, a-z, 0-9 und _
+- constant = "`'[[simple]]'`"<br />
+- Alle Zellen die keinen oder mehreren dieser Definitionen entsprechen, sind inkorrekt
