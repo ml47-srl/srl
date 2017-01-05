@@ -163,7 +163,12 @@ call_add_ls() { # name featureset
 		die "lawset already exists"
 	fi
 
+	if [ ! -d "featuresets/$2" ]; then
+		die "featureset does not exist"
+	fi
+
 	mkdir "lawsets/$1"
+	echo "$2" > "lawsets/$1/featureset.txt"
 	touch "lawsets/$1/successful-tests.txt"
 	touch "lawsets/$1/failed-tests.txt"
 	vi "lawsets/$1/definition.txt"
