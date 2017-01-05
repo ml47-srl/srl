@@ -1,0 +1,3 @@
+Can you define natural numbers?
+And then define the following:
+"The number of x, for which (= 'true' (p x)) is 20"
