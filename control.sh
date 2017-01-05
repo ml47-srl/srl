@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage="Usage:\tcontrol add-fs-test [fs-test-name]
-	control add-ls-test [ls-test-name] [featureset]
+	control add-ls-test [ls-test-name]
 
 	control add-fs [fs-name]
 	control add-ls [ls-name] [featureset]
@@ -140,20 +140,29 @@ call_add_ls_test() { # name featureset
 		die "call_add_ls_test: no test-name given"
 	fi
 
-	if [ -z "$2" ]; then
-		die "call_add_ls_test: no featureset given"
-	fi
-
 	if [ -d "lawset-tests/$1" ]; then
 		die "ls-test already exists"
 	fi
 
-	if [ ! -d "lawsets/$2" ]; then
-		die "lawset does not exist"
-	fi
+	featuresets=""
+	echo 'Enter featuresets'
+	while true
+	do
+		read featureset
+
+		if [ -z "$featureset" ]; then
+			break
+		fi
+
+		if [ -d "featuresets/$featureset" ]; then
+			featuresets="$featureset\n$featuresets"
+		else
+			echo "The featureset '$featureset' does not exist"
+		fi
+	done
 
 	mkdir "lawset-tests/$1"
-	echo "$2" > "lawset-tests/$1/featureset.txt"
+	echo -e "$featuresets" > "lawset-tests/$1/featureset.txt"
 	vi "lawset-tests/$1/code.txt"
 	echo "adding ls-test '$1'"
 }
@@ -290,7 +299,7 @@ call_ls_table() { # featureset
 
 	for tst in $(ls lawset-tests)
 	do
-		if [ "$(cat "lawset-tests/$tst/featureset.txt")" == "$featureset" ]; then
+		if [ $(cat "lawset-tests/$tst/featureset.txt" | grep "^$featureset$") ]; then
 			tests=(${tests[*]} $tst)
 		fi
 	done
@@ -370,10 +379,10 @@ if [ "$1" == "add-fs-test" ]; then
 	fi
 	call_add_fs_test "$2"
 elif [ "$1" == "add-ls-test" ]; then
-	if [ ! $# == 3 ]; then
-		die "add-ls-test needs two arguments"
+	if [ ! $# == 2 ]; then
+		die "add-ls-test needs one argument"
 	fi
-	call_add_ls_test "$2" "$3"
+	call_add_ls_test "$2"
 elif [ "$1" == "add-fs" ]; then
 	if [ ! $# == 2 ]; then
 		die "add-fs needs one argument"
