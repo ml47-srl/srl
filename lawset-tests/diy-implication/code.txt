@@ -1,0 +1,22 @@
+implies 'false' 'false'.
+implies 'false' 'true'.
+implies 'true' 'true'.
+= 'false' (implies 'false' 'true').
+
+{0 {1
+	(=
+		(implies 0 1)
+		(implies (= 'true' 0) 1)
+	)
+}}.
+
+{0 {1
+	(=
+		(implies 0 1)
+		(implies 0 (= 'true' 1))
+	)
+}}.
+
+implies (= 'true' x) y.
+implies (= 'false' (= 'true' x)) y.
+y?
