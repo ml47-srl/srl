@@ -1,4 +1,4 @@
-# SRL b.5
+# SRL i.3
 
 ### Anmerkungen
 Alles, was in `[[...]]`-Klammern steht ist eine generische Angabe<br />
@@ -13,49 +13,40 @@ Wenn man die Zellen X und Y *umtauschen* kann, kann man
 - X mit Y *ersetzen*
 - Y mit X *ersetzen*
 
-### Zellendifferenzierung
-- Zellen sind eins von den folgenden: scope, complex, simple, constant, var<br />
-- Scope = "`{[[number]] [[cell]]}`"<br />
-- complex = "`([[cell]] [[cell]] ...)`"<br />
-- simple = Zeichenkette nur aus Buchstaben von A-Z, a-z und _
-- constant = "`'[[simple]]'`"<br />
-- var = [[number]]
-- number = Zeichenkette aus 0-9
-
 ### Allgemeine Informationen
-1. Wenn
-	- die Regel "`'false'.`" gilt,<br />
-	- eine Var-zelle nicht in eine Scope-zelle gleicher ID eingebettet ist
-	- Zwei Scope-zellen, aus einer Regel, die gleiche ID haben oder
-	- eine Zelle keiner der Zellenform entspricht (siehe Zellendifferenzierung)
-   ist die Datenbank paradox.
-   Alle Informationen, die man aus der Datenbank gewonnen hat sind ung&uuml;ltig.
-
-2. Bevor zwei Zellen/Regeln durch beliebige Gesetze miteinander kombiniert werden, werden alle Scope-IDs ihrer Scopes eindeutig voneinander getrennt.
-   Die Trennung kann z.B. dadurch geschehen, dass auf die IDs der einen Zelle die größte ID der anderen Zelle + 1 addiert werden.
-
-   Jede Regel muss, bevor sie der Datenbank hinzugefügt werden kann erst normalisiert werden:
-   Die Normalisierung bedeutet, dass die IDs wieder in eine gut-lesbare chronologische Form kommen, so, dass alle IDs in aufsteigender Reihenfolge stehen.
-   z.B.: normalisiert("{3 {2 (= {12 {33 (= x {44 (lel 3) })}} {234 {4 (= 'true' 4) }})}}") = "{0 {1 (= {2 {3 (= x {4 (lel 0) })}} {5 {6 (= 'true' 6) }})}}"
-
-3.
+1.
 	- Vars/Constants sind keine simplen Zellen<br />
 	- Scopes sind auch keine komplexen Zellen<br />
 	- Die ID einer Scope-zelle ist ihr erstes Argument<br />
 	- Die ID einer Scope-zelle dient zur Zuordnung der Vars zur Scope-zelle<br />
 
+2. Wenn
+	- die Regel "`'false'.`" gilt,<br />
+	- eine Var-zelle nicht in eine Scope-zelle gleicher ID eingebettet ist
+	- Zwei Scope-zellen, welche ineinander liegen, die gleiche ID haben oder
+	- eine Zelle keiner der Zellenform entspricht (siehe Zellendifferenzierung)
+   ist die Datenbank paradox.
+   Alle Informationen, die man aus der Datenbank gewonnen hat sind ung&uuml;ltig.
+
+### Zellendifferenzierung
+- Zellen sind eins von den folgenden: scope, complex, simple, constant, var<br />
+- Scope = "`{[[simple]] [[cell]]}`"<br />
+- complex = "`([[cell]] [[cell]] ...)`"<br />
+- simple = Zeichenkette nur aus Buchstaben von A-Z, a-z, 0-9 und _
+- constant = "`'[[simple]]'`"<br />
+- var = "`<[[simple]]>`"<br />
 
 ### Definitionen
 1. Definition Wrapper
    Ein Wrapper W:(Cell, Cell) ist eine Funktion.
    Alle Wrapper bilden sich folgenderma&szlig;en rekursiv:
 	   W(c) = c, oder
-	   W(c) = {[[number]] X(c) }, oder
+	   W(c) = { [[simple]] X(c) }, oder
 	   W(c) = (=> [[cell]] X(c)),
    wobei X(c) auch ein Wrapper ist.
 
    Elementare Wrapper sind:
-   W(c) = {[[number]] c } und (Elementarer Wrapper vom Typ Scope)
+   W(c) = { [[simple]] c } und (Elementarer Wrapper vom Typ Scope)
    W(c) = (=> [[cell]] x) (Elementarer Wrapper vom Typ Implikation)
 
 2. Definition bool
@@ -63,7 +54,7 @@ Wenn man die Zellen X und Y *umtauschen* kann, kann man
    - Regeln
    - (= [[a]] [[b]]), also Gleichheits-zellen
    - (=> [[a]] [[b]]), also Implikationen
-   - {[[number]] [[body]] }, also Scopes
+   - { [[id]] [[body]] }, also Scopes
    - 'true'
    - 'false'
    Argumente von Implikationen und Körper von Scopes zählen als (positional) Bool-zellen.
@@ -71,13 +62,13 @@ Wenn man die Zellen X und Y *umtauschen* kann, kann man
 ### Gesetze
 1. Equals-replace
    Wenn es eine Regel R1 = W([[a]]) gibt, wobei W der Wrapper um a ist,
-   darf ich, falls es eine Regel R2 = W("= [[b]] [[c]]") gibt, b und c in R1's a umtauschen.
+   darf ich, falls es eine Regel R2 = W("= [[b]] [[c]]") gibt, b und c in R1's a umtauschen,
+   falls dadurch keine integrierten Scopes gleicher ID entstehen.
 
 2. core-rules:
    Jede Datenbank beginnt mit folgenden Regeln:
-   - "`{0 (= 0 0)}.`"
-   - "`{0 (=> 0 'true')}.`"
-   - "`= 'false' (=> 'true' 'false').`"
+   - "`{a (= <a> <a>)}.`"
+   - "`{a (=> <a> 'true')}.`"
 
 3. Es gilt f&uuml;r alle nicht string-gleichen Konstanten A und B,
    dass man "(= [[A]] [[B]])" mit 'false' ersetzen kann.
@@ -87,18 +78,14 @@ Wenn man die Zellen X und Y *umtauschen* kann, kann man
    solange das eingesetze c, nach der Einsetzung, eine Bool-zelle ist.
 
 5. Scope-Einsetzung
-   Man kann in ein Scope S = "{[[number]] p }" aus der Regel R etwas einsetzen, wenn es einen Wrapper W gibt, mit W(S) = R.
-   Beim Einsetzen, wird aus {[[number]] p } ein (= 'true' p),
-   wobei alle Vorkommnisse von `number` mit einer beliebigen, aber festen Ersatz-zelle ersetzt werden.
+   Man kann in ein Scope S = { a p } aus der Regel R etwas einsetzen, wenn es einen Wrapper W gibt, mit W(S) = R.
+   Beim Einsetzen, wird aus { a p } ein (= 'true' p),
+   wobei alle Vorkommnisse von <a> mit einer beliebigen, aber festen Ersatz-zelle ersetzt werden.
    Diese Ersatz-zelle darf keine Vars enthalten, dessen Scopes nach der Einsetzung nicht umliegen.
 
-6. Existenz-gesetz:
-   Sei W(x) ein Wrapper.
-   Wenn es eine Regel R = W("= 'false' {[[number]] [[cell]]}") gibt,
-   und die simple Zelle [[z]] noch nie/nirgends in der Datenbank vorliegt,
-   kann man sich daraus folgendes ableiten:
-   W("= 'false' (= 'true' [[cell]])."),
-   wobei alle Vorkommnisse von [[number]] mit [[z]] ersetzt werden.
+6. Scope-Umbenennung
+   Man kann die ID und alle Vars einer Scope-zelle umbenennen,
+   falls dadurch nicht zwei verschachtelte Scope-zellen mit gleicher ID auftreten
 
 7. Implikations-ableitung
    Sei W(x) ein Wrapper.
@@ -110,9 +97,12 @@ Wenn man die Zellen X und Y *umtauschen* kann, kann man
    [[bool]] muss dabei eine bool-zelle sein.
 
 8. X1 und X2 seien Elementare Wrapper,
-   Man kann X1(X2(x)) mit X2(X1(x)) ersetzen, außer wenn
+   Man kann X1(X2(x)) mit X2(X1(x)) ersetzen, wenn
+   - X1 und X2 den gleichen Typ haben (Scope oder Implikation)
+   - X1 eine Implikation ist, X2 ein Scope ist
+     und die linke Implikationsseite von X1 kein Scope mit der gleichen ID, wie X2's Scope enthält
    - X1 ein Scope ist, X2 eine Implikation ist
-     und die linke Implikationsseite von X1 ein Var von der Scope von X1 enthält
+     und die linke Implikationsseite von X1 kein Var von der Scope von X1 enthält
 
 9. Implikations-effekt
    Seien W1 und W2 Wrapper, X ein elementarer Implikations-wrapper
