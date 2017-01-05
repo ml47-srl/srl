@@ -1,4 +1,4 @@
-# SRL 1.13.4
+# SRL b.1
 
 ### Anmerkungen
 Alles, was in `[[...]]`-Klammern steht ist eine generische Angabe<br />
@@ -38,6 +38,21 @@ Dies ist kein Bestandteil von SRL sondern lediglich ein Erkl&auml;rsyntax.
 8. Man kann anliegende Scopes austauschen
 9. Man kann die ID und alle Vars einer Scope-zelle umbenennen,
     falls dadurch nicht zwei verschachtelte Scope-zellen mit gleicher ID auftreten
+
+10. Implikations-erstellung
+    Jede Regel "`=> [[scope]] [[scope]].`" und "`=> (= [[cell1]] [[cell2]]) (= [[cell1]] [[cell2]]).`" gilt.
+
+11. Implikations-ableitung
+    "`=> [[cell]] 'false'`" ist mit "`= [[cell]] 'false'`" ersetzbar.
+    "`=> 'true' [[cell]]`" ist mit "`= 'true' [[cell]]`" ersetzbar.
+
+12. Rechtsseitige-Implikations-manipulation:
+    Wenn die Implikation I eine Regel ist, gilt:
+    die rechte Seite einer Implikation I, kann durch Anwendung
+    - anderer Regeln gleicher linker-Implikationsseite
+    - anderer Regeln ohne Implikation
+    - scope-einsetzung der rechten Seite
+    verändert werden.
 
 ### Allgemeine Informationen
 - Vars/Constants sind keine simplen Zellen<br />
