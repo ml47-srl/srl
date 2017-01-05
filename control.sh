@@ -268,15 +268,32 @@ call_fs_table() {
 	echo -e "$resultstring" | less -S
 }
 
-call_ls_table() {
+call_ls_table() { # featureset
 	#   L L L L 
 	# T
 	# T
 	# T
 
-	lawsets=($(ls lawsets))
-	tests=($(ls lawset-tests))
+	featureset="$1"
+
+	if [ ! -d "featuresets/$1" ]; then
+		die 'call_ls_table: featureset does not exist'
+	fi
+
+	for lawset in $(ls lawsets)
+	do
+		if [ "$(cat "lawsets/$lawset/featureset.txt")" == "$featureset" ]; then
+			lawsets=(${lawsets[*]} $lawset)
+		fi
+	done
 	lawsets_len=${#lawsets[*]}
+
+	for tst in $(ls lawset-tests)
+	do
+		if [ "$(cat "lawset-tests/$tst/featureset.txt")" == "$featureset" ]; then
+			tests=(${tests[*]} $tst)
+		fi
+	done
 	tests_len=${#tests[*]}
 
 	# determine lengths
