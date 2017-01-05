@@ -1,0 +1,8 @@
+The Basic Featureset contains
+- simple cells ("a word containing the letters a-z and A-Z, _, =; they work like Variables in some ways")
+- constants ("simple cells in quotes, like the bools 'true' and 'false'; the equality of constants is equal to its string-equality")
+- complex cells ("A List of cells, seperated with spaces")
+- equality ("The complex cell "(= a b)", represents as a bool ('true' or 'false'), whether a and b are equal, which means interchangeable; All cells are equal to itself")
+- scopes ("A way to say that a specific logic applies to all cells; They are boolean expressions, and look like this: {0 <cell>}, where <cell> is any cell: This means: "for every 0 applies cell", which makes more sense, if 0 and cell are explicit things..")
+
+All cells have a constant, which they are equal to. This constant is in many cases unknown.
