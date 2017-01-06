@@ -1,0 +1,1 @@
+Can this fs represent operators, which may have a different value depending on its arguments.
