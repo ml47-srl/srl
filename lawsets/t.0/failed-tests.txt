@@ -1,0 +1,5 @@
+different-behaviour---different-cell
+proof-by-cases-without-scope
+double-negation
+equals-exchangability
+nothing-equals-its-opposite

@@ -1,0 +1,2 @@
+bool-equiv-exchange
+everything-equals-itself
