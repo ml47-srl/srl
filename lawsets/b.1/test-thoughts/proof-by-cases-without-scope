@@ -1,0 +1,125 @@
+# proof-by-cases-without-scope
+
+#1
+= x (= 'true' x).
+= 'false' (= 'c' x)?
+
+
+[=>
+	(= 'false' (= 'c' x))
+	(= 'false' (= 'c' x))
+].
+
+[=>
+	(= 'c' x)
+	(= 'c' x)
+].
+
+[=>
+	(= 'c' x)
+	'false'
+].
+
+[=>
+	(= 'c' x)
+	(= 'true' 'false') # f=t
+].
+
+[=>
+	(= 'c' x)
+	(= 'false' 'true')
+].
+
+[=>
+	(= 'true' (= 'c' x))
+	(= 'false' 'true')
+].
+
+[=>
+	(= 'true' (= 'c' x))
+	(= 'false' (= 'c' x))
+].
+
+[=>
+	(= 'c' x)
+	(= 'false' (= 'c' x))
+]. # did
+
+(= 'false' (= 'c' x)).
+
+
+
+
+
+#2
+= 'false' (= x (= 'true' x)).
+= 'false' (= 'true' x)?
+= 'false' (= 'false' x)?
+
+[=>
+	(= 'false' (= 'true' x))
+	(= 'false' (= 'true' x))
+].
+
+[=>
+	(= 'true' x)
+	(= 'false' (= x (= 'true' x)))
+].
+
+[=>
+	(= 'true' x)
+	(= 'false' (= 'true' (= 'true' 'true')))
+].
+
+[=>
+	(= 'true' x)
+	(= 'false' 'true') # f=t
+].
+
+[=>
+	(= 'true' x)
+	(= 'false' (= 'true' 'true'))
+].
+
+[=>
+	(= 'true' x)
+	(= 'false' (= 'true' x))
+]. # did
+
+= 'false' (= 'true' x).
+
+
+
+
+
+[=>
+	(= 'false' (= 'false' x))
+	(= 'false' (= 'false' x))
+].
+
+[=>
+	(= 'false' x)
+	(= 'false' (= x (= 'true' x)))
+].
+
+[=>
+	(= 'false' x)
+	(= 'false' (= 'false' (= 'true' 'false')))
+].
+
+[=>
+	(= 'false' x)
+	(= 'false' 'true') # f=t
+].
+
+[=>
+	(= 'false' x)
+	(= 'false' (= 'true' 'true'))
+].
+
+[=>
+	(= 'false' x)
+	(= 'false' (= 'true' x))
+]. # did
+
+= 'false' (= 'false' x).
