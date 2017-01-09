@@ -25,3 +25,4 @@ in-scope
 scope-exchange
 no-cell-equals-no-cells
 no-cell-equals-all-cells
+predicate-paradoxon

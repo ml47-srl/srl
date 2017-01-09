@@ -1,0 +1,92 @@
+# predicate-paradoxon
+
+#1
+p x.
+= 'false' {0 (= 'false' (p 0))}?
+
+[=>
+	(= 'false' {0 (= 'false' (p 0))})
+	(= 'false' {0 (= 'false' (p 0))})
+].
+
+[=>
+	{0 (= 'false' (p 0))}
+	{0 (= 'false' (p 0))}
+].
+
+[=>
+	{0 (= 'false' (p 0))}
+	(= 'false' (p x))
+].
+
+[=>
+	{0 (= 'false' (p 0))}
+	(= 'false' (p x))
+].
+
+p x.
+= 'true' (p x).
+
+[=>
+	{0 (= 'false' (p 0))}
+	(= 'false' 'true') # f=t
+].
+
+[=>
+	{0 (= 'false' (p 0))}
+	(= 'true' {0 (= 'false' (p 0))})
+].
+
+[=>
+	{0 (= 'false' (p 0))}
+	(= 'false' {0 (= 'false' (p 0))})
+].
+
+# did
+= 'false' {0 (= 'false' (p 0))}.
+
+#2
+= 'false' (p x).
+= 'false' {0 (p 0)}?
+
+[=>
+	(= 'false' {0 (p 0)})
+	(= 'false' {0 (p 0)})
+].
+
+[=>
+	{0 (p 0)}
+	{0 (p 0)}
+].
+
+[=>
+	{0 (p 0)}
+	(p x).
+].
+
+[=>
+	{0 (p 0)}
+	'false'
+].
+
+[=>
+	{0 (p 0)}
+	(= 'true' 'false') # f=t
+].
+
+[=> # remember
+	{0 (p 0)}
+	{0 (p 0)}
+].
+
+[=>
+	{0 (p 0)}
+	(= 'true' {0 (p 0)})
+].
+
+[=>
+	{0 (p 0)}
+	(= 'false' {0 (p 0)})
+].
+
+= 'false' {0 (p 0)}.
