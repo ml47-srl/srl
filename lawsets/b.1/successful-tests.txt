@@ -22,3 +22,6 @@ scope-negation1
 scope-negation2
 forone
 in-scope
+scope-exchange
+no-cell-equals-no-cells
+no-cell-equals-all-cells

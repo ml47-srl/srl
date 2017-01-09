@@ -1,0 +1,94 @@
+# no-cell-equals-all-cells
+
+= 'false' {0 (= 0 any_cell)}?
+
+{0 (= 0 0)}.
+= 'true' {0 (= 0 0)}.
+'true'.
+
+[=>
+	(= 'false' {0 (= 0 any_cell)})
+	'true'
+].
+
+[=>
+	(= 'true' (= 'false' {0 (= 0 any_cell)}))
+	'true'
+].
+
+[=>
+	(= 'true' (= 'false' {0 (= 0 any_cell)}))
+	(= 'false' {0 (= 0 any_cell)})
+].
+
+[=>
+	(= 'false' {0 (= 0 any_cell)})
+	(= 'false' {0 (= 0 any_cell)})
+]. # 1
+
+[=>
+	(= 'true' {0 (= 0 any_cell)})
+	'true'
+].
+
+[=>
+	(= 'true' {0 (= 0 any_cell)})
+	{0 (= 0 any_cell)}
+].
+
+[=>
+	{0 (= 0 any_cell)}
+	{0 (= 0 any_cell)}
+].
+
+[=>
+	{0 (= 0 any_cell)}
+	(= 'c' any_cell)
+].
+
+[=>
+	{0 (= 0 any_cell)}
+	(= 'd' any_cell)
+].
+
+[=>
+	{0 (= 0 any_cell)}
+	(= 'c' 'd')
+].
+
+[=>
+	{0 (= 0 any_cell)}
+	'false'
+].
+
+[=>
+	{0 (= 0 any_cell)}
+	(= 'true' 'false') # f=t
+].
+
+[=> # remember
+	(= 'true' {0 (= 0 any_cell)})
+	'true'
+].
+
+[=>
+	(= 'true' {0 (= 0 any_cell)})
+	(= 'true' 'true')
+].
+
+[=>
+	(= 'true' {0 (= 0 any_cell)})
+	(= 'true' {0 (= 0 any_cell)})
+].
+
+[=> # in usage of f=t
+	(= 'true' {0 (= 0 any_cell)})
+	(= 'false' {0 (= 0 any_cell)})
+].
+
+[=>
+	{0 (= 0 any_cell)}
+	(= 'false' {0 (= 0 any_cell)})
+]. # done
+
+= 'false' {0 (= 0 any_cell)}.
