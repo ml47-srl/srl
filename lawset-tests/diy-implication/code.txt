@@ -1,7 +1,7 @@
 implies 'false' 'false'.
 implies 'false' 'true'.
 implies 'true' 'true'.
-= 'false' (implies 'false' 'true').
+= 'false' (implies 'true' 'false').
 
 {0 {1
 	(=

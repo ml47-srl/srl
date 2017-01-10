@@ -1,0 +1,130 @@
+# diy-implication
+
+implies 'false' 'false'.
+implies 'false' 'true'.
+implies 'true' 'true'.
+= 'false' (implies 'true' 'false').
+
+{0 {1
+	(=
+		(implies 0 1)
+		(implies (= 'true' 0) 1)
+	)
+}}.
+
+{0 {1
+	(=
+		(implies 0 1)
+		(implies 0 (= 'true' 1))
+	)
+}}.
+
+implies (= 'true' x) y.
+implies (= 'false' (= 'true' x)) y.
+y?
+
+
+[=> y y]. # 1
+
+[=>
+	(= 'false' y)
+	(= 'false' y)
+].
+
+# 2.1
+[=>
+	(= 'false' y)
+	[=>
+		(= 'true' x)
+		(implies (= 'true' x) y)
+	]
+].
+
+[=>
+	(= 'false' y)
+	[=>
+		(= 'true' x)
+		(implies 'true' 'false')
+	]
+].
+
+[=>
+	(= 'false' y)
+	[=>
+		(= 'true' x)
+		'false'
+	]
+].
+
+[=>
+	(= 'false' y)
+	[=>
+		(= 'true' x)
+		(= 'true' 'false') # f=t
+	]
+].
+
+# 2.2
+[=>
+	(= 'false' y)
+	[=>
+		(= 'false' (= 'true' x))
+		(implies (= 'false' (= 'true' x)) y)
+	]
+].
+
+[=>
+	(= 'false' y)
+	[=>
+		(= 'false' (= 'true' x))
+		(implies (= 'false' 'false') 'false')
+	]
+].
+
+[=>
+	(= 'false' y)
+	[=>
+		(= 'false' (= 'true' x))
+		(implies 'true' 'false')
+	]
+].
+
+[=>
+	(= 'false' y)
+	[=>
+		(= 'false' (= 'true' x))
+		'false'
+	]
+].
+
+[=>
+	(= 'false' y)
+	[=>
+		(= 'false' (= 'true' x))
+		(= 'true' 'false') # f=t
+	]
+].
+
+# from 2.1 and 2.2 we get
+[=>
+	(= 'false' y)
+	(= 'true' 'false')
+].
+
+[=>
+	(= 'false' y)
+	(= 'false' y)
+].
+
+[=>
+	(= 'false' y)
+	(= 'true' y)
+].
+
+[=>
+	(= 'false' y)
+	y
+].
+# with 1 and this we get:
+
+y.
