@@ -27,3 +27,4 @@ no-cell-equals-no-cells
 no-cell-equals-all-cells
 predicate-paradoxon
 proof-by-cases-without-scope
+nothing-equals-its-opposite
