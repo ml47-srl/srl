@@ -28,3 +28,4 @@ no-cell-equals-all-cells
 predicate-paradoxon
 proof-by-cases-without-scope
 nothing-equals-its-opposite
+pull-eq-false-out
