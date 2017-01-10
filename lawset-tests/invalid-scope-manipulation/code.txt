@@ -1,9 +1,0 @@
-# invalid-scope-manipulation
-
-= 'false' {0 (p 0)}!
-# ==> (double negation)
-= 'false' {0 (= 'false' (= 'false' (p 0)))}.
-# ==> (pull-eq-false-out (does this even work here?))
-= 'false' (= 'false' {0 (= 'false' (p 0))}).
-# ==> (double-negation)
-{0 (= 'false' (p 0))}? should not
