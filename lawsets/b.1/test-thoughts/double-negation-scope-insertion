@@ -1,0 +1,4 @@
+# double-negation-scope-insertion
+
+= 'false' {0 (= 'false' {1 (p 0 1)})}.
+= 'false' {0 (= 'false' (p 0 'fish'))}?
