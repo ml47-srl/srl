@@ -30,3 +30,5 @@ proof-by-cases-without-scope
 nothing-equals-its-opposite
 pull-eq-false-out
 diy-implication
+double-negation-scope-insertion
+reverse-implication-in-negated-scope
