@@ -1,0 +1,19 @@
+and 'true' 'true'!
+= 'false' (and 'false' 'true')!
+= 'false' (and 'true' 'false')!
+= 'false' (and 'false' 'false')!
+
+{0 {1
+	(=
+		(and 0 1)
+		(and (= 'true' 0) (= 'true' 1))
+	)
+}}!
+
+
+{0 {1
+	(=
+		(and 0 1)
+		(and (= 'true' 0) 1)
+	)
+}}?
