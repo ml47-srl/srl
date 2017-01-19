@@ -33,4 +33,5 @@ diy-implication
 double-negation-scope-insertion
 reverse-implication-in-negated-scope
 double-negation-scope
+and-operator1
 and-operator2
