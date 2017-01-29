@@ -1,0 +1,17 @@
+# count
+
+Syntax:
+	count <pattern containing var>
+		not capable of recursion between counts:
+			count (count (= var var)) # what var is for what count?
+
+	# So we need an identifier:
+	count (var 'x') <pattern containing (var 'x')>:
+		# convert pattern to real expression does not work:
+			# (thing_with_many_args a b c d e f g (var 'x') h i j k) needs to be converted to
+			# (thing_with_many_args a b c d e f g ##the_thing_you_test## h i j k).
+			# which would need conversion rules for every amount of args you'd give.
+			# (infinity)
+			# so this does not work..
+
+# You could create an operator + so that: (a b c) is the same as (a (+ b c)), and (a b c d) is the same as (a (+ b (+ c d))), this would crop everything down to 1-3 args, which is a finite amount, which is .. better. ^^
