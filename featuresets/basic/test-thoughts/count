@@ -20,3 +20,15 @@
 
 	# We need a set definition, which is able to calculate its size.
 	# This may work by converting the set to an unredundant list, and get the size from that list.
+
+# Deklarierbarkeit von Mengen:
+{0 (= 'false' {1 (= 'false' {2 (= (contains 1 2) 0)})})}. # 0 = condition, 1 = set, 2 = element
+# ==> Zu jeder Bedingung existiert eine Menge, die genau die Elemente enthält, welche durch die Bedingung akzeptiert werden.
+# Erst die Bedinung in 0 einsetzen, dann per exlaw das set erstellen. GG.
+# Beispiel:
+	{0 (= 'false' {1 (= 'false' {2 (= (contains 1 2) 0)})})}.
+	= 'false' {1 (= 'false' {2 (= (contains 1 2) (= 2 'thingy')})}.
+	{2 (= (contains my_set 2) (= 2 'thingy'))}.
+
+# Und damit kann man das Count-problem auf ein Mengenmächtigkeits-problem zurückführen.
+# TODO Mengenmächtigkeit

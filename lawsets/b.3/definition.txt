@@ -110,6 +110,8 @@ Wenn man die Zellen X und Y *umtauschen* kann, kann man
    Beim Einsetzen, wird aus {[[number]] b} ein b,
    wobei alle Vorkommnisse von `number` mit einer beliebigen, aber festen Ersatz-zelle ersetzt werden.
    Diese Ersatz-zelle darf keine Vars enthalten, dessen Scopes nach der Einsetzung nicht umliegen.
+   Man darf also auch beim Einsetzen in ein äußeres Scope S, die Vars von einem Scope T innerhalb des äußeren Scopes verwenden, wenn alle Vorkommnisse von der S-var innerhalb von T liegen.
+   Beispiel: {0 {1 (= 0 'test')}} ==(Einsetzung von 0 = 1)==> {1 (= 1 'test')} ==(Normalisierung)==> {0 (= 0 'test')}
 
 6. Scope-Erstellung
    Sei S ein Scope "{[[number]] b}", und b eine vollwertige Bool-zelle aus der Regel R.
