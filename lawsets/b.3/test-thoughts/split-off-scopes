@@ -1,23 +1,35 @@
 # split-off-scopes
 
 = 'false' {0 (= 'false' {1 (p 0 1)})}!
-# Law 4 (c = "{1 (p 0 1)}")
-= 'false' {0 (= 'false' (= 'true' {1 (p 0 1)}))}.
+# ==>
+= 'false' {0 (= 'false' {1 {2 (p 0 (operator 1 2))}}}))?
 
-# invalid use of law 1 (no wrapper here) FIXME
+= 'false' {0 (= 'false' {1 (p 0 1)})}!
+# exlaw (tmp)
+{0 (p tmp 0)}.
 
-= 'false' {0 (= 'false' 'true')}.
-{0 (= 0 0)}.
+{0 (= 0 0)}. # core-rule
+# law 4
 {0 (= 'true' (= 0 0)) }.
+# law 1
 {0 'true' }.
+# law 4
 = 'true' {0 'true' }.
 = 'true' {0 {1 'true' }}.
-# remember
-= 'false' {0 (= 'false' 'true')}.
-= 'false' {0 (= 'false' {1 {2 'true'}})}.
-= 'false' {0 (= 'false' {1 {2 {3 (p 0 1)}}})}.
-# inserting (operator 1 2) into scope 1
-= 'false' {0 (= 'false' {1 {2 (p 0 (operator 1 2))}}})}.
+= 'true' {0 {1 {2 'true' }}}.
 
-
-= 'false' {0 (= 'false' {1 {2 (p 0 (operator 1 2))}})}?
+# remember:
+{0 (p tmp 0)}.
+# law 4
+{0 (= 'true' (p tmp 0))}.
+# law 1
+= 'true' {0 {1 {2 (p tmp 0) }}}.
+# law 4
+{0 {1 {2 (p tmp 0) }}}.
+# law 5 (insert (operator 1 2) into 0)
+{0 {1 (p tmp (operator 0 1)) }}.
+# double negation
+= 'false' (= 'false' {0 {1 (p tmp (operator 0 1))}})).
+# law 6
+= 'false' {0 (= 'false' {1 {2 (p 0 (operator 1 2))}}})).
+# gg
