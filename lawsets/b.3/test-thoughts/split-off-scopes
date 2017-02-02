@@ -1,0 +1,23 @@
+# split-off-scopes
+
+= 'false' {0 (= 'false' {1 (p 0 1)})}!
+# Law 4 (c = "{1 (p 0 1)}")
+= 'false' {0 (= 'false' (= 'true' {1 (p 0 1)}))}.
+
+# invalid use of law 1 (no wrapper here) FIXME
+
+= 'false' {0 (= 'false' 'true')}.
+{0 (= 0 0)}.
+{0 (= 'true' (= 0 0)) }.
+{0 'true' }.
+= 'true' {0 'true' }.
+= 'true' {0 {1 'true' }}.
+# remember
+= 'false' {0 (= 'false' 'true')}.
+= 'false' {0 (= 'false' {1 {2 'true'}})}.
+= 'false' {0 (= 'false' {1 {2 {3 (p 0 1)}}})}.
+# inserting (operator 1 2) into scope 1
+= 'false' {0 (= 'false' {1 {2 (p 0 (operator 1 2))}}})}.
+
+
+= 'false' {0 (= 'false' {1 {2 (p 0 (operator 1 2))}})}?

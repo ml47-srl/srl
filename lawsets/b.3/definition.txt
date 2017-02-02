@@ -82,10 +82,12 @@ Wenn man die Zellen X und Y *umtauschen* kann, kann man
         wobei W(c) ein Wrapper ist und C(c) und D(c) Bool-wrapper sind.
 
    Für jeden Bool-Wrapper B ist false(B), die Anzahl an Rekursionsstufen, bei welchen ein Bool-Wrapper vom Typ Negation angewandt wurde.
+   Wenn false(B) mod 2 = 0, dann ist B ein positiver Bool-wrapper,
+   Wenn false(B) mod 2 = 1, dann ist B ein negativer Bool-wrapper.
 
 ### Gesetze
 1. Equals-replace
-   Wenn es eine Regel R1 = W([[a]]) gibt, wobei W der Wrapper um a ist,
+   Wenn es eine Regel R1 = W([[a]]) gibt, wobei W der Wrapper um a ist, # (W als positiver Bool-wrapper ist nicht genug)
    darf ich,
 	- falls es eine Regel R2 = W("= [[b]] [[c]]") gibt,
 	- oder falls es W einen elementaren Implikationswrapper, dessen linke Implikationsseite "(= [[b]] [[c]])" ist, enthält
@@ -104,8 +106,7 @@ Wenn man die Zellen X und Y *umtauschen* kann, kann man
 
 5. Scope-Einsetzung
    Sei S ein Scope "{[[number]] b}" aus der Regel R, und b eine vollwertige Bool-zelle.
-   Man kann in S eine Zelle einsetzen, wenn es einen Bool-Wrapper B gibt, mit B(S) = R,
-   und 2 | false(B).
+   Man kann in S eine Zelle einsetzen, wenn es einen positiven Bool-Wrapper B gibt, mit B(S) = R.
      
    Beim Einsetzen, wird aus {[[number]] b} ein b,
    wobei alle Vorkommnisse von `number` mit einer beliebigen, aber festen Ersatz-zelle ersetzt werden.
@@ -116,8 +117,7 @@ Wenn man die Zellen X und Y *umtauschen* kann, kann man
 6. Scope-Erstellung
    Sei S ein Scope "{[[number]] b}", und b eine vollwertige Bool-zelle aus der Regel R.
    Man kann mit b das Scope S erstellen, wenn
-   es einen Bool-Wrapper B gibt, mit B(b) = R
-   und ¬(2 | false(B)).
+   es einen negativen Bool-Wrapper B gibt, mit B(b) = R.
 
    Beim Erstellen des Scopes
    werden alle Vorkommnisse einer beliebigen aber festen Zelle
@@ -134,11 +134,12 @@ Wenn man die Zellen X und Y *umtauschen* kann, kann man
 
 8. Man kann anliegende Scopes austauschen
 
-9. Wenn es eine Regel R = W(a) gibt, wobei W ein Wrapper und a eine Zelle ist,
+9. Wenn es eine Regel R = W(a) gibt, wobei W ein positiver Bool-Wrapper und a eine Zelle ist,
    dann darf man daraus die Regel W("[=> [[cell]] a]") ableiten, wobei [[cell]] eine beliebige Zelle ist, welche keine Vars nicht-umliegender scopes enthält.
 
 10. Existance-law
     Sei R eine Regel, z(x) eine Zellenfunktion, x eine Zelle, W ein Wrapper, und s eine bis jetzt nicht in der Datenbank vorkommende simple Zelle.
-    z(x) = "(= 'false' {[[number]] (= 'false' x)})"
-    Aus R = W(z(x)), kann man sich W(x) ableiten,
+    Es gelte z(x) = "(= 'false' {[[number]] (= 'false' x)})".
+    Wenn alle Scopes aus W in einem negativen Bool-wrapper liegen, (=> keine Allquantoren vor dem Existenzquantor z)
+    kann man sich aus R = W(z(x)), die Regel W(x) ableiten,
     wobei alle Vorkommnisse von [[number]] mit s vertauscht werden m&uuml;ssen.
