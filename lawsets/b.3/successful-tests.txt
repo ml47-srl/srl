@@ -36,3 +36,4 @@ double-negation-scope
 and-operator1
 and-operator2
 split-off-scopes
+scope-around-any-bool
