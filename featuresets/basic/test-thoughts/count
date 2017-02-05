@@ -46,3 +46,6 @@ OLD
 #	A vereinigt B = C & A und B sind disjunkt => |A| + |B| = |C|.
 # oder
 #	A vereinigt B = C => |A| + |B| = |C| + |A geschnitten B|
+
+# Und size=0-mengen:
+{0 "set" (= {1 "elem" (= 'false' (contains 0 1))} (= (size 0) _zero_))}.
