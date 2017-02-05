@@ -1,3 +1,4 @@
 forall
 equality
 operational-logic
+count
