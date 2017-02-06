@@ -66,7 +66,7 @@ impl CellID {
 					}
 					cell = scope(id_out, *body_out);
 				},
-				Cell::Var { id : mut id_out } => panic!("CellID::replace_by(): failure var-cell");
+				Cell::Var {..} => panic!("CellID::replace_by(): failure var-cell"),
 				Cell::Case { condition : mut cond_out, conclusion : mut conc_out } => {
 					if last_index == 0 {
 						cond_out = Box::new(cell);
