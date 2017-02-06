@@ -37,7 +37,7 @@ impl CellID {
 			panic!("CellID::get_cell(): rule_id is invalid");
 		}
 	}
-	
+
 	pub fn replace_by(&self, rules : &Vec<Cell>, mut cell : Cell) -> Cell {
 		if ! self.rule_id.is_valid(rules) {
 			panic!("CellID::replace_by(): rule_id is invalid");
@@ -57,25 +57,25 @@ impl CellID {
 					cells_out[last_index] = cell;
 					cell = complex(cells_out);
 				}
-				Cell::Simple {..} => panic!("CellID::replace_by: failure 2"),
-				Cell::Scope { id : mut id_out, body : mut body_out } => {
+				Cell::Simple {..} => panic!("CellID::replace_by: failure simple-cell"),
+				Cell::Scope { id: id_out, body : mut body_out } => {
 					if last_index == 0 {
-						id_out = Box::new(cell);
-					} else if last_index == 1 {
 						body_out = Box::new(cell);
 					} else {
-						panic!("CellID::replace_by(): index different than 0 or 1 for scope cell");
+						panic!("CellID::replace_by(): index different than 0 for scope cell");
 					}
-					cell = scope(*id_out, *body_out);
+					cell = scope(id_out, *body_out);
 				},
-				Cell::Var { id : mut id_out } => {
+				Cell::Var { id : mut id_out } => panic!("CellID::replace_by(): failure var-cell");
+				Cell::Case { condition : mut cond_out, conclusion : mut conc_out } => {
 					if last_index == 0 {
-						id_out = Box::new(cell);
+						cond_out = Box::new(cell);
+					} else if last_index == 1 {
+						conc_out = Box::new(cell);
 					} else {
-						panic!("CellID::replace_by(): index different than 0 for var cell");
+						panic!("CellID::replace_by(): index different than 0 or 1 for case cell");
 					}
-
-					cell = var(id_out);
+					cell = case(*cond_out, *conc_out);
 				}
 			}
 		}
