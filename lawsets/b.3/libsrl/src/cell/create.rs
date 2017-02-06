@@ -102,60 +102,43 @@ fn scope_by_trimmed_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {
 	if "}" != &tokens.remove(len-1) { return Err(()); }
 	if "{" != &tokens.remove(0) { return Err(()); }
 
-	let mut cells : Vec<Cell> = Vec::new();
-	let mut tmp_tokens : Vec<String> = Vec::new();
-	let mut parens = 0;
-
-	while ! tokens.is_empty() {
-		let token : String = tokens.remove(0).to_string();
-		tmp_tokens.push(token.clone());
-		if ! is_valid_id(&token) {
-			if token == "(" {
-				parens += 1;
-			}
-			else if token == ")" {
-				parens -= 1;
-			} else {
-				panic!("scope_by_trimmed_tokens(): weird invalid token='{}'", token);
-			}
-		}
-		if parens == 0 {
-			match cell_by_tokens(tmp_tokens) {
+	match var_by_trimmed_tokens(vec![tokens.remove(0)]) {
+		Ok(Cell::Var { id : id_out }) => {
+			match cell_by_tokens(tokens) {
 				Ok(x) => {
-					cells.push(x);
-				},
-				_ => panic!("scope_by_trimmed_tokens(): recursive call failed")
+					return Ok(scope(id_out, x));
+				}
+				_ => return Err(())
 			}
-			tmp_tokens = Vec::new();
 		}
+		_ => return Err(())
 	}
 
-	if cells.len() != 2 {
-		return Err(());
-	} else {
-		return Ok(scope(cells[0].clone(), cells[1].clone()));
-	}
 }
 
 #[test]
 fn test_scope_by_trimmed_tokens() {
-	assert_eq!(Ok(scope(simple_by_str("a"), simple_by_str("b"))), scope_by_trimmed_tokens(vec!["{".to_string(), "a".to_string(), "b".to_string(), "}".to_string()]));
+	assert_eq!(Ok(scope(0, simple_by_str("b"))), scope_by_trimmed_tokens(vec!["{".to_string(), "0".to_string(), "b".to_string(), "}".to_string()]));
+	assert_eq!(Err(()), scope_by_trimmed_tokens(vec!["{".to_string(), "0".to_string(), "b".to_string(), "c".to_string(), "}".to_string()]));
+	assert_eq!(Err(()), scope_by_trimmed_tokens(vec!["{".to_string(), "0".to_string(), "}".to_string()]));
+	assert_eq!(Err(()), scope_by_trimmed_tokens(vec!["0".to_string(), "b".to_string(), "c".to_string(), "}".to_string()]));
+	assert_eq!(Err(()), scope_by_trimmed_tokens(vec!["0".to_string(), "b".to_string(), "c".to_string()]));
+	assert_eq!(Err(()), scope_by_trimmed_tokens(vec!["0".to_string()]));
+	assert_eq!(Err(()), scope_by_trimmed_tokens(vec!["{".to_string(), "}".to_string()]));
 	assert_eq!(Err(()), scope_by_trimmed_tokens(vec!["{".to_string(), "a".to_string(), "b".to_string(), "c".to_string(), "}".to_string()]));
 	assert_eq!(Err(()), scope_by_trimmed_tokens(vec!["{".to_string(), "a".to_string(), "}".to_string()]));
 	assert_eq!(Err(()), scope_by_trimmed_tokens(vec!["a".to_string(), "b".to_string(), "c".to_string(), "}".to_string()]));
 	assert_eq!(Err(()), scope_by_trimmed_tokens(vec!["a".to_string(), "b".to_string(), "c".to_string()]));
 	assert_eq!(Err(()), scope_by_trimmed_tokens(vec!["a".to_string()]));
-	assert_eq!(Err(()), scope_by_trimmed_tokens(vec!["{".to_string(), "}".to_string()]));
 }
 
-fn var_by_trimmed_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {
+fn var_by_trimmed_tokens(tokens : Vec<String>) -> Result<Cell, ()> {
 	let len = tokens.len();
 	if len != 1 {
 		return Err(());
 	}
 
-	let token = tokens[0];
-	match token.parse::<u32>() {
+	match tokens[0].parse::<u32>() {
 		Ok(x) => return Ok(var(x)),
 		Err(_) => return Err(())
 	};
@@ -163,10 +146,9 @@ fn var_by_trimmed_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {
 
 #[test]
 fn test_var_by_trimmed_tokens() {
-	assert_eq!(Ok(var(simple_by_str("a"))), var_by_trimmed_tokens(vec!["[".to_string(), "a".to_string(), "]".to_string()]));
-	assert_eq!(Err(()), var_by_trimmed_tokens(vec!["a".to_string(), "]".to_string()]));
-	assert_eq!(Err(()), var_by_trimmed_tokens(vec!["]".to_string(), "a".to_string(), "]".to_string()]));
-	assert_eq!(Err(()), var_by_trimmed_tokens(vec!["[".to_string(), "]".to_string()]));
+	assert_eq!(Ok(var(0)), var_by_trimmed_tokens(vec!["0".to_string()]));
+	assert_eq!(Err(()), var_by_trimmed_tokens(vec!["a".to_string()]));
+	assert_eq!(Err(()), var_by_trimmed_tokens(vec!["0".to_string(), "other".to_string()]));
 }
 
 fn case_by_trimmed_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {
@@ -176,16 +158,16 @@ fn case_by_trimmed_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {
 	if "]" != &tokens.remove(len-1) { return Err(()); }
 	if "[" != &tokens.remove(0) { return Err(()); }
 
-	match cell_by_tokens(tokens) { // condition
+	match cell_by_tokens(tokens.clone()) { // condition
 		Ok(condition) => {
 			match cell_by_tokens(tokens) { // conclusion
 				Ok(conclusion) => {
 					return Ok(case(condition, conclusion));
 				},
-				() => return Err(())
+				_ => return Err(())
 			}
 		},
-		() => return Err(()),
+		_ => return Err(()),
 	}
 }
 
