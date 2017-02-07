@@ -1,5 +1,6 @@
 use parse::*;
 use cell::Cell;
+use cell::mani::*;
 use cell::create::cell_by_tokens;
 use std::fs::File;
 use std::io::Read;
@@ -22,7 +23,10 @@ impl Database {
 		}
 		let string : String = fix_whitespaces(string);
 		let rule_strings = split_rules(string);
-		let mut rules : Vec<Cell> = Vec::new();
+
+		// core rule:
+		let mut rules : Vec<Cell> = vec![scope(0, complex(vec![simple_by_str("="), var(0), var(0)]))];
+
 		for rule_string in rule_strings {
 			let tokens : Vec<String> = split_tokens(rule_string);
 			if ! check_paren_correctness(tokens.clone()) {

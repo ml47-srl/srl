@@ -8,9 +8,9 @@ fn test_tricky() {
 		Err(_) => panic!("panic!")
 	};
 
-	assert_eq!(db.get_rule(0).to_rule_string(), "(a b) (c d).");
-	assert_eq!(db.get_rule(1).to_rule_string(), "(a b) (c d) (e f).");
+	assert_eq!(db.get_rule(1).to_rule_string(), "(a b) (c d).");
+	assert_eq!(db.get_rule(2).to_rule_string(), "(a b) (c d) (e f).");
 
-	assert_eq!(db.get_rule(0).to_string(), "((a b) (c d))");
-	assert_eq!(db.get_rule(1).to_string(), "((a b) (c d) (e f))");
+	assert_eq!(db.get_rule(1).to_string(), "((a b) (c d))");
+	assert_eq!(db.get_rule(2).to_string(), "((a b) (c d) (e f))");
 }
