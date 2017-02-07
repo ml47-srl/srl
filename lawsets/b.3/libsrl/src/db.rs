@@ -25,6 +25,9 @@ impl Database {
 		let mut rules : Vec<Cell> = Vec::new();
 		for rule_string in rule_strings {
 			let tokens : Vec<String> = split_tokens(rule_string);
+			if ! check_paren_correctness(tokens.clone()) {
+				return Err("Parens are not correct".to_string());
+			}
 			match cell_by_tokens(tokens) {
 				Ok(x) => {
 					rules.push(x);
@@ -83,4 +86,58 @@ impl Database {
 		}
 		self.rules[index].clone()
 	}
+}
+
+// checks for problems like unclosed parens, and ({)}-like things
+fn check_paren_correctness(mut tokens : Vec<String>) -> bool {
+	let mut index = 0;
+	while index_in_len(index, tokens.len()) {
+		match "{}[]()".to_string().find(&tokens[index]) {
+			Some(_) => {
+				index += 1;
+			},
+			None => {
+				tokens.remove(index);
+			}
+		}
+	}
+
+	let mut string = tokens.join("");
+	loop {
+		match string.find("{}") {
+			Some(i) => {
+				string.remove(i);
+				string.remove(i);
+				continue;
+			},
+			None => {}
+		};
+		match string.find("()") {
+			Some(i) => {
+				string.remove(i);
+				string.remove(i);
+				continue;
+			},
+			None => {}
+		};
+		match string.find("[]") {
+			Some(i) => {
+				string.remove(i);
+				string.remove(i);
+				continue;
+			},
+			None => {}
+		};
+		break;
+	}
+
+	return string.is_empty();
+}
+
+#[test]
+fn test_check_paren_correctness() {
+	assert_eq!(check_paren_correctness(vec!["{".to_string(), "(".to_string(), "}".to_string(), ")".to_string()]), false);
+	assert_eq!(check_paren_correctness(vec!["{".to_string(), "(".to_string(), ")".to_string(), "}".to_string()]), true);
+	assert_eq!(check_paren_correctness(vec!["{".to_string(), "testy".to_string(), "(".to_string(), ")".to_string(), "}".to_string()]), true);
+	assert_eq!(check_paren_correctness(vec!["{".to_string(), "testy".to_string(), "(".to_string(), ")".to_string(), "}".to_string()]), true);
 }

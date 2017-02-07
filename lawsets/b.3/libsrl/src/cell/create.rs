@@ -3,6 +3,7 @@ use cell::Cell;
 use cell::mani::*;
 
 // remove optional outer parens
+// does not remove parens here: (a b)(c d), but here (a b c d)
 fn trim_tokens(mut vec : Vec<String>) -> Vec<String> {
 	loop {
 		let len = vec.len();
@@ -41,6 +42,47 @@ fn test_trim_tokens() {
 
 	tokens = vec!["(".to_string(), "{".to_string(), "}".to_string(), ")".to_string()];
 	assert_eq!(trim_tokens(tokens), vec!["{".to_string(), "}".to_string()]);
+}
+
+// finds the end of the cell, which starts tokens[cell_start]
+// example:
+// (wow this {is[ wow { __ }]} nice yay)
+//		^	    ^
+//		input	    output
+fn find_cell_ending(cell_start : usize, tokens: Vec<String>) -> Result<usize, ()> {
+	let len = tokens.len();
+
+	let mut parens : i32 = 0;
+	let mut braces : i32 = 0;
+	let mut brackets : i32 = 0;
+
+	for index in cell_start..len {
+		if tokens[index] == "(" { parens += 1; }
+		else if tokens[index] == "{" { braces += 1; }
+		else if tokens[index] == "[" { brackets += 1; }
+
+		else if tokens[index] == ")" { parens -= 1; }
+		else if tokens[index] == "}" { braces -= 1; }
+		else if tokens[index] == "]" { brackets -= 1; }
+
+		if parens == 0 && braces == 0 && brackets == 0 {
+			return Ok(index);
+		}
+	}
+	return Err(())
+}
+
+#[test]
+fn test_find_cell_ending()
+{
+	let tokens = vec!["(".to_string(), "wow".to_string(), "mean".to_string(), ")".to_string()];
+	assert_eq!(find_cell_ending(1, tokens), Ok(1));
+
+	let tokens = vec!["(".to_string(), "wow".to_string(), "mean".to_string(), ")".to_string()];
+	assert_eq!(find_cell_ending(0, tokens), Ok(3));
+
+	let tokens = vec!["(".to_string(), "wow".to_string(), "mean".to_string()];
+	assert_eq!(find_cell_ending(0, tokens), Err(()));
 }
 
 fn simple_by_trimmed_tokens(tokens : Vec<String>) -> Result<Cell, ()> {
@@ -171,7 +213,8 @@ fn case_by_trimmed_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {
 	}
 }
 
-// trims and then calls <sub>_by_trimmed_tokens
+// consumes *all* tokens to create one Cell
+// -- used to parse rules
 pub fn cell_by_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {
 	tokens = trim_tokens(tokens);
 
@@ -191,6 +234,7 @@ pub fn cell_by_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {
 	}
 }
 
+// see cell_by_tokens
 pub fn cell_by_str_tokens(tokens : Vec<&str>) -> Result<Cell, ()> {
 	let mut v : Vec<String> = Vec::new();
 	for token in tokens {
