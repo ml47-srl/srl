@@ -8,7 +8,7 @@ fn trim_tokens(mut vec : Vec<String>) -> Vec<String> {
 	loop {
 		let len = vec.len();
 
-		if ! (vec[0] == "(" && vec[len-1] == ")") {
+		if len < 2 || (! (vec[0] == "(" && vec[len-1] == ")")) {
 			return vec;
 		}
 
@@ -136,6 +136,7 @@ fn test_complex_by_trimmed_tokens() {
 	);
 }
 
+// accepts {0 (a b)} as well as {0 a b}
 fn scope_by_trimmed_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {
 	// cut { and }
 	let len = tokens.len();
@@ -155,13 +156,12 @@ fn scope_by_trimmed_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {
 		}
 		_ => return Err(())
 	}
-
 }
 
 #[test]
 fn test_scope_by_trimmed_tokens() {
 	assert_eq!(Ok(scope(0, simple_by_str("b"))), scope_by_trimmed_tokens(vec!["{".to_string(), "0".to_string(), "b".to_string(), "}".to_string()]));
-	assert_eq!(Err(()), scope_by_trimmed_tokens(vec!["{".to_string(), "0".to_string(), "b".to_string(), "c".to_string(), "}".to_string()]));
+	assert_eq!(Ok(scope(0, complex(vec![simple_by_str("b"), simple_by_str("c")]))), scope_by_trimmed_tokens(vec!["{".to_string(), "0".to_string(), "b".to_string(), "c".to_string(), "}".to_string()]));
 	assert_eq!(Err(()), scope_by_trimmed_tokens(vec!["{".to_string(), "0".to_string(), "}".to_string()]));
 	assert_eq!(Err(()), scope_by_trimmed_tokens(vec!["0".to_string(), "b".to_string(), "c".to_string(), "}".to_string()]));
 	assert_eq!(Err(()), scope_by_trimmed_tokens(vec!["0".to_string(), "b".to_string(), "c".to_string()]));
@@ -221,7 +221,7 @@ pub fn cell_by_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {
 	let len = tokens.len();
 
 	if len == 0 {
-		panic!("cell_by_tokens(): no tokens!");
+		return Err(());
 	} else if tokens.len() == 1 {
 		// TODO var cells
 		return simple_by_trimmed_tokens(tokens);
