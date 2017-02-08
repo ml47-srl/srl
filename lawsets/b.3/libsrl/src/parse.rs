@@ -172,6 +172,9 @@ pub fn split_tokens(mut string : String) -> Result<Vec<String>, SRLError> {
 
 	loop {
 		if string.is_empty() {
+			if ! tmp_string.is_empty() {
+				tokens.push(tmp_string);
+			}
 			break;
 		}
 		match (string.remove(0), &state) {
