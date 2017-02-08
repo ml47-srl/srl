@@ -5,3 +5,4 @@ pub mod cell;
 pub mod navi;
 pub mod evi;
 pub mod interface;
+pub mod error;

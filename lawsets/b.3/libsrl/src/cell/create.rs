@@ -44,49 +44,8 @@ fn test_trim_tokens() {
 	assert_eq!(trim_tokens(tokens), vec!["{".to_string(), "}".to_string()]);
 }
 
-// finds the end of the cell, which starts tokens[cell_start]
-// example:
-// (wow this {is[ wow { __ }]} nice yay)
-//		^	    ^
-//		input	    output
-fn find_cell_ending(cell_start : usize, tokens: Vec<String>) -> Result<usize, ()> {
-	let len = tokens.len();
-
-	let mut parens : i32 = 0;
-	let mut braces : i32 = 0;
-	let mut brackets : i32 = 0;
-
-	for index in cell_start..len {
-		if tokens[index] == "(" { parens += 1; }
-		else if tokens[index] == "{" { braces += 1; }
-		else if tokens[index] == "[" { brackets += 1; }
-
-		else if tokens[index] == ")" { parens -= 1; }
-		else if tokens[index] == "}" { braces -= 1; }
-		else if tokens[index] == "]" { brackets -= 1; }
-
-		if parens == 0 && braces == 0 && brackets == 0 {
-			return Ok(index);
-		}
-	}
-	return Err(())
-}
-
-#[test]
-fn test_find_cell_ending()
-{
-	let tokens = vec!["(".to_string(), "wow".to_string(), "mean".to_string(), ")".to_string()];
-	assert_eq!(find_cell_ending(1, tokens), Ok(1));
-
-	let tokens = vec!["(".to_string(), "wow".to_string(), "mean".to_string(), ")".to_string()];
-	assert_eq!(find_cell_ending(0, tokens), Ok(3));
-
-	let tokens = vec!["(".to_string(), "wow".to_string(), "mean".to_string()];
-	assert_eq!(find_cell_ending(0, tokens), Err(()));
-}
-
 fn simple_by_trimmed_tokens(tokens : Vec<String>) -> Result<Cell, ()> {
-	if ! is_valid_id(&tokens[0]) {
+	if PARENS.contains(&tokens[0]) {
 		panic!("simple_by_trimmed_tokens(): invalid id");
 	}
 
@@ -103,7 +62,7 @@ fn complex_by_trimmed_tokens(mut tokens : Vec<String>) -> Result<Cell, ()> {
 	while ! tokens.is_empty() {
 		let token : String = tokens.remove(0).to_string();
 		tmp_tokens.push(token.clone());
-		if ! is_valid_id(&token) {
+		if ! (is_simple_token(&token) || is_var_token(&token)) {
 			if token == "(" {
 				parens += 1;
 			}

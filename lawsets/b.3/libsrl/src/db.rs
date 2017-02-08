@@ -28,15 +28,21 @@ impl Database {
 		let mut rules : Vec<Cell> = vec![scope(0, complex(vec![simple_by_str("="), var(0), var(0)]))];
 
 		for rule_string in rule_strings {
-			let tokens : Vec<String> = split_tokens(rule_string);
-			if ! check_paren_correctness(tokens.clone()) {
-				return Err("Parens are not correct".to_string());
-			}
-			match cell_by_tokens(tokens) {
-				Ok(x) => {
-					rules.push(x);
+			match split_tokens(rule_string) {
+				Ok(tokens) => {
+					if ! check_paren_correctness(tokens.clone()) {
+						return Err("Parens are not correct".to_string());
+					}
+					match cell_by_tokens(tokens) {
+						Ok(x) => {
+							rules.push(x);
+						},
+						Err(_) => panic!("Database::by_string(): Cell::by_tokens() failed")
+					}
 				},
-				Err(_) => panic!("Database::by_string(): Cell::by_tokens() failed")
+				Err(srl_error) => {
+					return Err(srl_error.to_string());
+				}
 			}
 		}
 		for rule in &rules {

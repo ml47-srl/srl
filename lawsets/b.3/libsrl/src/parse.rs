@@ -1,16 +1,13 @@
-static VALID_CHARS : &'static str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ _=().\n\t'{}[]";
-static VALID_ID_CHARS : &'static str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_='";
-static LPARENS : &'static str = "{[(";
-static RPARENS : &'static str = "}])";
+use error::SRLError;
 
-pub fn is_valid_id(string : &str) -> bool {
-	for chr in string.chars() {
-		if ! VALID_ID_CHARS.contains(chr) {
-			return false;
-		}
-	}
-	return true;
-}
+pub static VALID_CHARS : &'static str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_=0123456789'(){} \n\t.";
+
+pub static SIMPLE_CELL_FILL_CHARS : &'static str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
+pub static VAR_FILL_CHARS : &'static str = "0123456789";
+
+pub static LPARENS : &'static str = "{(";
+pub static RPARENS : &'static str = "})";
+pub static PARENS : &'static str = "{(})";
 
 pub fn fix_whitespaces(string : &str) -> String {
 	// '\t', '\n'  => ' '
@@ -100,6 +97,7 @@ fn test_find_invalid_char() {
 	assert_eq!(find_invalid_char("wowäsdf"), Some(3));
 }
 
+// splits a database string, where fix_whitespaces was already called into rule-strings
 pub fn split_rules(string : String) -> Vec<String> {
 	let mut vec : Vec<String> = Vec::new();
 	let mut string : String = string.to_string();
@@ -162,51 +160,171 @@ fn test_split_rules4() {
 	split_rules("good".to_string());
 }
 
-pub fn split_tokens(mut string : String) -> Vec<String> {
+// splits string into tokens, fix_whitespaces has to be called prior. Defined behaviour only for chars in VALID_CHARS without \n \t and .
+pub fn split_tokens(mut string : String) -> Result<Vec<String>, SRLError> {
 	let mut tokens : Vec<String> = Vec::new();
 
-	let mut tmp_string = String::new();
-	while string.len() > 0 {
-		match string.remove(0) {
-			chr if LPARENS.contains(chr) => {
-				if ! tmp_string.is_empty() {
-					tokens.push(tmp_string);
-					tmp_string = String::new();
-				}
-				tokens.push(chr.to_string());
-			},
-			chr if RPARENS.contains(chr) => {
-				if ! tmp_string.is_empty() {
-					tokens.push(tmp_string);
-					tmp_string = String::new();
-				}
-				tokens.push(chr.to_string());
-			},
-			' ' => {
-				if ! tmp_string.is_empty() {
-					tokens.push(tmp_string);
-					tmp_string = String::new();
-				}
-			},
-			chr => {
-				if VALID_ID_CHARS.contains(chr) {
-					tmp_string.push(chr);
+	#[allow(non_camel_case_types)]
+	enum State { NONE, VAR, SIMPLE, CONST, EQ, AFTER_CELL };
+	let mut state : State = State::NONE;
+
+	let mut tmp_string : String = String::new();
+
+	loop {
+		if string.is_empty() {
+			break;
+		}
+		match (string.remove(0), &state) {
+			(x, &State::NONE) => {
+				if PARENS.contains(x) {
+					tokens.push(x.to_string())
+				} else if x == ' ' {
+					/* nothing */
+				} else if x == '\'' {
+					state = State::CONST;
+					tmp_string.push('\'');
+				} else if x == '=' {
+					state = State::EQ;
+				} else if SIMPLE_CELL_FILL_CHARS.contains(x) {
+					tmp_string.push(x);
+					state = State::SIMPLE;
+				} else if VAR_FILL_CHARS.contains(x) {
+					tmp_string.push(x);
+					state = State::VAR;
 				} else {
-					panic!("char is not valid for use in ID: {}", chr);
+					return Err(SRLError("split_tokens".to_string(), format!("forgot handling for '{}' in NONE state", x)))
+				}
+			}
+			(x, &State::VAR) => {
+				if PARENS.contains(x) {
+					tokens.push(tmp_string);
+					tokens.push(x.to_string());
+					tmp_string = String::new();
+					state = State::NONE;
+				} else if x == ' ' {
+					tokens.push(tmp_string);
+					tmp_string = String::new();
+					state = State::NONE;
+				} else if x == '\'' {
+					return Err(SRLError("split_tokens".to_string(), format!("trying to close var {} with constant tick ' ", tmp_string)));
+				} else if x == '=' {
+					return Err(SRLError("split_tokens".to_string(), format!("trying to close var {} with =", tmp_string)));
+				} else if SIMPLE_CELL_FILL_CHARS.contains(x) {
+					return Err(SRLError("split_tokens".to_string(), format!("trying to close var {} with {}", tmp_string, x)));
+				} else if VAR_FILL_CHARS.contains(x) {
+					tmp_string.push(x);
+				} else {
+					return Err(SRLError("split_tokens".to_string(), format!("forgot handling for '{}' in VAR state", x)))
+				}
+			}
+			(x, &State::SIMPLE) => {
+				if PARENS.contains(x) {
+					tokens.push(tmp_string);
+					tokens.push(x.to_string());
+					tmp_string = String::new();
+					state = State::NONE;
+				} else if x == ' ' {
+					tokens.push(tmp_string);
+					tmp_string = String::new();
+					state = State::NONE;
+				} else if x == '\'' {
+					return Err(SRLError("split_tokens".to_string(), format!("trying to end simple cell \"{}\" with tick '", tmp_string)));
+				} else if x == '=' {
+					return Err(SRLError("split_tokens".to_string(), format!("trying to end simple cell \"{}\" with =", tmp_string)));
+				} else if SIMPLE_CELL_FILL_CHARS.contains(x) {
+					tmp_string.push(x);
+				} else if VAR_FILL_CHARS.contains(x) {
+					return Err(SRLError("split_tokens".to_string(), format!("trying to end simple cell \"{}\" with {}", tmp_string, x)));
+				} else {
+					return Err(SRLError("split_tokens".to_string(), format!("forgot handling for '{}' in SIMPLE state", x)))
+				}
+			}
+			(x, &State::CONST) => {
+				if PARENS.contains(x) {
+					tokens.push(tmp_string);
+					tokens.push(x.to_string());
+					tmp_string = String::new();
+					state = State::NONE;
+				} else if x == ' ' {
+					tokens.push(tmp_string);
+					tmp_string = String::new();
+					state = State::NONE;
+				} else if x == '\'' {
+					tmp_string.push('\'');
+					tokens.push(tmp_string);
+					tmp_string = String::new();
+					state = State::AFTER_CELL;
+				} else if x == '=' {
+					return Err(SRLError("split_tokens".to_string(), format!("trying to end const cell \"{}\" with =", tmp_string)));
+				} else if SIMPLE_CELL_FILL_CHARS.contains(x) {
+					tmp_string.push(x);
+				} else if VAR_FILL_CHARS.contains(x) {
+					return Err(SRLError("split_tokens".to_string(), format!("trying to end const cell \"{}\" with {}", tmp_string, x)));
+				} else {
+					return Err(SRLError("split_tokens".to_string(), format!("forgot handling for '{}' in CONST state", x)));
 				}
 			},
+			(x, &State::EQ) => {
+				if PARENS.contains(x) {
+					tokens.push("=".to_string());
+					tokens.push(x.to_string());
+					state = State::NONE;
+				} else if x == ' ' {
+					tokens.push("=".to_string());
+					state = State::NONE;
+				} else if x == '\'' {
+					return Err(SRLError("split_tokens".to_string(), "trying to put ' after '='".to_string()));
+				} else if x == '=' {
+					return Err(SRLError("split_tokens".to_string(), "trying to put '=' after '='".to_string()));
+				} else if SIMPLE_CELL_FILL_CHARS.contains(x) {
+					return Err(SRLError("split_tokens".to_string(), format!("trying to put '{}' after '='", x)));
+				} else if VAR_FILL_CHARS.contains(x) {
+					return Err(SRLError("split_tokens".to_string(), format!("trying to put '{}' after '='", x)));
+				} else {
+					return Err(SRLError("split_tokens".to_string(), format!("forgot handling for '{}' in EQ state", x)));
+				}
+			}
+			(x, &State::AFTER_CELL) => {
+				if PARENS.contains(x) {
+					tokens.push(x.to_string());
+					state = State::NONE;
+				} else if x == ' ' {
+					state = State::NONE;
+				} else if x == '\'' {
+					return Err(SRLError("split_tokens".to_string(), format!("reading '{}' directly after cell end", x)));
+				} else if x == '=' {
+					return Err(SRLError("split_tokens".to_string(), "reading '=' directly after cell end".to_string()));
+				} else if SIMPLE_CELL_FILL_CHARS.contains(x) {
+					return Err(SRLError("split_tokens".to_string(), format!("reading '{}' directly after cell end", x)));
+				} else if VAR_FILL_CHARS.contains(x) {
+					return Err(SRLError("split_tokens".to_string(), format!("reading '{}' directly after cell end", x)));
+				} else {
+					return Err(SRLError("split_tokens".to_string(), format!("forgot handling for '{}' in AFTER_CELL state", x)))
+				}
+			}
 		}
 	}
-	if ! tmp_string.is_empty() {
-		tokens.push(tmp_string);
-	}
-	tokens
+
+	Ok(tokens)
 }
 
 #[test]
 fn test_split_tokens() {
-	assert_eq!(split_tokens("(wow good)".to_string()), vec!["(".to_string(), "wow".to_string(), "good".to_string(), ")".to_string()]);
-	assert_eq!(split_tokens("wow".to_string()), vec!["wow".to_string()]);
-	assert_eq!(split_tokens("{x}".to_string()), vec!["{".to_string(), "x".to_string(), "}".to_string()]);
-	assert_eq!(split_tokens("[x]".to_string()), vec!["[".to_string(), "x".to_string(), "]".to_string()]);
+	assert_eq!(split_tokens("(wow good)".to_string()).unwrap(), vec!["(".to_string(), "wow".to_string(), "good".to_string(), ")".to_string()]);
+	assert_eq!(split_tokens("wow".to_string()).unwrap(), vec!["wow".to_string()]);
+	assert_eq!(split_tokens("{x}".to_string()).unwrap(), vec!["{".to_string(), "x".to_string(), "}".to_string()]);
+}
+
+pub fn is_simple_token(token : &str) -> bool {
+	match token.chars().next() {
+		Some(chr) => return SIMPLE_CELL_FILL_CHARS.contains(chr) || chr == '=' || chr == '\'',
+		None => false
+	}
+}
+
+pub fn is_var_token(token: &str) -> bool {
+	match token.chars().next() {
+		Some(chr) => return VAR_FILL_CHARS.contains(chr),
+		None => false
+	}
 }
