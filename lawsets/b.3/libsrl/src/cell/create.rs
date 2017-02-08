@@ -2,6 +2,7 @@ use parse::*;
 use cell::Cell;
 use cell::mani::*;
 use error::SRLError;
+use misc::index_in_len;
 
 // remove optional outer parens
 // does not remove parens here: (a b)(c d), but here (a b c d)
@@ -46,46 +47,54 @@ fn test_trim_tokens() {
 }
 
 fn simple_by_trimmed_tokens(tokens : Vec<String>) -> Result<Cell, SRLError> {
-	if PARENS.contains(&tokens[0]) {
-		panic!("simple_by_trimmed_tokens(): invalid id");
+	if tokens.len() != 1 {
+		return Err(SRLError("simple_by_trimmed_tokens".to_string(), "tokens.len() != 1".to_string()));
 	}
 
 	return Ok(simple(tokens[0].clone()));
 }
 
-fn complex_by_trimmed_tokens(mut tokens : Vec<String>) -> Result<Cell, SRLError> {
-	assert!(tokens.len() > 1, format!("tokens = {:?}", tokens));
+fn find_cell_ending(cell_start : usize, tokens : &Vec<String>) -> Option<usize> {
+	let len = tokens.len();
 
-	let mut cells : Vec<Cell> = Vec::new();
-	let mut tmp_tokens : Vec<String> = Vec::new();
-	let mut parens = 0;
+	let mut parens : i32 = 0;
 
-	while ! tokens.is_empty() {
-		let token : String = tokens.remove(0).to_string();
-		tmp_tokens.push(token.clone());
-		if ! (is_simple_token(&token) || is_var_token(&token)) {
-			if token == "(" {
-				parens += 1;
-			}
-			else if token == ")" {
-				parens -= 1;
-			} else {
-				panic!("complex_by_trimmed_tokens(): weird invalid token='{}'", token);
-			}
+	for index in cell_start..len {
+		if tokens[index] == "(" || tokens[index] == "{" {
+			parens += 1;
+		} else if tokens[index] == ")" || tokens[index] == "}" {
+			parens -= 1;
 		}
+
 		if parens == 0 {
-			match cell_by_tokens(tmp_tokens) {
-				Ok(x) => {
-					cells.push(x);
-				},
-				_ => panic!("complex_by_trimmed_tokens(): recursive call failed")
-			}
-			tmp_tokens = Vec::new();
+			return Some(index);
+		}
+	}
+	None
+}
+
+fn complex_by_trimmed_tokens(tokens : Vec<String>) -> Result<Cell, SRLError> {
+	let mut cells : Vec<Cell> = Vec::new();
+	let mut index = 0;
+	let len = tokens.len();
+
+	while index_in_len(index, len) {
+		match find_cell_ending(index, &tokens) {
+			Some(ending) => {
+				let subtokens : Vec<String> = tokens[index..ending+1].to_vec();
+				match cell_by_tokens(subtokens) {
+					Ok(cell) => {
+						cells.push(cell);
+					},
+					srl_error => return srl_error
+				}
+				index = ending + 1;
+			},
+			None => break
 		}
 	}
 
-	assert!(cells.len() > 1, format!("cells = {:?}", cells));
-	return Ok(complex(cells));
+	Ok(complex(cells))
 }
 
 #[test]
@@ -154,8 +163,7 @@ fn test_scope_by_trimmed_tokens() {
 }
 
 fn var_by_trimmed_tokens(tokens : Vec<String>) -> Result<Cell, SRLError> {
-	let len = tokens.len();
-	if len != 1 {
+	if tokens.len() != 1 {
 		return Err(SRLError("var_by_trimmed_tokens".to_string(), "tokens.len() != 1".to_string()));
 	}
 
