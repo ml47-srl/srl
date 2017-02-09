@@ -2,6 +2,7 @@ pub mod mani;
 pub mod create;
 
 use misc::*;
+use error::SRLError;
 
 use std::fmt;
 
@@ -144,6 +145,12 @@ impl Cell {
 				panic!("Cell::get_subcell(): Case: index out of range");
 			}
 		};
+	}
+
+	// creates new cell with normalized scopes
+	// -- errors on var out of scope/multiple scopes with same id
+	pub fn get_normalized(&self) -> Result<Cell, SRLError> {
+		// TODO
 	}
 }
 

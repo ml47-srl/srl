@@ -10,15 +10,16 @@ use interface::equals_evi::EqualsEvidenceInterface;
 use interface::differ_evi::DifferEvidenceInterface;
 use interface::scope::ScopeInterface;
 use misc::*;
+use error::SRLError;
 
 pub struct Database {
 	rules : Vec<Cell>
 }
 
 impl Database {
-	pub fn by_string(string : &str) -> Result<Database, String> {
+	pub fn by_string(string : &str) -> Result<Database, SRLError> {
 		match find_invalid_char(&string) {
-			Some(x) => panic!("Inaccepted characters in string; char_no = {}", x),
+			Some(x) => return Err(SRLError("Database::by_string".to_string(), format!("invalid char '{}'", string.chars().nth(x as usize).unwrap()))),
 			None => {}
 		}
 		let string : String = fix_whitespaces(string);
@@ -31,37 +32,40 @@ impl Database {
 			match split_tokens(rule_string) {
 				Ok(tokens) => {
 					if ! check_paren_correctness(tokens.clone()) {
-						return Err("Parens are not correct".to_string());
+						return Err(SRLError("Database::by_string()".to_string(), "Parens are not correct".to_string()));
 					}
 					match cell_by_tokens(tokens) {
-						Ok(x) => {
-							rules.push(x);
+						Ok(cell) => {
+							match cell.get_normalized() {
+								Ok(x) => {
+									rules.push(x);
+								}
+								Err(srl_error) => return Err(srl_error)
+							}
 						},
-						Err(_) => panic!("Database::by_string(): Cell::by_tokens() failed")
+						Err(srl_error) => return Err(srl_error)
 					}
 				},
-				Err(srl_error) => {
-					return Err(srl_error.to_string());
-				}
+				Err(srl_error) => return Err(srl_error)
 			}
 		}
 		for rule in &rules {
 			if ! rule.is_valid() {
-				return Err(format!("rule '{}' is malformed", rule.to_rule_string()));
+				return Err(SRLError("Database::by_string()".to_string(), format!("rule '{}' is malformed", rule.to_rule_string())));
 			}
 		}
 		Ok(Database { rules : rules })
 	}
 
-	pub fn by_filename(filename : &str) -> Result<Database, String> {
+	pub fn by_filename(filename : &str) -> Result<Database, SRLError> {
 		let mut file : File = match File::open(filename) {
 			Ok(file) => file,
-			Err(_) => return Err(format!("Cannot open file: '{}'", filename)),
+			Err(_) => return Err(SRLError("Database::by_filename".to_string(), format!("Cannot open file: '{}'", filename))),
 		};
 		let mut filecontent = String::new();
 		match file.read_to_string(&mut filecontent) {
 			Ok(_) => (),
-			Err(_) => return Err(format!("failed to read from file: '{}'", filename))
+			Err(_) => return Err(SRLError("Database::by_filename".to_string(), format!("failed to read from file: '{}'", filename)))
 		}
 		Database::by_string(&filecontent)
 	}
