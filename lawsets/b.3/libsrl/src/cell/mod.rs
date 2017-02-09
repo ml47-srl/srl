@@ -3,6 +3,7 @@ pub mod create;
 
 use misc::*;
 use error::SRLError;
+use cell::mani::{simple, var, scope, case, complex};
 
 use std::fmt;
 
@@ -147,11 +148,95 @@ impl Cell {
 		};
 	}
 
+	fn get_scope_ids_r(&self, mut scope_ids : Vec<u32>) -> Result<Vec<u32>, SRLError> {
+		if let &&Cell::Scope { id : id_out, .. } = &self {
+			if scope_ids.contains(&id_out) {
+				return Err(SRLError("get_scope_ids_r".to_string(), format!("id {} occured multiple times", id_out)));
+			}
+			scope_ids.push(id_out);
+		}
+
+		for index in 0..(self.count_subcells() as i32)-1 {
+			match self.get_subcell(index as usize).get_scope_ids_r(scope_ids) {
+				Ok(scope_ids_new) => { scope_ids = scope_ids_new; },
+				Err(srl_error) => return Err(srl_error)
+			}
+		}
+
+		Ok(scope_ids)
+	}
+
+	fn get_scope_ids(&self) -> Result<Vec<u32>, SRLError> {
+		return self.get_scope_ids_r(vec![]);
+	}
+
+	fn get_replaced_scope_ids(&self, scope_ids : &Vec<u32>) -> Result<Cell, SRLError> {
+		match &self {
+			&&Cell::Scope { id : id_out, body : ref body_out } => {
+				match (*body_out).get_replaced_scope_ids(&scope_ids) {
+					Ok(new_body) => {
+						match get_new_id(id_out, &scope_ids) {
+							Ok(new_id) => return Ok(scope(new_id, new_body)),
+							Err(srl_error) => return Err(srl_error)
+						}
+					}
+					Err(srl_error) => return Err(srl_error)
+				}
+			},
+			&&Cell::Var { id : id_out } => {
+				match get_new_id(id_out, &scope_ids) {
+					Ok(new_id) => return Ok(var(new_id)),
+					Err(srl_error) => return Err(srl_error)
+				}
+			},
+			&&Cell::Complex { cells : ref cells_out } => {
+				let mut new_cells = Vec::new();
+				for cell in cells_out {
+					match cell.get_replaced_scope_ids(&scope_ids) {
+						Ok(cell) => {
+							new_cells.push(cell);
+						},
+						Err(srl_error) => return Err(srl_error)
+					}
+				}
+				return Ok(complex(new_cells));
+			}
+			&&Cell::Simple { string : ref string_out } => return Ok(simple(string_out.to_string())),
+			&&Cell::Case {condition : ref condition_out, conclusion : ref conclusion_out} => {
+				match (*condition_out).get_replaced_scope_ids(&scope_ids) {
+					Ok(new_condition) => {
+						match (*conclusion_out).get_replaced_scope_ids(&scope_ids) {
+							Ok(new_conclusion) => {
+								return Ok(case(new_condition, new_conclusion));
+							}
+							Err(srl_error) => return Err(srl_error)
+						}
+					}
+					Err(srl_error) => return Err(srl_error)
+				}
+			}
+		}
+	}
+
 	// creates new cell with normalized scopes
 	// -- errors on var out of scope/multiple scopes with same id
 	pub fn get_normalized(&self) -> Result<Cell, SRLError> {
-		// TODO
+		match self.get_scope_ids() {
+			Ok(scope_ids) => {
+				return self.get_replaced_scope_ids(&scope_ids);
+			}
+			Err(srl_error) => return Err(srl_error)
+		}
 	}
+}
+
+fn get_new_id(old_id : u32, scope_ids : &Vec<u32>) -> Result<u32, SRLError> {
+	for index in 0..scope_ids.len()-1 {
+		if old_id == scope_ids[index] {
+			return Ok(index as u32);
+		}
+	}
+	return Err(SRLError("get_new_id".to_string(), format!("id '{}' is not in scope_ids", old_id)));
 }
 
 #[test]
