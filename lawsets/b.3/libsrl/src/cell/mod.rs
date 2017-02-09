@@ -151,10 +151,10 @@ impl Cell {
 	// creates new cell with normalized scopes
 	// -- errors on var out of scope/multiple scopes with same id
 	pub fn get_normalized(&self) -> Result<Cell, SRLError> {
-		return self.get_normalized_r(&mut vec![]);
+		return self.get_normalized_r(&mut vec![], &mut vec![]);
 	}
 
-	fn get_normalized_r(&self, vec: &mut Vec<u32>) -> Result<Cell, SRLError> {
+	fn get_normalized_r(&self, vec : &mut Vec<u32>, in_scope_vec : &mut Vec<bool>) -> Result<Cell, SRLError> {
 		match &self {
 			&&Cell::Simple { string : ref string_out } => {
 				return Ok(simple(string_out.to_string()));
@@ -162,7 +162,7 @@ impl Cell {
 			&&Cell::Complex { cells : ref cells_out } => {
 				let mut new_cells = Vec::new();
 				for cell in cells_out {
-					match cell.get_normalized_r(vec) {
+					match cell.get_normalized_r(vec, in_scope_vec) {
 						Ok(new_cell) => {
 							new_cells.push(new_cell);
 						}
@@ -177,25 +177,28 @@ impl Cell {
 				}
 
 				vec.push(id_out);
+				in_scope_vec.push(true);
 				let new_id = (vec.len()-1) as u32;
 
-				match body_out.get_normalized_r(vec) {
+				match body_out.get_normalized_r(vec, in_scope_vec) {
 					Ok(new_body) => {
+						in_scope_vec.pop();
+						in_scope_vec.push(false);
 						return Ok(scope(new_id, new_body));
 					}
 					Err(srl_error) => return Err(srl_error)
 				}
 			}
 			&&Cell::Var { id : id_out } => {
-				match get_new_id(id_out, vec) {
+				match get_new_id(id_out, vec, in_scope_vec) {
 					Ok(new_id) => return Ok(Cell::Var { id : new_id }),
 					Err(srl_error) => return Err(srl_error)
 				}
 			}
 			&&Cell::Case { condition : ref condition_out, conclusion : ref conclusion_out } =>  {
-				match condition_out.get_normalized_r(vec) {
+				match condition_out.get_normalized_r(vec, in_scope_vec) {
 					Ok(condition_new) => {
-						match conclusion_out.get_normalized_r(vec) {
+						match conclusion_out.get_normalized_r(vec, in_scope_vec) {
 							Ok(conclusion_new) => {
 								return Ok(case(condition_new, conclusion_new));
 							}
@@ -209,10 +212,14 @@ impl Cell {
 	}
 }
 
-fn get_new_id(old_id : u32, scope_ids : &Vec<u32>) -> Result<u32, SRLError> {
+fn get_new_id(old_id : u32, scope_ids : &Vec<u32>, in_scope_vec : &Vec<bool>) -> Result<u32, SRLError> {
 	for index in 0..scope_ids.len() {
 		if old_id == scope_ids[index as usize] {
-			return Ok(index as u32);
+			if in_scope_vec[index] {
+				return Ok(index as u32);
+			} else {
+				return Err(SRLError("get_new_id".to_string(), format!("already out of scope with id '{}'", old_id)));
+			}
 		}
 	}
 	return Err(SRLError("get_new_id".to_string(), format!("id '{}' is not in scope_ids '{:?}'", old_id, scope_ids)));
