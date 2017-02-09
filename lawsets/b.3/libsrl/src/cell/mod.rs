@@ -156,7 +156,7 @@ impl Cell {
 			scope_ids.push(id_out);
 		}
 
-		for index in 0..(self.count_subcells() as i32)-1 {
+		for index in 0..self.count_subcells() {
 			match self.get_subcell(index as usize).get_scope_ids_r(scope_ids) {
 				Ok(scope_ids_new) => { scope_ids = scope_ids_new; },
 				Err(srl_error) => return Err(srl_error)
@@ -231,12 +231,12 @@ impl Cell {
 }
 
 fn get_new_id(old_id : u32, scope_ids : &Vec<u32>) -> Result<u32, SRLError> {
-	for index in 0..(scope_ids.len() as i32)-1 {
+	for index in 0..scope_ids.len() {
 		if old_id == scope_ids[index as usize] {
 			return Ok(index as u32);
 		}
 	}
-	return Err(SRLError("get_new_id".to_string(), format!("id '{}' is not in scope_ids", old_id)));
+	return Err(SRLError("get_new_id".to_string(), format!("id '{}' is not in scope_ids '{:?}'", old_id, scope_ids)));
 }
 
 #[test]
