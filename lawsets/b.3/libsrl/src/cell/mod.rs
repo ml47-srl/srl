@@ -3,7 +3,7 @@ pub mod create;
 
 use misc::*;
 use error::SRLError;
-use cell::mani::{simple, var, scope, case, complex};
+use cell::mani::*;
 
 use std::fmt;
 
@@ -231,12 +231,19 @@ impl Cell {
 }
 
 fn get_new_id(old_id : u32, scope_ids : &Vec<u32>) -> Result<u32, SRLError> {
-	for index in 0..scope_ids.len()-1 {
-		if old_id == scope_ids[index] {
+	for index in 0..(scope_ids.len() as i32)-1 {
+		if old_id == scope_ids[index as usize] {
 			return Ok(index as u32);
 		}
 	}
 	return Err(SRLError("get_new_id".to_string(), format!("id '{}' is not in scope_ids", old_id)));
+}
+
+#[test]
+fn test_get_normalized() {
+	if let Ok(_) = complex(vec![var(0), scope(0, simple_by_str("ok"))]).get_normalized() { panic!("test_get_normalized(): should not accept (0)"); }
+	if let Ok(_) = scope(0, scope(0, simple_by_str("wow"))).get_normalized() { panic!("test_get_normalized(): should not accept (1)"); }
+	assert_eq!(scope(0, scope(1, var(1))).to_string(), scope(1, scope(2, var(2))).get_normalized().unwrap().to_string());
 }
 
 #[test]
