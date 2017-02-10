@@ -1,8 +1,7 @@
 use parse::*;
 use cell::Cell;
-use cell::mani::*;
 use error::SRLError;
-use misc::index_in_len;
+use misc::*;
 
 // remove optional outer parens
 // does not remove parens here: (a b)(c d), but here (a b c d)

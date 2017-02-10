@@ -3,7 +3,7 @@ use interface::equals_evi::EqualsEvidence;
 use interface::differ_evi::DifferEvidence;
 use evi::Evidence;
 use navi::CellID;
-use cell::mani::*;
+use misc::*;
 
 pub struct ApplyInterface<'a>(&'a mut Vec<Cell>);
 

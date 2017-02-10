@@ -1,7 +1,7 @@
 use cell::Cell;
 use navi::RuleID;
 use evi::Evidence;
-use cell::mani::*;
+use misc::*;
 
 pub struct EqualsEvidenceInterface<'a>(&'a Vec<Cell>);
 

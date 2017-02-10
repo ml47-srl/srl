@@ -2,7 +2,6 @@ use parse::*;
 use parse::assemble::*;
 use parse::tokenize::*;
 use cell::Cell;
-use cell::mani::*;
 use std::fs::File;
 use std::io::Read;
 use interface::apply::ApplyInterface;

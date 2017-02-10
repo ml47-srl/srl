@@ -1,5 +1,4 @@
 use cell::Cell;
-use cell::mani::*;
 use misc::*;
 
 #[derive(Clone)]

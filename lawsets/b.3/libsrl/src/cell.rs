@@ -1,8 +1,5 @@
-pub mod mani;
-
 use misc::*;
 use error::SRLError;
-use cell::mani::*;
 
 use std::fmt;
 
@@ -234,7 +231,6 @@ fn test_get_normalized() {
 
 #[test]
 fn test_to_string() {
-	use cell::mani::*;
 	assert_eq!(&simple_by_str("a").to_string(), "a");
 	assert_eq!(&complex(vec![simple_by_str("a"), simple_by_str("b")]).to_string(), "(a b)");
 	assert_eq!(&scope(3, simple_by_str("b")).to_string(), "{3 b}");
