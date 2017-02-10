@@ -1,4 +1,10 @@
 pub mod libsrl {
+	mod misc {
+		pub fn do_miscellaneous_stuff() {
+			println!("stuff..");
+		}
+	}
+
 	pub mod error {
 		pub type SRLError = String;
 	}
@@ -14,6 +20,7 @@ pub mod libsrl {
 			fn assemble_detail() { println!("assemble_detail running!"); }
 			pub fn assemble(vec : Vec<String>) -> Result<SimpleCell, SRLError> {
 				assemble_detail();
+				super::super::misc::do_miscellaneous_stuff();
 				return Ok(SimpleCell { string : vec[0].clone() });
 			}
 		}
@@ -65,5 +72,4 @@ pub mod libsrl {
 fn main() {
 	use libsrl::db;
 	let d = db::Db::db_get();
-	use libsrl::error;
 }
