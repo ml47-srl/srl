@@ -1,7 +1,8 @@
 use parse::*;
+use parse::assemble::*;
+use parse::tokenize::*;
 use cell::Cell;
 use cell::mani::*;
-use cell::create::cell_by_tokens;
 use std::fs::File;
 use std::io::Read;
 use interface::apply::ApplyInterface;
@@ -29,12 +30,12 @@ impl Database {
 		let mut rules : Vec<Cell> = vec![scope(0, complex(vec![simple_by_str("="), var(0), var(0)]))];
 
 		for rule_string in rule_strings {
-			match split_tokens(rule_string) {
+			match tokenize(rule_string) {
 				Ok(tokens) => {
 					if ! check_paren_correctness(tokens.clone()) {
 						return Err(SRLError("Database::by_string()".to_string(), "Parens are not correct".to_string()));
 					}
-					match cell_by_tokens(tokens) {
+					match assemble(tokens) {
 						Ok(cell) => {
 							match cell.get_normalized() {
 								Ok(x) => {

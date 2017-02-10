@@ -82,7 +82,7 @@ fn complex_by_trimmed_tokens(tokens : Vec<String>) -> Result<Cell, SRLError> {
 		match find_cell_ending(index, &tokens) {
 			Some(ending) => {
 				let subtokens : Vec<String> = tokens[index..ending+1].to_vec();
-				match cell_by_tokens(subtokens) {
+				match assemble(subtokens) {
 					Ok(cell) => {
 						cells.push(cell);
 					},
@@ -116,7 +116,7 @@ fn scope_by_trimmed_tokens(mut tokens : Vec<String>) -> Result<Cell, SRLError> {
 
 	match var_by_trimmed_tokens(vec![tokens.remove(0)]) {
 		Ok(Cell::Var { id : id_out }) => {
-			match cell_by_tokens(tokens) {
+			match assemble(tokens) {
 				Ok(x) => {
 					return Ok(scope(id_out, x));
 				}
@@ -188,13 +188,13 @@ fn test_var_by_trimmed_tokens() {
 
 // consumes *all* tokens to create one Cell
 // -- used to parse rules, does not accept cases
-pub fn cell_by_tokens(mut tokens : Vec<String>) -> Result<Cell, SRLError> {
+pub fn assemble(mut tokens : Vec<String>) -> Result<Cell, SRLError> {
 	tokens = trim_tokens(tokens);
 
 	let len = tokens.len();
 
 	if len == 0 {
-		return Err(SRLError("cell_by_tokens".to_string(), "tokens.len() == 0".to_string()));
+		return Err(SRLError("assemble".to_string(), "tokens.len() == 0".to_string()));
 	} else if tokens.len() == 1 {
 		let token : String = tokens[0].clone();
 		if is_var_token(&token) {
@@ -202,7 +202,7 @@ pub fn cell_by_tokens(mut tokens : Vec<String>) -> Result<Cell, SRLError> {
 		} else if is_simple_token(&token) {
 			return simple_by_trimmed_tokens(tokens);
 		} else {
-			return Err(SRLError("cell_by_tokens".to_string(), format!("lone token '{}' is weird", token)));
+			return Err(SRLError("assemble".to_string(), format!("lone token '{}' is weird", token)));
 		}
 	} else if tokens[0] == "{" && tokens[len-1] == "}" {
 		return scope_by_trimmed_tokens(tokens);
@@ -211,21 +211,21 @@ pub fn cell_by_tokens(mut tokens : Vec<String>) -> Result<Cell, SRLError> {
 	}
 }
 
-// see cell_by_tokens
-pub fn cell_by_str_tokens(tokens : Vec<&str>) -> Result<Cell, SRLError> {
+// see assemble
+pub fn assemble_str(tokens : Vec<&str>) -> Result<Cell, SRLError> {
 	let mut v : Vec<String> = Vec::new();
 	for token in tokens {
 		v.push(token.to_string());
 	}
-	cell_by_tokens(v)
+	assemble(v)
 }
 
 #[test]
-fn test_cell_by_tokens() {
+fn test_assemble() {
 	assert_eq!(complex(vec![simple_by_str("a"), simple_by_str("b")]),
-		cell_by_str_tokens(vec!["(", "a", ")", "b"]).unwrap());
+		assemble_str(vec!["(", "a", ")", "b"]).unwrap());
 	assert_eq!(simple_by_str("wow"),
-		cell_by_str_tokens(vec!["wow"]).unwrap());
+		assemble_str(vec!["wow"]).unwrap());
 	assert_eq!(complex(vec![simple_by_str("equals"), simple_by_str("a"), simple_by_str("b")]),
-		cell_by_str_tokens(vec!["(", "equals", "a", "b", ")"]).unwrap());
+		assemble_str(vec!["(", "equals", "a", "b", ")"]).unwrap());
 }

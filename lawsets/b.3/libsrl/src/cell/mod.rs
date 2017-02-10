@@ -1,5 +1,4 @@
 pub mod mani;
-pub mod create;
 
 use misc::*;
 use error::SRLError;
