@@ -6,3 +6,4 @@ pub mod navi; // pub? XXX
 pub mod evi; // pub? XXX
 pub mod interface; // pub? XXX
 pub mod error;
+mod normalize;
