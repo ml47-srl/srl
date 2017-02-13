@@ -228,3 +228,57 @@ fn test_assemble() {
 	assert_eq!(complex(vec![simple_by_str("equals"), simple_by_str("a"), simple_by_str("b")]),
 		assemble_str(vec!["(", "equals", "a", "b", ")"]).unwrap());
 }
+
+// checks for problems like unclosed parens, and ({)}-like things
+pub fn check_paren_correctness(mut tokens : Vec<String>) -> bool {
+	let mut index = 0;
+	while index_in_len(index, tokens.len()) {
+		match "{}[]()".to_string().find(&tokens[index]) {
+			Some(_) => {
+				index += 1;
+			},
+			None => {
+				tokens.remove(index);
+			}
+		}
+	}
+
+	let mut string = tokens.join("");
+	loop {
+		match string.find("{}") {
+			Some(i) => {
+				string.remove(i);
+				string.remove(i);
+				continue;
+			},
+			None => {}
+		};
+		match string.find("()") {
+			Some(i) => {
+				string.remove(i);
+				string.remove(i);
+				continue;
+			},
+			None => {}
+		};
+		match string.find("[]") {
+			Some(i) => {
+				string.remove(i);
+				string.remove(i);
+				continue;
+			},
+			None => {}
+		};
+		break;
+	}
+
+	return string.is_empty();
+}
+
+#[test]
+fn test_check_paren_correctness() {
+	assert_eq!(check_paren_correctness(vec!["{".to_string(), "(".to_string(), "}".to_string(), ")".to_string()]), false);
+	assert_eq!(check_paren_correctness(vec!["{".to_string(), "(".to_string(), ")".to_string(), "}".to_string()]), true);
+	assert_eq!(check_paren_correctness(vec!["{".to_string(), "testy".to_string(), "(".to_string(), ")".to_string(), "}".to_string()]), true);
+	assert_eq!(check_paren_correctness(vec!["{".to_string(), "testy".to_string(), "(".to_string(), ")".to_string(), "}".to_string()]), true);
+}
