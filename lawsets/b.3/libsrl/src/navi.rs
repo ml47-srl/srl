@@ -1,5 +1,6 @@
 use cell::Cell;
 use misc::*;
+use error::SRLError;
 
 #[derive(Clone)]
 pub struct RuleID(usize);
@@ -81,6 +82,14 @@ impl CellID {
 		return cell;
 	}
 
+	pub fn get_parent(&self) -> Result<CellID, SRLError> {
+		let mut vec = self.indices.clone();
+		match vec.pop() {
+			Some(_) => return Ok(CellID { rule_id : self.rule_id.clone(), indices : vec }),
+			None => return Err(SRLError("CellID.get_parent".to_string(), "no parent".to_string()))
+		}
+	}
+
 	pub fn is_valid(&self, rules : &Vec<Cell>) -> bool {
 		if ! self.rule_id.is_valid(rules) {
 			return false;
@@ -94,6 +103,15 @@ impl CellID {
 			cell = cell.get_subcell(index);
 		}
 		true
+	}
+
+	// checks whether id.get_cell() is in the wrapper self
+	pub fn is_around(&self, id : &CellID) -> bool {
+		true // TODO
+	}
+
+	pub fn is_nexq_wrapper(&self) -> bool {
+		true // TODO
 	}
 }
 

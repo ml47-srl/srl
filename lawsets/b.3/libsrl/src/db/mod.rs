@@ -1,14 +1,11 @@
+pub mod reason;
+
 use parse::*;
 use parse::assemble::*;
 use parse::tokenize::*;
 use cell::Cell;
 use std::fs::File;
 use std::io::Read;
-use interface::apply::ApplyInterface;
-use interface::paradox::ParadoxInterface;
-use interface::equals_evi::EqualsEvidenceInterface;
-use interface::differ_evi::DifferEvidenceInterface;
-use interface::scope::ScopeInterface;
 use misc::*;
 use error::SRLError;
 
@@ -68,26 +65,6 @@ impl Database {
 			Err(_) => return Err(SRLError("Database::by_filename".to_string(), format!("failed to read from file: '{}'", filename)))
 		}
 		Database::by_string(&filecontent)
-	}
-
-	pub fn apply_i(&mut self) -> ApplyInterface {
-		ApplyInterface::new(&mut self.rules)
-	}
-
-	pub fn paradox_i(&self) -> ParadoxInterface {
-		ParadoxInterface::new(&self.rules)
-	}
-
-	pub fn equals_evi_i(&self) -> EqualsEvidenceInterface {
-		EqualsEvidenceInterface::new(&self.rules)
-	}
-
-	pub fn differ_evi_i(&self) -> DifferEvidenceInterface {
-		DifferEvidenceInterface::new(&self.rules)
-	}
-
-	pub fn scope_i(&mut self) -> ScopeInterface {
-		ScopeInterface::new(&mut self.rules)
 	}
 
 	pub fn count_rules(&self) -> usize {
