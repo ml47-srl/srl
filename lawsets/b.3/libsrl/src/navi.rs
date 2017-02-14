@@ -28,15 +28,14 @@ impl RuleID {
 impl CellID {
 	pub fn get_cell(&self, rules : &Vec<Cell>) -> Result<Cell, SRLError> {
 		if self.rule_id.is_valid(rules) {
-			match self.rule_id.get_cell(rules) { // obtain copy
-				Ok(mut cell) => {
-					for index in self.indices.clone() {
-						cell = cell.get_subcell(index)
-					}
-					return Ok(cell);
-				},
+			let mut cell = match self.rule_id.get_cell(rules) { // obtain copy
+				Ok(x) => x,
 				Err(srl_error) => return Err(srl_error)
+			};
+			for index in self.indices.clone() {
+				cell = cell.get_subcell(index)
 			}
+			return Ok(cell);
 		} else {
 			return Err(SRLError("CellID.get_cell".to_string(), "invalid cell".to_string()));
 		}
@@ -96,18 +95,18 @@ impl CellID {
 			return false;
 		}
 
-		match self.rule_id.get_cell(rules) { // obtain copy
-			Ok(mut cell) => {
-				for index in self.indices.clone() {
-					if ! index_in_len(index, cell.count_subcells()) {
-						return false;
-					}
-					cell = cell.get_subcell(index);
-				}
-				return true;
-			},
+		let mut cell = match self.rule_id.get_cell(rules) { // obtain copy
+			Ok(x) => x,
 			Err(_) => return false
+		};
+			
+		for index in self.indices.clone() {
+			if ! index_in_len(index, cell.count_subcells()) {
+				return false;
+			}
+			cell = cell.get_subcell(index);
 		}
+		return true;
 	}
 
 	// checks whether id.get_cell() is in the wrapper self

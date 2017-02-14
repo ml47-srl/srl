@@ -26,25 +26,22 @@ impl Database {
 		let mut rules : Vec<Cell> = vec![scope(0, complex(vec![simple_by_str("="), var(0), var(0)]))];
 
 		for rule_string in rule_strings {
-			match tokenize(rule_string) {
-				Ok(tokens) => {
-					if ! check_paren_correctness(tokens.clone()) {
-						return Err(SRLError("Database::by_string()".to_string(), "Parens are not correct".to_string()));
-					}
-					match assemble(tokens) {
-						Ok(cell) => {
-							match cell.get_normalized() {
-								Ok(x) => {
-									rules.push(x);
-								}
-								Err(srl_error) => return Err(srl_error)
-							}
-						},
-						Err(srl_error) => return Err(srl_error)
-					}
-				},
+			let tokens = match tokenize(rule_string) {
+				Ok(x) => x,
 				Err(srl_error) => return Err(srl_error)
+			};
+			if ! check_paren_correctness(tokens.clone()) {
+				return Err(SRLError("Database::by_string()".to_string(), "Parens are not correct".to_string()));
 			}
+			let cell = match assemble(tokens) {
+				Ok(x) => x,
+				Err(srl_error) => return Err(srl_error)
+			};
+			let normalized = match cell.get_normalized() {
+				Ok(x) => x,
+				Err(srl_error) => return Err(srl_error)
+			};
+			rules.push(normalized);
 		}
 		for rule in &rules {
 			if ! rule.is_valid() {

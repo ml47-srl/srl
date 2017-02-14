@@ -31,7 +31,7 @@ impl Cell {
                return self.get_normalized_r(&mut vec![], &mut vec![]);
        }
 
-       fn get_normalized_r(&self, vec : &mut Vec<u32>, in_scope_vec : &mut Vec<bool>) -> Result<Cell, SRLError> {
+       fn get_normalized_r(&self, vec : &mut Vec<u32>, in_scope_vec : &mut Vec<bool>) -> Result<Cell, SRLError> { // XXX detangle matches
                match &self {
                        &&Cell::Simple { string : ref string_out } => {
                                return Ok(simple(string_out.to_string()));

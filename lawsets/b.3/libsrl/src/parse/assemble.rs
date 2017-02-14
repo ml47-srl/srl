@@ -78,19 +78,17 @@ fn complex_by_trimmed_tokens(tokens : Vec<String>) -> Result<Cell, SRLError> {
 	let len = tokens.len();
 
 	while index_in_len(index, len) {
-		match find_cell_ending(index, &tokens) {
-			Some(ending) => {
-				let subtokens : Vec<String> = tokens[index..ending+1].to_vec();
-				match assemble(subtokens) {
-					Ok(cell) => {
-						cells.push(cell);
-					},
-					srl_error => return srl_error
-				}
-				index = ending + 1;
-			},
+		let ending = match find_cell_ending(index, &tokens) {
+			Some(x) => x,
 			None => break
-		}
+		};
+		let subtokens : Vec<String> = tokens[index..ending+1].to_vec();
+		let cell = match assemble(subtokens) {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+		cells.push(cell);
+		index = ending + 1;
 	}
 
 	Ok(complex(cells))
@@ -113,17 +111,16 @@ fn scope_by_trimmed_tokens(mut tokens : Vec<String>) -> Result<Cell, SRLError> {
 	if "}" != &tokens.remove(len-1) { return Err(SRLError("scope_by_trimmed_tokens".to_string(), "\"}\" != &tokens.remove(len-1)".to_string())); }
 	if "{" != &tokens.remove(0) { return Err(SRLError("scope_by_trimmed_tokens".to_string(), "\"{\" != &tokens.remove(0)".to_string())); }
 
-	match var_by_trimmed_tokens(vec![tokens.remove(0)]) {
-		Ok(Cell::Var { id : id_out }) => {
-			match assemble(tokens) {
-				Ok(x) => {
-					return Ok(scope(id_out, x));
-				}
-				srl_error => return srl_error
-			}
-		}
-		srl_error => return srl_error
-	}
+	let id = match var_by_trimmed_tokens(vec![tokens.remove(0)]) {
+		Ok(Cell::Var { id : x }) => x,
+		Ok(_) => return Err(SRLError("scope_by_trimmed_tokens".to_string(), "this is not a var cell".to_string())),
+		Err(srl_error) => return Err(srl_error)
+	};
+	let body = match assemble(tokens) {
+		Ok(x) => x,
+		Err(srl_error) => return Err(srl_error)
+	};
+	return Ok(scope(id, body));
 }
 
 #[test]
