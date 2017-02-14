@@ -16,7 +16,9 @@ impl Database {
 					Ok(evi_cell) => {
 						match evi_cell.get_equals_cell_arguments() {
 							Ok((x, y)) => {
-								assert!(wrapper.is_around(&src_id));
+								if !wrapper.is_around(&src_id) {
+									return Err(SRLError("equals_law".to_string(), "src_id and evidence_id are not in the same wrapper".to_string()));
+								}
 
 								match src_id.get_cell(&self.rules) {
 									Ok(src_cell) => {
