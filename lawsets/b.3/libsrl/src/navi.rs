@@ -12,74 +12,75 @@ pub struct CellID {
 }
 
 impl RuleID {
-	pub fn get_cell(&self, rules : &Vec<Cell>) -> Cell {
+	pub fn get_cell(&self, rules : &Vec<Cell>) -> Result<Cell, SRLError> {
 		if self.is_valid(rules) {
-			return rules[self.0].clone()
+			return Ok(rules[self.0].clone());
 		} else {
-			panic!("RuleID::get_rule_cell: id='{}' out of range", self.0);
+			return Err(SRLError("RuleID.get_cell".to_string(), "invalid RuleID".to_string()));
 		}
 	}
 
-	pub fn is_valid(&self, rules : &Vec<Cell>) -> bool {
+	fn is_valid(&self, rules : &Vec<Cell>) -> bool {
 		index_in_len(self.0, rules.len())
 	}
 }
 
 impl CellID {
-	pub fn get_cell(&self, rules : &Vec<Cell>) -> Cell {
+	pub fn get_cell(&self, rules : &Vec<Cell>) -> Result<Cell, SRLError> {
 		if self.rule_id.is_valid(rules) {
-			let mut cell : Cell = self.rule_id.get_cell(rules); // obtain copy
-			for index in self.indices.clone() {
-				cell = cell.get_subcell(index)
+			match self.rule_id.get_cell(rules) { // obtain copy
+				Ok(mut cell) => {
+					for index in self.indices.clone() {
+						cell = cell.get_subcell(index)
+					}
+					return Ok(cell);
+				},
+				Err(srl_error) => return Err(srl_error)
 			}
-			return cell;
 		} else {
-			panic!("CellID::get_cell(): rule_id is invalid");
+			return Err(SRLError("CellID.get_cell".to_string(), "invalid cell".to_string()));
 		}
 	}
 
-	pub fn replace_by(&self, rules : &Vec<Cell>, mut cell : Cell) -> Cell {
-		if ! self.rule_id.is_valid(rules) {
-			panic!("CellID::replace_by(): rule_id is invalid");
-		}
-
+	pub fn replace_by(&self, rules : &Vec<Cell>, mut cell : Cell) -> Result<Cell, SRLError> {
 		let mut indices = self.indices.clone();
 		let mut last_index;
 
 		while indices.len() > 0 {
 			match indices.pop() {
 				Some(x) => last_index = x,
-				None => panic!("CellID::replace_by(): failure 1")
+				None => panic!("CellID.replace_by: failure 1 - should not happen")
 			}
 			let cell_id = CellID { rule_id : self.rule_id.clone(), indices : indices.clone() };
 			match cell_id.get_cell(rules) {
-				Cell::Complex { cells : mut cells_out } => {
+				Ok(Cell::Complex { cells : mut cells_out }) => {
 					cells_out[last_index] = cell;
 					cell = complex(cells_out);
 				}
-				Cell::Simple {..} => panic!("CellID::replace_by: failure simple-cell"),
-				Cell::Scope { id: id_out, body : mut body_out } => {
+				Ok(Cell::Simple {..}) => return Err(SRLError("CellID.replace_by".to_string(), "failure simple-cell".to_string())),
+				Ok(Cell::Scope { id: id_out, body : mut body_out }) => {
 					if last_index == 0 {
 						body_out = Box::new(cell);
 					} else {
-						panic!("CellID::replace_by(): index different than 0 for scope cell");
+						return Err(SRLError("CellID.replace_by".to_string(), "index different than 0 for scope cell".to_string()));
 					}
 					cell = scope(id_out, *body_out);
 				},
-				Cell::Var {..} => panic!("CellID::replace_by(): failure var-cell"),
-				Cell::Case { condition : mut cond_out, conclusion : mut conc_out } => {
+				Ok(Cell::Var {..}) => return Err(SRLError("CellID.replace_by".to_string(), "failure var-cell".to_string())),
+				Ok(Cell::Case { condition : mut cond_out, conclusion : mut conc_out }) => {
 					if last_index == 0 {
 						cond_out = Box::new(cell);
 					} else if last_index == 1 {
 						conc_out = Box::new(cell);
 					} else {
-						panic!("CellID::replace_by(): index different than 0 or 1 for case cell");
+						return Err(SRLError("CellID.replace_by".to_string(), "index different than 0 or 1 for case cell".to_string()));
 					}
 					cell = case(*cond_out, *conc_out);
-				}
+				},
+				Err(srl_error) => return Err(srl_error)
 			}
 		}
-		return cell;
+		return Ok(cell);
 	}
 
 	pub fn get_parent(&self) -> Result<CellID, SRLError> {
@@ -90,19 +91,23 @@ impl CellID {
 		}
 	}
 
-	pub fn is_valid(&self, rules : &Vec<Cell>) -> bool {
+	fn is_valid(&self, rules : &Vec<Cell>) -> bool {
 		if ! self.rule_id.is_valid(rules) {
 			return false;
 		}
 
-		let mut cell : Cell = self.rule_id.get_cell(rules); // obtain copy
-		for index in self.indices.clone() {
-			if ! index_in_len(index, cell.count_subcells()) {
-				return false;
-			}
-			cell = cell.get_subcell(index);
+		match self.rule_id.get_cell(rules) { // obtain copy
+			Ok(mut cell) => {
+				for index in self.indices.clone() {
+					if ! index_in_len(index, cell.count_subcells()) {
+						return false;
+					}
+					cell = cell.get_subcell(index);
+				}
+				return true;
+			},
+			Err(_) => return false
 		}
-		true
 	}
 
 	// checks whether id.get_cell() is in the wrapper self
@@ -126,17 +131,17 @@ fn test_cell_id() {
 	assert!(! CellID { rule_id : RuleID(2), indices : Vec::new() }.is_valid(&rules));
 
 	assert_eq!(
-		CellID { rule_id : RuleID(0), indices : Vec::new() }.get_cell(&rules),
+		CellID { rule_id : RuleID(0), indices : Vec::new() }.get_cell(&rules).unwrap(),
 		simple_by_str("truth")
 	);
 
 	assert_eq!(
-		CellID { rule_id : RuleID(1), indices : vec![0] }.get_cell(&rules),
+		CellID { rule_id : RuleID(1), indices : vec![0] }.get_cell(&rules).unwrap(),
 		simple_by_str("truth")
 	);
 
 	assert_eq!(
-		CellID { rule_id : RuleID(1), indices : vec![1] }.get_cell(&rules),
+		CellID { rule_id : RuleID(1), indices : vec![1] }.get_cell(&rules).unwrap(),
 		simple_by_str("wot")
 	);
 }
@@ -148,7 +153,7 @@ fn test_cell_id_replace_by() {
 	rules.push(complex(vec![simple_by_str("truth"), simple_by_str("wot")]));
 
 	assert_eq!(
-		CellID { rule_id : RuleID(1), indices : vec![1] }.replace_by(&rules, simple_by_str("wow")),
+		CellID { rule_id : RuleID(1), indices : vec![1] }.replace_by(&rules, simple_by_str("wow")).unwrap(),
 		complex(vec![simple_by_str("truth"), simple_by_str("wow")])
 	);
 }
