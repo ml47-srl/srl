@@ -108,15 +108,6 @@ impl CellID {
 		}
 		return true;
 	}
-
-	// checks whether id.get_cell() is in the wrapper self
-	pub fn is_around(&self, id : &CellID) -> bool {
-		true // TODO
-	}
-
-	pub fn is_nexq_wrapper(&self) -> bool {
-		true // TODO
-	}
 }
 
 #[test]

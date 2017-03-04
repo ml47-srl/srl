@@ -57,9 +57,8 @@ impl Database {
 			Err(_) => return Err(SRLError("Database::by_filename".to_string(), format!("Cannot open file: '{}'", filename))),
 		};
 		let mut filecontent = String::new();
-		match file.read_to_string(&mut filecontent) {
-			Ok(_) => (),
-			Err(_) => return Err(SRLError("Database::by_filename".to_string(), format!("failed to read from file: '{}'", filename)))
+		if let Err(_) = file.read_to_string(&mut filecontent) {
+			return Err(SRLError("Database::by_filename".to_string(), format!("failed to read from file: '{}'", filename)));
 		}
 		Database::by_string(&filecontent)
 	}
