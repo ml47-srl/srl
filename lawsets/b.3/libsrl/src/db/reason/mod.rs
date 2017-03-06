@@ -9,7 +9,7 @@ impl Database {
 	// src_id = "The cell that has to be replaced" | `{0 ([p] 0)}.`
 	// evidence_id = "the equals cell"		  | `{0 [(= p q)]}`
 	pub fn equals_law(&mut self, src_id : CellID, evidence_id : CellID) -> Result<Cell, SRLError> {
-		let wrapper = match evidence_id.get_wrapper() {
+		let wrapper = match evidence_id.get_wrapper(&self.rules) {
 			Some(x) => x,
 			None => return Err(SRLError("equals_law".to_string(), "evidence_id is not in wrapper".to_string()))
 		};
