@@ -25,7 +25,7 @@ impl Database {
 			Err(srl_error) => return Err(srl_error)
 		};
 
-		if !wrapper.is_around(&src_id) {
+		if !wrapper.is_around(&src_id, &self.rules) {
 			return Err(SRLError("equals_law".to_string(), "src_id and evidence_id are not in the same wrapper".to_string()));
 		}
 

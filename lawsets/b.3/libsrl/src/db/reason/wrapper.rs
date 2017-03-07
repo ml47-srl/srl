@@ -76,8 +76,35 @@ impl Wrapper {
 	pub fn is_nallq(&self) -> bool { self.nallq }
 	pub fn is_nexq(&self) -> bool { self.nexq }
 
-	pub fn is_around(&self, id : &CellID) -> bool {
-		false // TODO
+	pub fn is_around(&self, id : &CellID, rules : &Vec<Cell>) -> bool {
+		let indices1 = self.cell_id.get_indices();
+		let indices2 = id.get_indices();
+
+		let mut cell1 = match self.cell_id.get_cell(rules) {
+			Ok(x) => x,
+			Err(_) => panic!("Wrapper::is_around(): should not happen!")
+		};
+		let mut cell2 = match id.get_cell(rules) {
+			Ok(x) => x,
+			Err(_) => panic!("Wrapper::is_around(): should not happen! (2)")
+		};
+
+		let tmp_cell : Cell = false_cell(); // any cell ..
+
+		for i in 0..indices1.len() {
+			let index : usize = indices1[i];
+			if index != indices2[i] {
+				return false
+			}
+
+			if cell1.with_subcell(tmp_cell.clone(), index) != cell2.with_subcell(tmp_cell.clone(), index) {
+				return false
+			}
+
+			cell1 = cell1.get_subcell(index);
+			cell2 = cell2.get_subcell(index);
+		}
+		true
 	}
 
 	/* // needed?

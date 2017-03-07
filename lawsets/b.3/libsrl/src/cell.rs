@@ -142,6 +142,32 @@ impl Cell {
 			}
 		};
 	}
+
+	pub fn with_subcell(&self, cell : Cell, index : usize) -> Cell {
+		if !index_in_len(index, self.count_subcells()) {
+			panic!("Cell::with_subcell(): index not possible!");
+		}
+		match &self {
+			&&Cell::Complex { cells : ref cells_out } => {
+				let mut c : Vec<Cell> = cells_out.clone();
+				c[index] = cell;
+				return Cell::Complex { cells : c };
+			},
+			&&Cell::Scope { id : id_out, .. } => {
+				return Cell::Scope { id : id_out, body : Box::new(cell) };
+			},
+			&&Cell::Case { condition : ref cond_out, conclusion : ref conc_out } => {
+				if index == 0 {
+					return Cell::Case { condition : Box::new(cell), conclusion : conc_out.clone() };
+				} else if index == 1 {
+					return Cell::Case { condition : cond_out.clone() , conclusion : Box::new(cell) };
+				} else {
+					panic!("Cell::with_subcell(): Case out of range");
+				}
+			},
+			_ => panic!("Cell::with_subcell(): unacceptable!")
+		}
+	}
 }
 
 #[test]
