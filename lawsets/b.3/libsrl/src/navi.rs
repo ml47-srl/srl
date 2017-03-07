@@ -46,38 +46,15 @@ impl CellID {
 		let mut last_index;
 
 		while indices.len() > 0 {
-			match indices.pop() {
-				Some(x) => last_index = x,
+			last_index = match indices.pop() {
+				Some(x) => x,
 				None => panic!("CellID.replace_by: failure 1 - should not happen")
-			}
+			};
 			let cell_id = CellID { rule_id : self.rule_id.clone(), indices : indices.clone() };
-			match cell_id.get_cell(rules) {
-				Ok(Cell::Complex { cells : mut cells_out }) => {
-					cells_out[last_index] = cell;
-					cell = complex(cells_out);
-				}
-				Ok(Cell::Simple {..}) => return Err(SRLError("CellID.replace_by".to_string(), "failure simple-cell".to_string())),
-				Ok(Cell::Scope { id: id_out, body : mut body_out }) => {
-					if last_index == 0 {
-						body_out = Box::new(cell);
-					} else {
-						return Err(SRLError("CellID.replace_by".to_string(), "index different than 0 for scope cell".to_string()));
-					}
-					cell = scope(id_out, *body_out);
-				},
-				Ok(Cell::Var {..}) => return Err(SRLError("CellID.replace_by".to_string(), "failure var-cell".to_string())),
-				Ok(Cell::Case { condition : mut cond_out, conclusion : mut conc_out }) => {
-					if last_index == 0 {
-						cond_out = Box::new(cell);
-					} else if last_index == 1 {
-						conc_out = Box::new(cell);
-					} else {
-						return Err(SRLError("CellID.replace_by".to_string(), "index different than 0 or 1 for case cell".to_string()));
-					}
-					cell = case(*cond_out, *conc_out);
-				},
+			cell = match cell_id.get_cell(rules) {
+				Ok(x) => x.with_subcell(cell, last_index),
 				Err(srl_error) => return Err(srl_error)
-			}
+			};
 		}
 		return Ok(cell);
 	}
