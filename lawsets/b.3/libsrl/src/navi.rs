@@ -2,10 +2,10 @@ use cell::Cell;
 use misc::*;
 use error::SRLError;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct RuleID(usize);
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct CellID {
 	rule_id : RuleID,
 	indices : Vec<usize>
@@ -63,12 +63,18 @@ impl CellID {
 		return Ok(cell);
 	}
 
-	pub fn get_parent(&self) -> Result<CellID, SRLError> {
+	pub fn get_parent(&self) -> CellID {
 		let mut vec = self.indices.clone();
 		match vec.pop() {
-			Some(_) => return Ok(CellID { rule_id : self.rule_id.clone(), indices : vec }),
-			None => return Err(SRLError("CellID.get_parent".to_string(), "no parent".to_string()))
+			Some(_) => return CellID { rule_id : self.rule_id.clone(), indices : vec },
+			None => panic!("CellID.get_parent: no parent")
 		}
+	}
+
+	pub fn get_child(&self, index : usize) -> CellID {
+		let mut vec = self.indices.clone();
+		vec.push(index);
+		CellID { rule_id : self.rule_id.clone(), indices : vec }
 	}
 
 	fn is_valid(&self, rules : &Vec<Cell>) -> bool {
