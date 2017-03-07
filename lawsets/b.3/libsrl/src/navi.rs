@@ -11,6 +11,10 @@ pub struct CellID {
 	indices : Vec<usize>
 }
 
+pub fn create_cell_id(rule_index : usize, indices : Vec<usize>) -> CellID {
+	CellID { rule_id : RuleID(rule_index), indices : indices }
+}
+
 impl RuleID {
 	pub fn get_cell(&self, rules : &Vec<Cell>) -> Result<Cell, SRLError> {
 		if self.is_valid(rules) {

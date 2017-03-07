@@ -171,6 +171,18 @@ impl Cell {
 }
 
 #[test]
+fn test_get_subcell() {
+	assert_eq!(complex(vec![true_cell(), false_cell()]).get_subcell(0), true_cell());
+	assert_eq!(complex(vec![true_cell(), false_cell()]).get_subcell(1), false_cell());
+}
+
+#[test]
+fn test_with_subcell() {
+	assert_eq!(complex(vec![true_cell(), true_cell()]).with_subcell(false_cell(), 0), complex(vec![false_cell(), true_cell()]));
+	assert_eq!(complex(vec![true_cell(), true_cell()]).with_subcell(false_cell(), 1), complex(vec![true_cell(), false_cell()]));
+}
+
+#[test]
 fn test_to_string() {
 	assert_eq!(&simple_by_str("a").to_string(), "a");
 	assert_eq!(&complex(vec![simple_by_str("a"), simple_by_str("b")]).to_string(), "(a b)");
