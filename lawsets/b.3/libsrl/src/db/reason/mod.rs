@@ -5,8 +5,19 @@ use cell::Cell;
 use error::SRLError;
 use navi::CellID;
 use misc::false_cell;
+use secure::SecureCell;
 
 impl Database {
+	fn add_rule(&mut self, rule : Cell) -> Result<Cell, SRLError> {
+		match rule.get_normalized() {
+			Ok(x) => {
+				self.rules.push(rule.clone());
+				return Ok(rule);
+			}
+			Err(srl_error) => return Err(srl_error)
+		}
+	}
+
 	// src_id = "The cell that has to be replaced" | `{0 (<p> 0)}.`
 	// evidence_id = "the equals cell"		  | `{0 <(= p q)>}`
 	pub fn equals_law(&mut self, src_id : CellID, evidence_id : CellID) -> Result<Cell, SRLError> {
@@ -48,8 +59,7 @@ impl Database {
 			Ok(x) => x,
 			Err(srl_error) => return Err(srl_error)
 		};
-		self.rules.push(rule.clone());
-		Ok(rule)
+		self.add_rule(rule)
 	}
 
 	// src_id = "The cell that has to be replaced" | `{0 [=> (= p q) (<p> 0)]}.`
@@ -102,8 +112,7 @@ impl Database {
 			Ok(x) => x,
 			Err(srl_error) => return Err(srl_error)
 		};
-		self.rules.push(rule.clone());
-		Ok(rule)
+		self.add_rule(rule)
 	}
 
 	// id: `<(= 'ok' 'wow')>`
@@ -129,7 +138,11 @@ impl Database {
 			Ok(x) => x,
 			Err(srl_error) => return Err(srl_error)
 		};
-		self.rules.push(rule.clone());
-		Ok(rule)
+		self.add_rule(rule)
+	}
+
+	pub fn scope_insertion(&mut self, scope_id : CellID, cell : SecureCell) -> Result<Cell, SRLError> {
+		panic!("TODO");
+		// TODO
 	}
 }
