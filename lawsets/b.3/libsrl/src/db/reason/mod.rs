@@ -11,8 +11,8 @@ impl Database {
 	fn add_rule(&mut self, rule : Cell) -> Result<Cell, SRLError> {
 		match rule.get_normalized() {
 			Ok(x) => {
-				self.rules.push(rule.clone());
-				return Ok(rule);
+				self.rules.push(x.clone());
+				return Ok(x);
 			}
 			Err(srl_error) => return Err(srl_error)
 		}
@@ -142,7 +142,12 @@ impl Database {
 	}
 
 	pub fn scope_insertion(&mut self, scope_id : CellID, cell : SecureCell) -> Result<Cell, SRLError> {
-		panic!("TODO");
-		// TODO
+		let (id, body) = match scope_id.get_cell(&self.rules) {
+			Ok(Cell::Scope { id : x, body : y }) => (x, y),
+			Ok(_) => return Err(SRLError("scope_insertion".to_string(), "scope_id does not represent scope".to_string())),
+			Err(srl_error) => return Err(srl_error)
+		};
+
+		panic!("TODO")
 	}
 }
