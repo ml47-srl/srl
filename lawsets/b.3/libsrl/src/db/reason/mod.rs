@@ -5,6 +5,8 @@ use cell::Cell;
 use error::SRLError;
 use navi::CellID;
 use misc::false_cell;
+use misc::true_cell;
+use misc::equals_cell;
 use secure::SecureCell;
 
 impl Database {
@@ -141,13 +143,33 @@ impl Database {
 		self.add_rule(rule)
 	}
 
+	pub fn add_eqt(&mut self, cell_id : CellID) -> Result<Cell, SRLError> {
+		if !cell_id.is_bool(&self.rules) {
+			return Err(SRLError("add_eqt".to_string(), "cell is not bool".to_string()));
+		}
+
+		let cell = match cell_id.get_cell(&self.rules) {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+
+		let rule = match cell_id.replace_by(&self.rules, equals_cell(true_cell(), cell)) {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+		self.add_rule(rule)
+	}
+
+	pub fn rm_eqt(&mut self, cell_id : CellID) -> Result<Cell, SRLError> {
+		panic!("TODO")
+	}
+
 	pub fn scope_insertion(&mut self, scope_id : CellID, cell : SecureCell) -> Result<Cell, SRLError> {
 		let (id, body) = match scope_id.get_cell(&self.rules) {
 			Ok(Cell::Scope { id : x, body : y }) => (x, y),
 			Ok(_) => return Err(SRLError("scope_insertion".to_string(), "scope_id does not represent scope".to_string())),
 			Err(srl_error) => return Err(srl_error)
 		};
-
 		panic!("TODO")
 	}
 }

@@ -98,6 +98,19 @@ impl CellID {
 
 	pub fn get_rule_id(&self) -> RuleID { self.rule_id.clone() }
 	pub fn get_indices(&self) -> Vec<usize> { self.indices.clone() }
+
+	pub fn is_bool(&self, rules : &Vec<Cell>) -> bool {
+		let my_cell = match self.get_cell(rules) {
+			Ok(x) => x,
+			Err(_) => return false
+		};
+		if self.get_indices().is_empty() { return true; } // it's the rule itself
+		if let Ok(x) = my_cell.get_equals_cell_arguments() { return true; } // it's an equals cell
+		if let Cell::Scope{..} = my_cell { return true; } // it's a scope
+		if my_cell == true_cell() { return true; }
+		if my_cell == false_cell() { return true; }
+		false
+	}
 }
 
 #[test]
