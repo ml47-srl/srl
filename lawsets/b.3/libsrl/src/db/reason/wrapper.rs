@@ -11,7 +11,19 @@ pub struct Wrapper {
 
 impl PartialEq for Wrapper {
 	fn eq(&self, wrapper : &Wrapper) -> bool {
-		panic!("TODO")
+		if self.cell_path.get_indices() != wrapper.cell_path.get_indices() {
+			return false;
+		}
+		let c1 = match self.cell_path.replace_by(false_cell()) {
+			Ok(x) => x,
+			Err(_) => return false
+		};
+		let c2 = match wrapper.cell_path.replace_by(false_cell()) {
+			Ok(x) => x,
+			Err(_) => return false
+		};
+
+		c1 == c2
 	}
 }
 
