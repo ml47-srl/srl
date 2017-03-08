@@ -334,6 +334,11 @@ impl Database {
 			Ok(x) => x,
 			Err(srl_error) => return Err(srl_error)
 		};
+
+		if !scope_path.is_complete_bool() {
+			return Err(SRLError("scope_creation".to_string(), "scope_id does not contain a complete bool-cell".to_string()));
+		}
+
 		let replaced = match scope_path.replace_by(scope(new_id, cell)) {
 			Ok(x) => x,
 			Err(srl_error) => return Err(srl_error)
