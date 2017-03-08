@@ -27,6 +27,11 @@ fn test_get_normalized() {
 impl Cell {
        // creates new cell with normalized scopes
        // -- errors on var out of scope/multiple scopes with same id
+
+	pub fn get_normalized_from(&self, x : u32) -> Result<Cell, SRLError> {
+		panic!("TODO")
+	}
+
        pub fn get_normalized(&self) -> Result<Cell, SRLError> {
                return self.get_normalized_r(&mut vec![], &mut vec![]);
        }

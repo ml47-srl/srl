@@ -6,6 +6,7 @@ use error::SRLError;
 use misc::false_cell;
 use misc::true_cell;
 use misc::equals_cell;
+use misc::index_in_len;
 use navi::CellID;
 use navi::CellPath;
 use secure::SecureCell;
@@ -268,18 +269,56 @@ impl Database {
 		}
 
 		let mut highest_id = scope_path.get_root_cell().recurse::<i32>(-1, find_highest);
-		let sec = secure.get_cell();
-		let rule_without_scope = match scope_path.replace_by(body) {
-			Ok(x) => x,
+		let id_amount_in_secure = match secure.get_cell().get_normalized() {
+			Ok(x) => x.recurse::<i32>(-1, find_highest) + 1,
 			Err(srl_error) => return Err(srl_error)
 		};
-		let body_path = CellPath::create(rule_without_scope, scope_path.get_indices().clone());
-		// for cell in body_path.get_cell() {
-		// 	if cell is var && cell.id == id {
-		//		cell.replace_by(sec.get_normalized_from(hightest_id+1))
-		//		hightest_id += number_of_ids_in(sec);
-		//	}
-		// }
-		panic!("TODO")
+
+		let mut path = CellPath::create(body.clone(), vec![]);
+
+		loop {
+			loop {
+				match path.get_cell() {
+					Ok(x) => if x.count_subcells() == 0 { break; },
+					Err(srl_error) => panic!("scope_insertion: should not happen!")
+				}
+				let mut indices = path.get_indices();
+				indices.push(0);
+				path = CellPath::create(path.get_root_cell(), indices);
+			}
+			let normalized = match secure.get_cell().get_normalized_from((highest_id + 1) as u32) {
+				Ok(x) => x,
+				Err(srl_error) => return Err(srl_error)
+			};
+			let replaced = match path.replace_by(normalized) {
+				Ok(x) => x,
+				Err(srl_error) => return Err(srl_error)
+			};
+			path = CellPath::create(replaced, path.get_indices());
+			highest_id += id_amount_in_secure;
+			loop {
+				let mut indices = path.get_indices();
+				if indices.is_empty() {
+					let rule = match scope_path.replace_by(path.get_root_cell()) {
+						Ok(x) => x,
+						Err(srl_error) => return Err(srl_error)
+					};
+					return self.add_rule(rule);
+				} else {
+					let len = indices.len();
+					let last = indices.remove(len - 1);
+					path = CellPath::create(path.get_root_cell(), indices.clone());
+					let path_cell = match path.get_cell() {
+						Ok(x) => x,
+						Err(srl_error) => return Err(srl_error)
+					};
+					if index_in_len(last + 1, path_cell.count_subcells()) {
+						indices.push(last + 1);
+						path = CellPath::create(path.get_root_cell(), indices);
+						break;
+					}
+				}
+			}
+		}
 	}
 }
