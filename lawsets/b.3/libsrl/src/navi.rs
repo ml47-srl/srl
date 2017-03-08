@@ -131,7 +131,7 @@ impl CellPath {
 				Some(x) => x,
 				None => panic!("CellPath.replace_by: failure 1 - should not happen")
 			};
-			let cell_path = self.clone();
+			let cell_path = CellPath { root_cell : self.root_cell.clone(), indices : indices.clone() };
 			cell = match cell_path.get_cell() {
 				Ok(x) => x.with_subcell(cell, last_index),
 				Err(srl_error) => return Err(srl_error)
@@ -160,7 +160,7 @@ fn test_cell_id_and_cell_path() {
 	);
 
 	assert_eq!(
-		CellPath { root_cell : rules[0].clone(), indices : vec![0] }.get_cell().unwrap(),
+		CellPath { root_cell : rules[1].clone(), indices : vec![0] }.get_cell().unwrap(),
 		simple_by_str("truth")
 	);
 
