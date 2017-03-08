@@ -385,4 +385,62 @@ impl Database {
 		}
 		self.add_rule(scope_path.get_root_cell())
 	}
+
+	pub fn implications_derivation(&mut self, case_id : CellID, case_negation_id : CellID) -> Result<Cell, SRLError> {
+		let case_path = match case_id.get_path(&self.rules) {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+		let case_negation_path = match case_negation_id.get_path(&self.rules) {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+
+		let case_cell = match case_path.get_cell() {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+		let case_negation_cell = match case_negation_path.get_cell() {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+
+		let (case_condition, case_conclusion) = match case_cell {
+			Cell::Case { condition : x, conclusion : y} => (*x, *y),
+			_ => return Err(SRLError("implications_derivation".to_string(), "case_id does not represent case-cell".to_string()))
+		};
+		let (case_negation_condition, case_negation_conclusion) = match case_negation_cell {
+			Cell::Case { condition : x, conclusion : y} => (*x, *y),
+			_ => return Err(SRLError("implications_derivation".to_string(), "case_negation_id does not represent case-cell".to_string()))
+		};
+
+		if case_conclusion != case_negation_conclusion {
+			return Err(SRLError("implications_derivation".to_string(), "conclusions differ".to_string()));
+		}
+
+		if equals_cell(false_cell(), case_condition) != case_negation_condition {
+			return Err(SRLError("implications_derivation".to_string(), "conditions are not correct".to_string()));
+		}
+
+		let case_wrapper = match case_path.get_wrapper() {
+			Some(x) => x,
+			None => return Err(SRLError("implications_derivation".to_string(), "no wrapper (1)".to_string()))
+		};
+		let case_negation_wrapper = match case_negation_path.get_wrapper() {
+			Some(x) => x,
+			None => return Err(SRLError("implications_derivation".to_string(), "no wrapper (2)".to_string()))
+		};
+		if case_wrapper != case_negation_wrapper {
+			return Err(SRLError("implications_derivation".to_string(), "different wrappers".to_string()));
+		}
+
+		if !case_wrapper.is_nexq() {
+			return Err(SRLError("implications_derivation".to_string(), "wrapper contains existance quantor".to_string()));
+		}
+
+		if !case_wrapper.is_positive() {
+			return Err(SRLError("implications_derivation".to_string(), "wrapper is negative".to_string()));
+		}
+		self.add_rule(case_conclusion)
+	}
 }

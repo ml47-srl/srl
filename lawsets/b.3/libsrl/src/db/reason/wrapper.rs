@@ -9,6 +9,12 @@ pub struct Wrapper {
 	nexq : bool
 }
 
+impl PartialEq for Wrapper {
+	fn eq(&self, wrapper : &Wrapper) -> bool {
+		panic!("TODO")
+	}
+}
+
 impl CellPath {
 	pub fn get_wrapper(&self) -> Option<Wrapper> {
 		let mut indices = self.get_indices();
