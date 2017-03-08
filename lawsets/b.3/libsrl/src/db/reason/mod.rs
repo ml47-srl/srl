@@ -443,4 +443,29 @@ impl Database {
 		}
 		self.add_rule(case_conclusion)
 	}
+
+	pub fn scope_exchange(&mut self, outer_scope_id : CellID) -> Result<Cell, SRLError> {
+		let outer_scope_path = match outer_scope_id.get_path(&self.rules) {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+
+		let inner_scope_path = outer_scope_path.get_child(0);
+		let outer_id = match outer_scope_path.get_cell() {
+			Ok(Cell::Scope { id : x, ..}) => x,
+			Ok(_) => return Err(SRLError("scope_exchange".to_string(), "outer cell is no scope".to_string())),
+			Err(srl_error) => return Err(srl_error)
+		};
+		let (inner_id, body) = match inner_scope_path.get_cell() {
+			Ok(Cell::Scope { id : x, body : y }) => (x, *y),
+			Ok(_) => return Err(SRLError("scope_exchange".to_string(), "inner cell is no scope".to_string())),
+			Err(srl_error) => return Err(srl_error)
+		};
+
+		let rule = match outer_scope_path.replace_by(scope(inner_id, scope(outer_id, body))) {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+		self.add_rule(rule)
+	}
 }
