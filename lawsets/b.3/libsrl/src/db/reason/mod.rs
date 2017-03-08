@@ -468,4 +468,28 @@ impl Database {
 		};
 		self.add_rule(rule)
 	}
+
+	pub fn case_creation(&mut self, cell_id : CellID, secure : SecureCell) -> Result<Cell, SRLError> {
+		let path = match cell_id.get_path(&self.rules) {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+		let wrapper = match path.get_wrapper() {
+			Some(x) => x,
+			None => return Err(SRLError("case_creation".to_string(), "no wrapper".to_string()))
+		};
+		if !wrapper.is_positive() {
+			return Err(SRLError("case_creation".to_string(), "wrapper is not positive".to_string()));
+		}
+		let cell = match path.get_cell() {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+
+		let rule = match path.replace_by(case(secure.get_cell(), cell)) {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+		self.add_rule(rule)
+	}
 }
