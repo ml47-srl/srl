@@ -11,8 +11,10 @@ pub struct CellID {
 	indices : Vec<usize>
 }
 
-pub fn create_cell_id(rule_index : usize, indices : Vec<usize>) -> CellID {
-	CellID { rule_id : RuleID(rule_index), indices : indices }
+#[derive(Clone, PartialEq)]
+pub struct CellPath {
+	root_cell : Cell,
+	indices : Vec<usize>
 }
 
 impl RuleID {
@@ -30,51 +32,16 @@ impl RuleID {
 }
 
 impl CellID {
-	pub fn get_cell(&self, rules : &Vec<Cell>) -> Result<Cell, SRLError> {
-		if self.rule_id.is_valid(rules) {
-			let mut cell = match self.rule_id.get_cell(rules) { // obtain copy
-				Ok(x) => x,
-				Err(srl_error) => return Err(srl_error)
-			};
-			for index in self.indices.clone() {
-				cell = cell.get_subcell(index)
-			}
-			return Ok(cell);
+	pub fn create(rule_index : usize, indices : Vec<usize>) -> CellID {
+		CellID { rule_id : RuleID(rule_index), indices : indices }
+	}
+
+	pub fn get_path(&self, rules : &Vec<Cell>) -> Result<CellPath, SRLError> {
+		if index_in_len(self.rule_id.0, rules.len()) {
+			Ok(CellPath { root_cell : rules[self.rule_id.0].clone(), indices : self.indices.clone() })
 		} else {
-			return Err(SRLError("CellID.get_cell".to_string(), "invalid cell".to_string()));
+			Err(SRLError("CellID::to_path".to_string(), "index of rule_id out of range".to_string()))
 		}
-	}
-
-	pub fn replace_by(&self, rules : &Vec<Cell>, mut cell : Cell) -> Result<Cell, SRLError> {
-		let mut indices = self.indices.clone();
-		let mut last_index;
-
-		while indices.len() > 0 {
-			last_index = match indices.pop() {
-				Some(x) => x,
-				None => panic!("CellID.replace_by: failure 1 - should not happen")
-			};
-			let cell_id = CellID { rule_id : self.rule_id.clone(), indices : indices.clone() };
-			cell = match cell_id.get_cell(rules) {
-				Ok(x) => x.with_subcell(cell, last_index),
-				Err(srl_error) => return Err(srl_error)
-			};
-		}
-		return Ok(cell);
-	}
-
-	pub fn get_parent(&self) -> CellID {
-		let mut vec = self.indices.clone();
-		match vec.pop() {
-			Some(_) => return CellID { rule_id : self.rule_id.clone(), indices : vec },
-			None => panic!("CellID.get_parent: no parent")
-		}
-	}
-
-	pub fn get_child(&self, index : usize) -> CellID {
-		let mut vec = self.indices.clone();
-		vec.push(index);
-		CellID { rule_id : self.rule_id.clone(), indices : vec }
 	}
 
 	fn is_valid(&self, rules : &Vec<Cell>) -> bool {
@@ -99,8 +66,23 @@ impl CellID {
 	pub fn get_rule_id(&self) -> RuleID { self.rule_id.clone() }
 	pub fn get_indices(&self) -> Vec<usize> { self.indices.clone() }
 
-	pub fn is_complete_bool(&self, rules : &Vec<Cell>) -> bool {
-		let my_cell = match self.get_cell(rules) {
+}
+
+impl CellPath {
+	pub fn create(root_cell : Cell, indices : Vec<usize>) -> CellPath {
+		CellPath { root_cell : root_cell, indices : indices }
+	}
+
+	pub fn get_cell(&self) -> Result<Cell, SRLError> {
+		let mut cell = self.root_cell.clone();
+		for index in self.indices.clone() {
+			cell = cell.get_subcell(index);
+		}
+		Ok(cell)
+	}
+
+	pub fn is_complete_bool(&self) -> bool {
+		let my_cell = match self.get_cell() {
 			Ok(x) => x,
 			Err(_) => return false
 		};
@@ -111,24 +93,59 @@ impl CellID {
 		false
 	}
 
-	pub fn is_bool(&self, rules : &Vec<Cell>) -> bool {
-		if self.is_complete_bool(rules) {
+	pub fn is_bool(&self) -> bool {
+		if self.is_complete_bool() {
 			return true;
 		}
 
 		// positionals
 		if !self.indices.is_empty() {
-			match self.get_parent().get_cell(rules) {
+			match self.get_parent().get_cell() {
 				Ok(Cell::Scope{..}) | Ok(Cell::Case{..}) => return true,
 				_ => {}
 			}
 		}
 		false
 	}
+
+	pub fn get_parent(&self) -> CellPath {
+		let mut vec = self.indices.clone();
+		match vec.pop() {
+			Some(_) => return CellPath { root_cell : self.root_cell.clone(), indices : vec },
+			None => panic!("CellID.get_parent: no parent")
+		}
+	}
+
+	pub fn get_child(&self, index : usize) -> CellPath {
+		let mut vec = self.indices.clone();
+		vec.push(index);
+		CellPath { root_cell : self.root_cell.clone(), indices : vec }
+	}
+
+	pub fn replace_by(&self, mut cell : Cell) -> Result<Cell, SRLError> {
+		let mut indices = self.indices.clone();
+		let mut last_index;
+
+		while indices.len() > 0 {
+			last_index = match indices.pop() {
+				Some(x) => x,
+				None => panic!("CellPath.replace_by: failure 1 - should not happen")
+			};
+			let cell_path = self.clone();
+			cell = match cell_path.get_cell() {
+				Ok(x) => x.with_subcell(cell, last_index),
+				Err(srl_error) => return Err(srl_error)
+			};
+		}
+		Ok(cell)
+	}
+
+	pub fn get_root_cell(&self) -> Cell { self.root_cell.clone() }
+	pub fn get_indices(&self) -> Vec<usize> { self.indices.clone() }
 }
 
 #[test]
-fn test_cell_id() {
+fn test_cell_id_and_cell_path() {
 	let mut rules : Vec<Cell> = Vec::new();
 	rules.push(simple_by_str("truth"));
 	rules.push(complex(vec![simple_by_str("truth"), simple_by_str("wot")]));
@@ -138,29 +155,29 @@ fn test_cell_id() {
 	assert!(! CellID { rule_id : RuleID(2), indices : Vec::new() }.is_valid(&rules));
 
 	assert_eq!(
-		CellID { rule_id : RuleID(0), indices : Vec::new() }.get_cell(&rules).unwrap(),
+		CellPath { root_cell : rules[0].clone(), indices : Vec::new() }.get_cell().unwrap(),
 		simple_by_str("truth")
 	);
 
 	assert_eq!(
-		CellID { rule_id : RuleID(1), indices : vec![0] }.get_cell(&rules).unwrap(),
+		CellPath { root_cell : rules[0].clone(), indices : vec![0] }.get_cell().unwrap(),
 		simple_by_str("truth")
 	);
 
 	assert_eq!(
-		CellID { rule_id : RuleID(1), indices : vec![1] }.get_cell(&rules).unwrap(),
+		CellPath { root_cell : rules[1].clone(), indices : vec![1] }.get_cell().unwrap(),
 		simple_by_str("wot")
 	);
 }
 
 #[test]
-fn test_cell_id_replace_by() {
+fn test_cell_path_replace_by() {
 	let mut rules : Vec<Cell> = Vec::new();
 	rules.push(simple_by_str("truth"));
 	rules.push(complex(vec![simple_by_str("truth"), simple_by_str("wot")]));
 
 	assert_eq!(
-		CellID { rule_id : RuleID(1), indices : vec![1] }.replace_by(&rules, simple_by_str("wow")).unwrap(),
+		CellPath { root_cell : rules[1].clone(), indices : vec![1] }.replace_by(simple_by_str("wow")).unwrap(),
 		complex(vec![simple_by_str("truth"), simple_by_str("wow")])
 	);
 }

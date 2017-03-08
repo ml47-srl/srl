@@ -3,11 +3,11 @@ mod wrapper;
 use super::Database;
 use cell::Cell;
 use error::SRLError;
-use navi::CellID;
-use navi::create_cell_id;
 use misc::false_cell;
 use misc::true_cell;
 use misc::equals_cell;
+use navi::CellID;
+use navi::CellPath;
 use secure::SecureCell;
 
 impl Database {
@@ -24,14 +24,23 @@ impl Database {
 	// src_id = "The cell that has to be replaced" | `{0 (<p> 0)}.`
 	// evidence_id = "the equals cell"		  | `{0 <(= p q)>}`
 	pub fn equals_law(&mut self, src_id : CellID, evidence_id : CellID) -> Result<Cell, SRLError> {
-		let wrapper = match evidence_id.get_wrapper(&self.rules) {
+		let src_path = match src_id.get_path(&self.rules) {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+		let evidence_path = match evidence_id.get_path(&self.rules) {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+
+		let wrapper = match evidence_path.get_wrapper() {
 			Some(x) => x,
 			None => return Err(SRLError("equals_law".to_string(), "evidence_id is not in wrapper".to_string()))
 		};
 		if !wrapper.is_nexq() {
 			return Err(SRLError("equals_law".to_string(), "wrapper is no nexq-wrapper".to_string()));
 		}
-		let evi_cell = match evidence_id.get_cell(&self.rules) {
+		let evi_cell = match evidence_path.get_cell() {
 			Ok(x) => x,
 			Err(srl_error) => return Err(srl_error)
 		};
@@ -40,11 +49,11 @@ impl Database {
 			Err(srl_error) => return Err(srl_error)
 		};
 
-		if !wrapper.is_around(&src_id, &self.rules) {
+		if !wrapper.is_around(&src_path) {
 			return Err(SRLError("equals_law".to_string(), "src_id and evidence_id are not in the same wrapper".to_string()));
 		}
 
-		let src_cell = match src_id.get_cell(&self.rules) {
+		let src_cell = match src_path.get_cell() {
 			Ok(x) => x,
 			Err(srl_error) => return Err(srl_error)
 		};
@@ -58,7 +67,7 @@ impl Database {
 			return Err(SRLError("equals_law".to_string(), "replace cell does not occur in evidence".to_string()));
 		}
 
-		let rule = match src_id.replace_by(&self.rules, new) {
+		let rule = match src_path.replace_by(new) {
 			Ok(x) => x,
 			Err(srl_error) => return Err(srl_error)
 		};
@@ -68,11 +77,20 @@ impl Database {
 	// src_id = "The cell that has to be replaced" | `{0 [=> (= p q) (<p> 0)]}.`
 	// evidence_id = "the equals cell"		  | `{0 [=> <(= p q)> (p 0)]}`
 	pub fn equals_law_impl(&mut self, src_id : CellID, evidence_id : CellID) -> Result<Cell, SRLError> {
+		let src_path = match src_id.get_path(&self.rules) {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+		let evidence_path = match evidence_id.get_path(&self.rules) {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+
 		// check whether evidence_id is the condition of a case-cell
 		if evidence_id.get_indices().last() != Some(&(0 as usize)) {
 			return Err(SRLError("equals_law_impl".to_string(), "evidence_id can't be condition of case-cell".to_string()));
 		}
-		if let Ok(Cell::Case{..}) = evidence_id.get_parent().get_cell(&self.rules) {} else {
+		if let Ok(Cell::Case{..}) = evidence_path.get_parent().get_cell() {} else {
 			return Err(SRLError("equals_law_impl".to_string(), "evidence_id can't be condition of case-cell (2)".to_string()));
 		}
 
@@ -80,15 +98,15 @@ impl Database {
 		if rule_id != evidence_id.get_rule_id() {
 			return Err(SRLError("equals_law_impl".to_string(), "src_id and evidence_id are not in the same rule".to_string()));
 		}
-		let wrapper = match evidence_id.get_parent().get_child(1).get_wrapper(&self.rules) {
+		let wrapper = match evidence_path.get_parent().get_child(1).get_wrapper() {
 			Some(x) => x,
 			None => return Err(SRLError("equals_law_impl".to_string(), "no wrapper!".to_string()))
 		};
-		if !wrapper.is_around(&src_id, &self.rules) {
+		if !wrapper.is_around(&src_path) {
 			return Err(SRLError("equals_law_impl".to_string(), "evi-wrapper is not around src_id".to_string()));
 		}
 
-		let evi_cell = match evidence_id.get_cell(&self.rules) {
+		let evi_cell = match evidence_path.get_cell() {
 			Ok(x) => x,
 			Err(srl_error) => return Err(srl_error)
 		};
@@ -97,7 +115,7 @@ impl Database {
 			Err(srl_error) => return Err(srl_error)
 		};
 
-		let src_cell = match src_id.get_cell(&self.rules) {
+		let src_cell = match src_path.get_cell() {
 			Ok(x) => x,
 			Err(srl_error) => return Err(srl_error)
 		};
@@ -111,7 +129,7 @@ impl Database {
 			return Err(SRLError("equals_law".to_string(), "replace cell does not occur in evidence".to_string()));
 		}
 
-		let rule = match src_id.replace_by(&self.rules, new) {
+		let rule = match src_path.replace_by(new) {
 			Ok(x) => x,
 			Err(srl_error) => return Err(srl_error)
 		};
@@ -120,7 +138,12 @@ impl Database {
 
 	// id: `<(= 'ok' 'wow')>`
 	pub fn inequal_constants(&mut self, id : CellID) -> Result<Cell, SRLError> {
-		let cell = match id.get_cell(&self.rules) {
+		let path = match id.get_path(&self.rules) {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+
+		let cell = match path.get_cell() {
 			Ok(x) => x,
 			Err(srl_error) => return Err(srl_error)
 		};
@@ -137,7 +160,7 @@ impl Database {
 		if x == y {
 			return Err(SRLError("inequals_constants".to_string(), "both args equal".to_string()));
 		}
-		let rule = match id.replace_by(&self.rules, false_cell()) {
+		let rule = match path.replace_by(false_cell()) {
 			Ok(x) => x,
 			Err(srl_error) => return Err(srl_error)
 		};
@@ -146,16 +169,21 @@ impl Database {
 
 	// cell_id: <ok> => (= 'true' <ok>)
 	pub fn add_eqt(&mut self, cell_id : CellID) -> Result<Cell, SRLError> {
-		if !cell_id.is_bool(&self.rules) {
-			return Err(SRLError("add_eqt".to_string(), "cell is not bool".to_string()));
-		}
-
-		let cell = match cell_id.get_cell(&self.rules) {
+		let cell_path = match cell_id.get_path(&self.rules) {
 			Ok(x) => x,
 			Err(srl_error) => return Err(srl_error)
 		};
 
-		let rule = match cell_id.replace_by(&self.rules, equals_cell(true_cell(), cell)) {
+		if !cell_path.is_bool() {
+			return Err(SRLError("add_eqt".to_string(), "cell is not bool".to_string()));
+		}
+
+		let cell = match cell_path.get_cell() {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+
+		let rule = match cell_path.replace_by(equals_cell(true_cell(), cell)) {
 			Ok(x) => x,
 			Err(srl_error) => return Err(srl_error)
 		};
@@ -164,13 +192,18 @@ impl Database {
 
 	// cell_id: (= 'true' <ok>) => <ok>
 	pub fn rm_eqt(&mut self, cell_id : CellID) -> Result<Cell, SRLError> {
-		let cell = match cell_id.get_cell(&self.rules) {
+		let cell_path = match cell_id.get_path(&self.rules) {
 			Ok(x) => x,
 			Err(srl_error) => return Err(srl_error)
 		};
 
-		let parent_id = cell_id.get_parent(); // XXX crashes, if thats a root cell
-		let parent_cell = match parent_id.get_cell(&self.rules) {
+		let cell = match cell_path.get_cell() {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+
+		let parent_path = cell_path.get_parent(); // XXX crashes, if thats a root cell
+		let parent_cell = match parent_path.get_cell() {
 			Ok(x) => x,
 			Err(srl_error) => return Err(srl_error)
 		};
@@ -189,13 +222,13 @@ impl Database {
 			return Err(SRLError("rm_eqt".to_string(), "second cell in equals is not cell_id".to_string()));
 		}
 
-		let rule = match parent_id.replace_by(&self.rules, cell) {
+		let rule = match parent_path.replace_by(cell) {
 			Ok(x) => x,
 			Err(srl_error) => return Err(srl_error)
 		};
 
-		let fake_cell_id = create_cell_id(0, parent_id.get_indices());
-		if !fake_cell_id.is_bool(&vec![rule.clone()]) {
+		let tmp_cell_path = CellPath::create(rule.clone(), parent_path.get_indices());
+		if !tmp_cell_path.is_bool() {
 			return Err(SRLError("rm_eqt".to_string(), "result is no bool-cell".to_string()));
 		}
 
@@ -203,16 +236,21 @@ impl Database {
 	}
 
 	pub fn scope_insertion(&mut self, scope_id : CellID, cell : SecureCell) -> Result<Cell, SRLError> {
-		let (id, body) = match scope_id.get_cell(&self.rules) {
+		let scope_path = match scope_id.get_path(&self.rules) {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+
+		let (id, body) = match scope_path.get_cell() {
 			Ok(Cell::Scope { id : x, body : y }) => (x, y),
 			Ok(_) => return Err(SRLError("scope_insertion".to_string(), "scope_id does not represent scope".to_string())),
 			Err(srl_error) => return Err(srl_error)
 		};
-		let child_id = scope_id.get_child(0);
-		if !child_id.is_complete_bool(&self.rules) {
+		let child_path = scope_path.get_child(0);
+		if !child_path.is_complete_bool() {
 			return Err(SRLError("scope_insertion".to_string(), "body is no complete bool cell".to_string()));
 		}
-		let wrapper = match scope_id.get_wrapper(&self.rules) {
+		let wrapper = match scope_path.get_wrapper() {
 			Some(x) => x,
 			None => return Err(SRLError("scope_insertion".to_string(), "no wrapper".to_string()))
 		};

@@ -1,25 +1,21 @@
-use navi::CellID;
+use navi::CellPath;
 use cell::Cell;
 use misc::false_cell;
 
 pub struct Wrapper {
-	cell_id : CellID,
+	cell_path : CellPath,
 	positive : bool,
 	nallq : bool,
 	nexq : bool
 }
 
-impl CellID {
-	pub fn get_wrapper(&self, rules : &Vec<Cell>) -> Option<Wrapper> {
+impl CellPath {
+	pub fn get_wrapper(&self) -> Option<Wrapper> {
 		let mut indices = self.get_indices();
 		let mut positive : bool = true;
 		let mut nallq : bool = true;
 		let mut nexq : bool = true;
-		let mut cell : Cell;
-		cell = match self.get_rule_id().get_cell(rules) {
-			Ok(x) => x,
-			_ => { println!("CellID::get_wrapper(): some kind of bug probabbly"); return None }
-		};
+		let mut cell : Cell = self.get_root_cell();
 
 		while !indices.is_empty() {
 			let index : usize = indices.remove(0);
@@ -67,7 +63,7 @@ impl CellID {
 				_ => return None
 			}
 		}
-		Some(Wrapper {cell_id : self.clone(), positive : positive, nallq : nallq, nexq : nexq})
+		Some(Wrapper {cell_path : self.clone(), positive : positive, nallq : nallq, nexq : nexq})
 	}
 }
 
@@ -76,15 +72,15 @@ impl Wrapper {
 	pub fn is_nallq(&self) -> bool { self.nallq }
 	pub fn is_nexq(&self) -> bool { self.nexq }
 
-	pub fn is_around(&self, id : &CellID, rules : &Vec<Cell>) -> bool {
-		let indices1 = self.cell_id.get_indices();
-		let indices2 = id.get_indices();
+	pub fn is_around(&self, path : &CellPath) -> bool {
+		let indices1 = self.cell_path.get_indices();
+		let indices2 = path.get_indices();
 
-		let mut cell1 = match self.cell_id.get_cell(rules) {
+		let mut cell1 = match self.cell_path.get_cell() {
 			Ok(x) => x,
 			Err(_) => panic!("Wrapper::is_around(): should not happen!")
 		};
-		let mut cell2 = match id.get_cell(rules) {
+		let mut cell2 = match path.get_cell() {
 			Ok(x) => x,
 			Err(_) => panic!("Wrapper::is_around(): should not happen! (2)")
 		};
