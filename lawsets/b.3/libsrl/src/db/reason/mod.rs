@@ -3,13 +3,19 @@ mod wrapper;
 use super::Database;
 use cell::Cell;
 use error::SRLError;
-use misc::false_cell;
-use misc::true_cell;
-use misc::equals_cell;
-use misc::index_in_len;
+use misc::*;
 use navi::CellID;
 use navi::CellPath;
 use secure::SecureCell;
+
+fn find_highest(cell : &Cell, i : i32) -> i32 {
+	if let &Cell::Scope { id : x, ..} = cell {
+		if x as i32 > i { x as i32 }
+		else { i }
+	} else {
+		i
+	}
+}
 
 impl Database {
 	fn add_rule(&mut self, rule : Cell) -> Result<Cell, SRLError> {
@@ -259,15 +265,6 @@ impl Database {
 			return Err(SRLError("scope_insertion".to_string(), "wrapper is not positive".to_string()));
 		}
 
-		fn find_highest(cell : &Cell, i : i32) -> i32 {
-			if let &Cell::Scope { id : x, ..} = cell {
-				if x as i32 > i { x as i32 }
-				else { i }
-			} else {
-				i
-			}
-		}
-
 		let mut highest_id = scope_path.get_root_cell().recurse::<i32>(-1, find_highest);
 		let id_amount_in_secure = match secure.get_cell().get_normalized() {
 			Ok(x) => x.recurse::<i32>(-1, find_highest) + 1,
@@ -324,5 +321,63 @@ impl Database {
 				}
 			}
 		}
+	}
+
+	pub fn scope_creation(&mut self, scope_id : CellID, indices : Vec<Vec<usize>>) -> Result<Cell, SRLError> {
+		let mut scope_path = match scope_id.get_path(&self.rules) {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+
+		let new_id : u32 = (scope_path.get_root_cell().recurse::<i32>(-1, find_highest) + 1) as u32;
+		let cell = match scope_path.get_cell() {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+		let replaced = match scope_path.replace_by(scope(new_id, cell)) {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+		scope_path = CellPath::create(replaced, scope_path.get_indices());
+
+		let wrapper = match scope_path.get_wrapper() {
+			Some(x) => x,
+			None => return Err(SRLError("scope_creation".to_string(), "no wrapper".to_string()))
+		};
+		if wrapper.is_positive() {
+			return Err(SRLError("scope_creation".to_string(), "wrapper is positive".to_string()));
+		}
+
+		for index in indices.clone() {
+			for i in 0..scope_path.get_indices().len() {
+				if scope_path.get_indices()[i] != index[i] {
+					return Err(SRLError("scope_creation".to_string(), "indices are not in the scope".to_string()))
+				}
+			}
+		}
+
+		for i in 0..indices.len()-1 {
+			let cell1 = match CellPath::create(scope_path.get_root_cell(), indices[i].clone()).get_cell() {
+				Ok(x) => x,
+				Err(srl_error) => return Err(srl_error)
+			};
+			let cell2 = match CellPath::create(scope_path.get_root_cell(), indices[i+1].clone()).get_cell() {
+				Ok(x) => x,
+				Err(srl_error) => return Err(srl_error)
+			};
+			if cell1 != cell2 { // XXX does not work for cells containing scopes
+				return Err(SRLError("scope_creation".to_string(), "indices do not represent the same cells".to_string()));
+			}
+		}
+
+		for index in indices {
+			let tmp_path = CellPath::create(scope_path.get_root_cell(), index);
+			let new_cell = match tmp_path.replace_by(var(new_id)) {
+				Ok(x) => x,
+				Err(srl_error) => return Err(srl_error)
+			};
+			scope_path = CellPath::create(new_cell, scope_path.get_indices());
+		}
+		self.add_rule(scope_path.get_root_cell())
 	}
 }
