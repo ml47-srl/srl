@@ -4,6 +4,7 @@ use super::Database;
 use cell::Cell;
 use error::SRLError;
 use navi::CellID;
+use navi::create_cell_id;
 use misc::false_cell;
 use misc::true_cell;
 use misc::equals_cell;
@@ -143,6 +144,7 @@ impl Database {
 		self.add_rule(rule)
 	}
 
+	// cell_id: <ok> => (= 'true' <ok>)
 	pub fn add_eqt(&mut self, cell_id : CellID) -> Result<Cell, SRLError> {
 		if !cell_id.is_bool(&self.rules) {
 			return Err(SRLError("add_eqt".to_string(), "cell is not bool".to_string()));
@@ -160,8 +162,44 @@ impl Database {
 		self.add_rule(rule)
 	}
 
+	// cell_id: (= 'true' <ok>) => <ok>
 	pub fn rm_eqt(&mut self, cell_id : CellID) -> Result<Cell, SRLError> {
-		panic!("TODO")
+		let cell = match cell_id.get_cell(&self.rules) {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+
+		let parent_id = cell_id.get_parent(); // XXX crashes, if thats a root cell
+		let parent_cell = match parent_id.get_cell(&self.rules) {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+		let (a, b) : (Cell, Cell);
+		if let Ok((x, y)) = parent_cell.get_equals_cell_arguments() {
+			a = x; b = y;
+		} else {
+			return Err(SRLError("rm_eqt".to_string(), "not contained in equals cell".to_string()));
+		}
+
+		if a != true_cell() {
+			return Err(SRLError("rm_eqt".to_string(), "first cell in equals is not 'true'".to_string()));
+		}
+
+		if b != cell {
+			return Err(SRLError("rm_eqt".to_string(), "second cell in equals is not cell_id".to_string()));
+		}
+
+		let rule = match parent_id.replace_by(&self.rules, cell) {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+
+		let fake_cell_id = create_cell_id(0, parent_id.get_indices());
+		if !fake_cell_id.is_bool(&vec![rule.clone()]) {
+			return Err(SRLError("rm_eqt".to_string(), "result is no bool-cell".to_string()));
+		}
+
+		self.add_rule(rule)
 	}
 
 	pub fn scope_insertion(&mut self, scope_id : CellID, cell : SecureCell) -> Result<Cell, SRLError> {

@@ -105,7 +105,7 @@ impl CellID {
 			Err(_) => return false
 		};
 		if self.get_indices().is_empty() { return true; } // it's the rule itself
-		if let Ok(x) = my_cell.get_equals_cell_arguments() { return true; } // it's an equals cell
+		if let Ok(_) = my_cell.get_equals_cell_arguments() { return true; } // it's an equals cell
 		if let Cell::Scope{..} = my_cell { return true; } // it's a scope
 		if my_cell == true_cell() { return true; }
 		if my_cell == false_cell() { return true; }
