@@ -208,6 +208,21 @@ impl Database {
 			Ok(_) => return Err(SRLError("scope_insertion".to_string(), "scope_id does not represent scope".to_string())),
 			Err(srl_error) => return Err(srl_error)
 		};
+		let child_id = scope_id.get_child(0);
+		if !child_id.is_complete_bool(&self.rules) {
+			return Err(SRLError("scope_insertion".to_string(), "body is no complete bool cell".to_string()));
+		}
+		let wrapper = match scope_id.get_wrapper(&self.rules) {
+			Some(x) => x,
+			None => return Err(SRLError("scope_insertion".to_string(), "no wrapper".to_string()))
+		};
+		if !wrapper.is_positive() {
+			return Err(SRLError("scope_insertion".to_string(), "wrapper is not positive".to_string()));
+		}
+
+		// let h = `determine highest scope/var-id`;
+		// replace all occurences of scope_id's var-cell with cell, where you add h+1 to all id's inside of cell.
+		// you increase h by the number of different id's in cell, while iterating.
 		panic!("TODO")
 	}
 }
