@@ -235,14 +235,14 @@ impl Database {
 		self.add_rule(rule)
 	}
 
-	pub fn scope_insertion(&mut self, scope_id : CellID, cell : SecureCell) -> Result<Cell, SRLError> {
+	pub fn scope_insertion(&mut self, scope_id : CellID, secure : SecureCell) -> Result<Cell, SRLError> {
 		let scope_path = match scope_id.get_path(&self.rules) {
 			Ok(x) => x,
 			Err(srl_error) => return Err(srl_error)
 		};
 
-		let (id, body) = match scope_path.get_cell() {
-			Ok(Cell::Scope { id : x, body : y }) => (x, y),
+		let (id, body) : (u32, Cell) = match scope_path.get_cell() {
+			Ok(Cell::Scope { id : x, body : y }) => (x, *y),
 			Ok(_) => return Err(SRLError("scope_insertion".to_string(), "scope_id does not represent scope".to_string())),
 			Err(srl_error) => return Err(srl_error)
 		};
@@ -258,9 +258,28 @@ impl Database {
 			return Err(SRLError("scope_insertion".to_string(), "wrapper is not positive".to_string()));
 		}
 
-		// let h = `determine highest scope/var-id`;
-		// replace all occurences of scope_id's var-cell with cell, where you add h+1 to all id's inside of cell.
-		// you increase h by the number of different id's in cell, while iterating.
+		fn find_highest(cell : &Cell, i : i32) -> i32 {
+			if let &Cell::Scope { id : x, ..} = cell {
+				if x as i32 > i { x as i32 }
+				else { i }
+			} else {
+				i
+			}
+		}
+
+		let mut highest_id = scope_path.get_root_cell().recurse::<i32>(-1, find_highest);
+		let sec = secure.get_cell();
+		let rule_without_scope = match scope_path.replace_by(body) {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+		let body_path = CellPath::create(rule_without_scope, scope_path.get_indices().clone());
+		// for cell in body_path.get_cell() {
+		// 	if cell is var && cell.id == id {
+		//		cell.replace_by(sec.get_normalized_from(hightest_id+1))
+		//		hightest_id += number_of_ids_in(sec);
+		//	}
+		// }
 		panic!("TODO")
 	}
 }

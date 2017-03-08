@@ -168,6 +168,14 @@ impl Cell {
 			_ => panic!("Cell::with_subcell(): unacceptable!")
 		}
 	}
+
+	pub fn recurse<T>(&self, mut t : T, lambda_expr : fn(&Cell, T) -> T) -> T {
+		t = lambda_expr(&self, t);
+		for index in 0..self.count_subcells() {
+			t = self.get_subcell(index).recurse(t, lambda_expr);
+		}
+		t
+	}
 }
 
 #[test]
