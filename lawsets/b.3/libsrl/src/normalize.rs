@@ -28,69 +28,70 @@ impl Cell {
        // creates new cell with normalized scopes
        // -- errors on var out of scope/multiple scopes with same id
 
-	pub fn get_normalized_from(&self, x : u32) -> Result<Cell, SRLError> {
-		panic!("TODO")
+	pub fn get_normalized(&self) -> Result<Cell, SRLError> {
+		return self.get_normalized_from_r(&mut vec![], &mut vec![], 0);
 	}
 
-       pub fn get_normalized(&self) -> Result<Cell, SRLError> {
-               return self.get_normalized_r(&mut vec![], &mut vec![]);
-       }
+	pub fn get_normalized_from(&self, from : u32) -> Result<Cell, SRLError> {
+		return self.get_normalized_from_r(&mut vec![], &mut vec![], from);
+	}
 
-       fn get_normalized_r(&self, vec : &mut Vec<u32>, in_scope_vec : &mut Vec<bool>) -> Result<Cell, SRLError> { // XXX detangle matches
-               match &self {
-                       &&Cell::Simple { string : ref string_out } => {
-                               return Ok(simple(string_out.to_string()));
-                       }
-                       &&Cell::Complex { cells : ref cells_out } => {
-                               let mut new_cells = Vec::new();
-                               for cell in cells_out {
-                                       match cell.get_normalized_r(vec, in_scope_vec) {
-                                               Ok(new_cell) => {
-                                                       new_cells.push(new_cell);
-                                               }
-                                               Err(srl_error) => return Err(srl_error)
-                                       }
-                               }
-                               return Ok(complex(new_cells));
-                       }
-                       &&Cell::Scope { id : id_out, body : ref body_out } => {
-                               if vec.contains(&id_out) {
-                                       return Err(SRLError("get_normalized_r".to_string(), format!("id '{}' used twice", id_out)));
-                               }
 
-                               vec.push(id_out);
-                               in_scope_vec.push(true);
-                               let new_id = (vec.len()-1) as u32;
+	fn get_normalized_from_r(&self, vec : &mut Vec<u32>, in_scope_vec : &mut Vec<bool>, from : u32) -> Result<Cell, SRLError> { // XXX detangle matches
+		match &self {
+			&&Cell::Simple { string : ref string_out } => {
+				return Ok(simple(string_out.to_string()));
+			}
+			&&Cell::Complex { cells : ref cells_out } => {
+				let mut new_cells = Vec::new();
+				for cell in cells_out {
+					match cell.get_normalized_from_r(vec, in_scope_vec, from) {
+						Ok(new_cell) => {
+							new_cells.push(new_cell);
+						}
+						Err(srl_error) => return Err(srl_error)
+					}
+				}
+				return Ok(complex(new_cells));
+			}
+			&&Cell::Scope { id : id_out, body : ref body_out } => {
+				if vec.contains(&id_out) {
+					return Err(SRLError("get_normalized_from_r".to_string(), format!("id '{}' used twice", id_out)));
+				}
 
-                               match body_out.get_normalized_r(vec, in_scope_vec) {
-                                       Ok(new_body) => {
-                                               in_scope_vec.pop();
-                                               in_scope_vec.push(false);
-                                               return Ok(scope(new_id, new_body));
-                                       }
-                                       Err(srl_error) => return Err(srl_error)
-                               }
-                       }
-                       &&Cell::Var { id : id_out } => {
-                               match get_new_id(id_out, vec, in_scope_vec) {
-                                       Ok(new_id) => return Ok(Cell::Var { id : new_id }),
-                                       Err(srl_error) => return Err(srl_error)
-                               }
-                       }
-                       &&Cell::Case { condition : ref condition_out, conclusion : ref conclusion_out } =>  {
-                               match condition_out.get_normalized_r(vec, in_scope_vec) {
-                                       Ok(condition_new) => {
-                                               match conclusion_out.get_normalized_r(vec, in_scope_vec) {
-                                                       Ok(conclusion_new) => {
-                                                               return Ok(case(condition_new, conclusion_new));
-                                                       }
-                                                       Err(srl_error) => return Err(srl_error)
-                                               }
-                                       }
-                                       Err(srl_error) => return Err(srl_error)
-                               }
-                       }
-               }
-       }
+				vec.push(id_out);
+				in_scope_vec.push(true);
+				let new_id = (vec.len() - 1) as u32 + from;
+
+				match body_out.get_normalized_from_r(vec, in_scope_vec, from) {
+					Ok(new_body) => {
+						in_scope_vec.pop();
+						in_scope_vec.push(false);
+						return Ok(scope(new_id, new_body));
+					}
+					Err(srl_error) => return Err(srl_error)
+				}
+			}
+			&&Cell::Var { id : id_out } => {
+				match get_new_id(id_out, vec, in_scope_vec) {
+					Ok(new_id) => return Ok(Cell::Var { id : new_id + from }),
+					Err(srl_error) => return Err(srl_error)
+				}
+			}
+			&&Cell::Case { condition : ref condition_out, conclusion : ref conclusion_out } =>  {
+				match condition_out.get_normalized_from_r(vec, in_scope_vec, from) {
+					Ok(condition_new) => {
+						match conclusion_out.get_normalized_from_r(vec, in_scope_vec, from) {
+							Ok(conclusion_new) => {
+								return Ok(case(condition_new, conclusion_new));
+							}
+							Err(srl_error) => return Err(srl_error)
+						}
+					}
+					Err(srl_error) => return Err(srl_error)
+				}
+			}
+		}
+	}
 }
 

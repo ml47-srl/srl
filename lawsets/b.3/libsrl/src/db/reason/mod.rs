@@ -280,22 +280,26 @@ impl Database {
 			loop {
 				match path.get_cell() {
 					Ok(x) => if x.count_subcells() == 0 { break; },
-					Err(srl_error) => panic!("scope_insertion: should not happen!")
+					Err(_) => panic!("scope_insertion: should not happen!")
 				}
 				let mut indices = path.get_indices();
 				indices.push(0);
 				path = CellPath::create(path.get_root_cell(), indices);
 			}
-			let normalized = match secure.get_cell().get_normalized_from((highest_id + 1) as u32) {
-				Ok(x) => x,
-				Err(srl_error) => return Err(srl_error)
-			};
-			let replaced = match path.replace_by(normalized) {
-				Ok(x) => x,
-				Err(srl_error) => return Err(srl_error)
-			};
-			path = CellPath::create(replaced, path.get_indices());
-			highest_id += id_amount_in_secure;
+			if let Ok(Cell::Var { id : id_out }) = path.get_cell() {
+				if id_out == id {
+					let normalized = match secure.get_cell().get_normalized_from((highest_id + 1) as u32) {
+						Ok(x) => x,
+						Err(srl_error) => return Err(srl_error)
+					};
+					let replaced = match path.replace_by(normalized) {
+						Ok(x) => x,
+						Err(srl_error) => return Err(srl_error)
+					};
+					path = CellPath::create(replaced, path.get_indices());
+					highest_id += id_amount_in_secure;
+				}
+			}
 			loop {
 				let mut indices = path.get_indices();
 				if indices.is_empty() {
