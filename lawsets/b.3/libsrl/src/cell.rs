@@ -1,6 +1,7 @@
 use misc::*;
 
 use std::fmt;
+use error::SRLError;
 
 #[derive(PartialEq, Clone)]
 pub enum Cell {
@@ -175,6 +176,10 @@ impl Cell {
 			t = self.get_subcell(index).recurse(t, lambda_expr);
 		}
 		t
+	}
+
+	pub fn replace_all(&self, pattern : Cell, replacement : Cell) -> Result<Cell, SRLError> {
+		panic!("TODO")
 	}
 }
 

@@ -86,7 +86,7 @@ impl Database {
 		}
 
 		let evi_cell = evidence_path.get_cell()?;
-		let (a, b) = match evi_cell.get_equals_cell_arguments()?;
+		let (a, b) = evi_cell.get_equals_cell_arguments()?;
 		let src_cell = src_path.get_cell()?;
 
 		let new : Cell;
@@ -107,7 +107,7 @@ impl Database {
 		let path = id.get_path(&self.rules)?;
 
 		let cell = path.get_cell()?;
-		let (x, y) = match cell.get_equals_cell_arguments()?;
+		let (x, y) = cell.get_equals_cell_arguments()?;
 		if !x.is_constant() {
 			return Err(SRLError("inequals_constants".to_string(), "first arg not constant".to_string()));
 		}
@@ -352,14 +352,63 @@ impl Database {
 		let rule = path.replace_by(case(secure.get_cell(), cell))?;
 		self.add_rule(rule)
 	}
-	/*
-	10. Existance-law
-	    Sei R eine Regel, z(x) eine Zellenfunktion, x eine Zelle, W ein positiver nallq-Wrapper, und s eine bis jetzt nicht in der Datenbank vorkommende simple Zelle.
-	    Es gelte z(x) = "(= 'false' {[[number]] (= 'false' x)})".
-	    Man kann sich aus R = W(z(x)), die Regel W(x) ableiten,
-	    wobei alle Vorkommnisse von [[number]] mit s vertauscht werden m&uuml;ssen.
-	*/
-	pub fn declaration(&mut self) -> Result<Cell, SRLError> {
-		panic!("TODO")
+
+	fn string_does_occur(&self, string : String) -> bool {
+		fn cell_has_string(cell : &Cell, tuple : (String, bool)) -> (String, bool) {
+			let (string, b) = tuple;
+			if b {
+				return (string, true);
+			}
+			if let Cell::Simple { string : string2 } = cell.clone() {
+				return (string.clone(), string == string2);
+			}
+			(string, false)
+		}
+		for rule in self.rules.clone() {
+			let (_, b) = rule.recurse::<(String, bool)>((string.clone(), false), cell_has_string);
+			if b {
+				return true;
+			}
+		}
+		false
+	}
+
+	// <(= 'false' {0 (= 'false' (p 0 1))})>
+	pub fn declaration(&mut self, cell_id : CellID, string : &str) -> Result<Cell, SRLError> {
+		// occurence checks
+		if self.string_does_occur(string.to_string()) {
+			return Err(SRLError("declaration".to_string(), "string does already occur".to_string()));
+		}
+
+		// wrapper checks
+		let cell_path = cell_id.get_path(&self.rules)?;
+		let wrapper = match cell_path.get_wrapper() {
+			Some(x) => x,
+			None => return Err(SRLError("declaration".to_string(), "no wrapper".to_string()))
+		};
+		if !wrapper.is_positive() {
+			return Err(SRLError("declaration".to_string(), "wrapper is negative".to_string()));
+		}
+		if !wrapper.is_nallq() {
+			return Err(SRLError("declaration".to_string(), "wrapper contains all quantor".to_string()));
+		}
+
+		// check (= 'false' {0 (= 'false' * )}) pattern
+		let (x, y) = cell_path.get_cell()?.get_equals_cell_arguments()?;
+		if x != false_cell() {
+			return Err(SRLError("declaration".to_string(), "first arg of equals cell is not 'false'".to_string()));
+		}
+		let (id, body) = match y {
+			Cell::Scope { id : x, body : y } => (x, y),
+			_ => return Err(SRLError("declaration".to_string(), "second arg is no scope".to_string()))
+		};
+		let (a, b) = body.get_equals_cell_arguments()?;
+		if a != false_cell() {
+			return Err(SRLError("declaration".to_string(), "scope does not contain (= 'false' *)".to_string()));
+		}
+
+		let new = b.replace_all(var(id), simple(string.to_string()))?;
+		let rule = cell_path.replace_by(new)?;
+		self.add_rule(rule)
 	}
 }

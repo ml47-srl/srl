@@ -83,7 +83,7 @@ fn complex_by_trimmed_tokens(tokens : Vec<String>) -> Result<Cell, SRLError> {
 			None => break
 		};
 		let subtokens : Vec<String> = tokens[index..ending+1].to_vec();
-		let cell = match assemble(subtokens)?;
+		let cell = assemble(subtokens)?;
 		cells.push(cell);
 		index = ending + 1;
 	}
@@ -113,7 +113,7 @@ fn scope_by_trimmed_tokens(mut tokens : Vec<String>) -> Result<Cell, SRLError> {
 		Ok(_) => return Err(SRLError("scope_by_trimmed_tokens".to_string(), "this is not a var cell".to_string())),
 		Err(srl_error) => return Err(srl_error)
 	};
-	let body = match assemble(tokens)?;
+	let body = assemble(tokens)?;
 	return Ok(scope(id, body));
 }
 
