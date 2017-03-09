@@ -139,7 +139,10 @@ impl Database {
 
 		let cell = cell_path.get_cell()?;
 
-		let parent_path = cell_path.get_parent(); // XXX crashes, if thats a root cell
+		if cell_path.get_indices().is_empty() {
+			return Err(SRLError("rm_eqt".to_string(), "cell has no parents".to_string()));
+		}
+		let parent_path = cell_path.get_parent();
 		let parent_cell = parent_path.get_cell()?;
 		let (a, b) : (Cell, Cell);
 		if let Ok((x, y)) = parent_cell.get_equals_cell_arguments() {
