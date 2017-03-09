@@ -37,7 +37,7 @@ impl Cell {
 	}
 
 
-	fn get_normalized_from_r(&self, vec : &mut Vec<u32>, in_scope_vec : &mut Vec<bool>, from : u32) -> Result<Cell, SRLError> { // XXX detangle matches
+	fn get_normalized_from_r(&self, vec : &mut Vec<u32>, in_scope_vec : &mut Vec<bool>, from : u32) -> Result<Cell, SRLError> {
 		match &self {
 			&&Cell::Simple { string : ref string_out } => {
 				return Ok(simple(string_out.to_string()));
@@ -45,12 +45,8 @@ impl Cell {
 			&&Cell::Complex { cells : ref cells_out } => {
 				let mut new_cells = Vec::new();
 				for cell in cells_out {
-					match cell.get_normalized_from_r(vec, in_scope_vec, from) {
-						Ok(new_cell) => {
-							new_cells.push(new_cell);
-						}
-						Err(srl_error) => return Err(srl_error)
-					}
+					let norm = cell.get_normalized_from_r(vec, in_scope_vec, from)?;
+					new_cells.push(norm);
 				}
 				return Ok(complex(new_cells));
 			}
@@ -62,34 +58,19 @@ impl Cell {
 				vec.push(id_out);
 				in_scope_vec.push(true);
 				let new_id = (vec.len() - 1) as u32 + from;
-
-				match body_out.get_normalized_from_r(vec, in_scope_vec, from) {
-					Ok(new_body) => {
-						in_scope_vec.pop();
-						in_scope_vec.push(false);
-						return Ok(scope(new_id, new_body));
-					}
-					Err(srl_error) => return Err(srl_error)
-				}
+				let new_body = body_out.get_normalized_from_r(vec, in_scope_vec, from)?;
+				in_scope_vec.pop();
+				in_scope_vec.push(false);
+				return Ok(scope(new_id, new_body));
 			}
 			&&Cell::Var { id : id_out } => {
-				match get_new_id(id_out, vec, in_scope_vec) {
-					Ok(new_id) => return Ok(Cell::Var { id : new_id + from }),
-					Err(srl_error) => return Err(srl_error)
-				}
+				let new_id = get_new_id(id_out, vec, in_scope_vec)?;
+				return Ok(Cell::Var { id : new_id + from });
 			}
 			&&Cell::Case { condition : ref condition_out, conclusion : ref conclusion_out } =>  {
-				match condition_out.get_normalized_from_r(vec, in_scope_vec, from) {
-					Ok(condition_new) => {
-						match conclusion_out.get_normalized_from_r(vec, in_scope_vec, from) {
-							Ok(conclusion_new) => {
-								return Ok(case(condition_new, conclusion_new));
-							}
-							Err(srl_error) => return Err(srl_error)
-						}
-					}
-					Err(srl_error) => return Err(srl_error)
-				}
+				let condition_new = condition_out.get_normalized_from_r(vec, in_scope_vec, from)?;
+				let conclusion_new = conclusion_out.get_normalized_from_r(vec, in_scope_vec, from)?;
+				return Ok(case(condition_new, conclusion_new));
 			}
 		}
 	}

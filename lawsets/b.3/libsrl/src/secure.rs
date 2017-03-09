@@ -20,21 +20,12 @@ impl SecureCell {
 			None => {}
 		}
 		let string : String = fix_whitespaces(string);
-		let tokens = match tokenize(string) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let tokens = tokenize(string)?;
 		if ! check_paren_correctness(tokens.clone()) {
 			return Err(SRLError("Database::by_string()".to_string(), "Parens are not correct".to_string()));
 		}
-		let cell = match assemble(tokens) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
-		let normalized = match cell.get_normalized() {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let cell = assemble(tokens)?;
+		let normalized = cell.get_normalized()?;
 		Ok(SecureCell(normalized))
 	}
 }

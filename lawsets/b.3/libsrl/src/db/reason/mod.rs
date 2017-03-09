@@ -19,26 +19,16 @@ fn find_highest(cell : &Cell, i : i32) -> i32 {
 
 impl Database {
 	fn add_rule(&mut self, rule : Cell) -> Result<Cell, SRLError> {
-		match rule.get_normalized() {
-			Ok(x) => {
-				self.rules.push(x.clone());
-				return Ok(x);
-			}
-			Err(srl_error) => return Err(srl_error)
-		}
+		let norm = rule.get_normalized()?;
+		self.rules.push(norm.clone());
+		Ok(norm)
 	}
 
 	// src_id = "The cell that has to be replaced" | `{0 (<p> 0)}.`
 	// evidence_id = "the equals cell"		  | `{0 <(= p q)>}`
 	pub fn equals_law(&mut self, src_id : CellID, evidence_id : CellID) -> Result<Cell, SRLError> {
-		let src_path = match src_id.get_path(&self.rules) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
-		let evidence_path = match evidence_id.get_path(&self.rules) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let src_path = src_id.get_path(&self.rules)?;
+		let evidence_path = evidence_id.get_path(&self.rules)?;
 
 		let wrapper = match evidence_path.get_wrapper() {
 			Some(x) => x,
@@ -47,23 +37,14 @@ impl Database {
 		if !wrapper.is_nexq() {
 			return Err(SRLError("equals_law".to_string(), "wrapper is no nexq-wrapper".to_string()));
 		}
-		let evi_cell = match evidence_path.get_cell() {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
-		let (a, b) = match evi_cell.get_equals_cell_arguments() {
-			Ok((x, y)) => (x, y),
-			Err(srl_error) => return Err(srl_error)
-		};
+		let evi_cell = evidence_path.get_cell()?;
+		let (a, b) = evi_cell.get_equals_cell_arguments()?;
 
 		if !wrapper.is_around(&src_path) {
 			return Err(SRLError("equals_law".to_string(), "src_id and evidence_id are not in the same wrapper".to_string()));
 		}
 
-		let src_cell = match src_path.get_cell() {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let src_cell = src_path.get_cell()?;
 
 		let new : Cell;
 		if a == src_cell {
@@ -74,24 +55,15 @@ impl Database {
 			return Err(SRLError("equals_law".to_string(), "replace cell does not occur in evidence".to_string()));
 		}
 
-		let rule = match src_path.replace_by(new) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let rule = src_path.replace_by(new)?;
 		self.add_rule(rule)
 	}
 
 	// src_id = "The cell that has to be replaced" | `{0 [=> (= p q) (<p> 0)]}.`
 	// evidence_id = "the equals cell"		  | `{0 [=> <(= p q)> (p 0)]}`
 	pub fn equals_law_impl(&mut self, src_id : CellID, evidence_id : CellID) -> Result<Cell, SRLError> {
-		let src_path = match src_id.get_path(&self.rules) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
-		let evidence_path = match evidence_id.get_path(&self.rules) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let src_path = src_id.get_path(&self.rules)?;
+		let evidence_path = evidence_id.get_path(&self.rules)?;
 
 		// check whether evidence_id is the condition of a case-cell
 		if evidence_id.get_indices().last() != Some(&(0 as usize)) {
@@ -113,19 +85,9 @@ impl Database {
 			return Err(SRLError("equals_law_impl".to_string(), "evi-wrapper is not around src_id".to_string()));
 		}
 
-		let evi_cell = match evidence_path.get_cell() {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
-		let (a, b) = match evi_cell.get_equals_cell_arguments() {
-			Ok((x, y)) => (x, y),
-			Err(srl_error) => return Err(srl_error)
-		};
-
-		let src_cell = match src_path.get_cell() {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let evi_cell = evidence_path.get_cell()?;
+		let (a, b) = match evi_cell.get_equals_cell_arguments()?;
+		let src_cell = src_path.get_cell()?;
 
 		let new : Cell;
 		if a == src_cell {
@@ -136,28 +98,16 @@ impl Database {
 			return Err(SRLError("equals_law".to_string(), "replace cell does not occur in evidence".to_string()));
 		}
 
-		let rule = match src_path.replace_by(new) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let rule = src_path.replace_by(new)?;
 		self.add_rule(rule)
 	}
 
 	// id: `<(= 'ok' 'wow')>`
 	pub fn inequal_constants(&mut self, id : CellID) -> Result<Cell, SRLError> {
-		let path = match id.get_path(&self.rules) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let path = id.get_path(&self.rules)?;
 
-		let cell = match path.get_cell() {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
-		let (x, y) = match cell.get_equals_cell_arguments() {
-			Ok((x, y)) => (x, y),
-			Err(srl_error) => return Err(srl_error)
-		};
+		let cell = path.get_cell()?;
+		let (x, y) = match cell.get_equals_cell_arguments()?;
 		if !x.is_constant() {
 			return Err(SRLError("inequals_constants".to_string(), "first arg not constant".to_string()));
 		}
@@ -167,53 +117,30 @@ impl Database {
 		if x == y {
 			return Err(SRLError("inequals_constants".to_string(), "both args equal".to_string()));
 		}
-		let rule = match path.replace_by(false_cell()) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let rule = path.replace_by(false_cell())?;
 		self.add_rule(rule)
 	}
 
 	// cell_id: <ok> => (= 'true' <ok>)
 	pub fn add_eqt(&mut self, cell_id : CellID) -> Result<Cell, SRLError> {
-		let cell_path = match cell_id.get_path(&self.rules) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let cell_path = cell_id.get_path(&self.rules)?;
 
 		if !cell_path.is_bool() {
 			return Err(SRLError("add_eqt".to_string(), "cell is not bool".to_string()));
 		}
-
-		let cell = match cell_path.get_cell() {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
-
-		let rule = match cell_path.replace_by(equals_cell(true_cell(), cell)) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let cell = cell_path.get_cell()?;
+		let rule = cell_path.replace_by(equals_cell(true_cell(), cell))?;
 		self.add_rule(rule)
 	}
 
 	// cell_id: (= 'true' <ok>) => <ok>
 	pub fn rm_eqt(&mut self, cell_id : CellID) -> Result<Cell, SRLError> {
-		let cell_path = match cell_id.get_path(&self.rules) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let cell_path = cell_id.get_path(&self.rules)?;
 
-		let cell = match cell_path.get_cell() {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let cell = cell_path.get_cell()?;
 
 		let parent_path = cell_path.get_parent(); // XXX crashes, if thats a root cell
-		let parent_cell = match parent_path.get_cell() {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let parent_cell = parent_path.get_cell()?;
 		let (a, b) : (Cell, Cell);
 		if let Ok((x, y)) = parent_cell.get_equals_cell_arguments() {
 			a = x; b = y;
@@ -229,11 +156,7 @@ impl Database {
 			return Err(SRLError("rm_eqt".to_string(), "second cell in equals is not cell_id".to_string()));
 		}
 
-		let rule = match parent_path.replace_by(cell) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
-
+		let rule = parent_path.replace_by(cell)?;
 		let tmp_cell_path = CellPath::create(rule.clone(), parent_path.get_indices());
 		if !tmp_cell_path.is_bool() {
 			return Err(SRLError("rm_eqt".to_string(), "result is no bool-cell".to_string()));
@@ -243,10 +166,7 @@ impl Database {
 	}
 
 	pub fn scope_insertion(&mut self, scope_id : CellID, secure : SecureCell) -> Result<Cell, SRLError> {
-		let scope_path = match scope_id.get_path(&self.rules) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let scope_path = scope_id.get_path(&self.rules)?;
 
 		let (id, body) : (u32, Cell) = match scope_path.get_cell() {
 			Ok(Cell::Scope { id : x, body : y }) => (x, *y),
@@ -266,10 +186,8 @@ impl Database {
 		}
 
 		let mut highest_id = scope_path.get_root_cell().recurse::<i32>(-1, find_highest);
-		let id_amount_in_secure = match secure.get_cell().get_normalized() {
-			Ok(x) => x.recurse::<i32>(-1, find_highest) + 1,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let norm = secure.get_cell().get_normalized()?;
+		let id_amount_in_secure = norm.recurse::<i32>(-1, find_highest) + 1;
 
 		let mut path = CellPath::create(body.clone(), vec![]);
 
@@ -285,14 +203,8 @@ impl Database {
 			}
 			if let Ok(Cell::Var { id : id_out }) = path.get_cell() {
 				if id_out == id {
-					let normalized = match secure.get_cell().get_normalized_from((highest_id + 1) as u32) {
-						Ok(x) => x,
-						Err(srl_error) => return Err(srl_error)
-					};
-					let replaced = match path.replace_by(normalized) {
-						Ok(x) => x,
-						Err(srl_error) => return Err(srl_error)
-					};
+					let normalized = secure.get_cell().get_normalized_from((highest_id + 1) as u32)?;
+					let replaced = path.replace_by(normalized)?;
 					path = CellPath::create(replaced, path.get_indices());
 					highest_id += id_amount_in_secure;
 				}
@@ -300,19 +212,13 @@ impl Database {
 			loop {
 				let mut indices = path.get_indices();
 				if indices.is_empty() {
-					let rule = match scope_path.replace_by(path.get_root_cell()) {
-						Ok(x) => x,
-						Err(srl_error) => return Err(srl_error)
-					};
+					let rule = scope_path.replace_by(path.get_root_cell())?;
 					return self.add_rule(rule);
 				} else {
 					let len = indices.len();
 					let last = indices.remove(len - 1);
 					path = CellPath::create(path.get_root_cell(), indices.clone());
-					let path_cell = match path.get_cell() {
-						Ok(x) => x,
-						Err(srl_error) => return Err(srl_error)
-					};
+					let path_cell = path.get_cell()?;
 					if index_in_len(last + 1, path_cell.count_subcells()) {
 						indices.push(last + 1);
 						path = CellPath::create(path.get_root_cell(), indices);
@@ -324,25 +230,16 @@ impl Database {
 	}
 
 	pub fn scope_creation(&mut self, scope_id : CellID, indices : Vec<Vec<usize>>) -> Result<Cell, SRLError> {
-		let mut scope_path = match scope_id.get_path(&self.rules) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let mut scope_path = scope_id.get_path(&self.rules)?;
 
 		let new_id : u32 = (scope_path.get_root_cell().recurse::<i32>(-1, find_highest) + 1) as u32;
-		let cell = match scope_path.get_cell() {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let cell = scope_path.get_cell()?;
 
 		if !scope_path.is_complete_bool() {
 			return Err(SRLError("scope_creation".to_string(), "scope_id does not contain a complete bool-cell".to_string()));
 		}
 
-		let replaced = match scope_path.replace_by(scope(new_id, cell)) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let replaced = scope_path.replace_by(scope(new_id, cell))?;
 		scope_path = CellPath::create(replaced, scope_path.get_indices());
 
 		let wrapper = match scope_path.get_wrapper() {
@@ -362,14 +259,8 @@ impl Database {
 		}
 
 		for i in 0..indices.len()-1 {
-			let cell1 = match CellPath::create(scope_path.get_root_cell(), indices[i].clone()).get_cell() {
-				Ok(x) => x,
-				Err(srl_error) => return Err(srl_error)
-			};
-			let cell2 = match CellPath::create(scope_path.get_root_cell(), indices[i+1].clone()).get_cell() {
-				Ok(x) => x,
-				Err(srl_error) => return Err(srl_error)
-			};
+			let cell1 = CellPath::create(scope_path.get_root_cell(), indices[i].clone()).get_cell()?;
+			let cell2 = CellPath::create(scope_path.get_root_cell(), indices[i+1].clone()).get_cell()?;
 			if cell1 != cell2 { // XXX does not work for cells containing scopes
 				return Err(SRLError("scope_creation".to_string(), "indices do not represent the same cells".to_string()));
 			}
@@ -377,33 +268,18 @@ impl Database {
 
 		for index in indices {
 			let tmp_path = CellPath::create(scope_path.get_root_cell(), index);
-			let new_cell = match tmp_path.replace_by(var(new_id)) {
-				Ok(x) => x,
-				Err(srl_error) => return Err(srl_error)
-			};
+			let new_cell = tmp_path.replace_by(var(new_id))?;
 			scope_path = CellPath::create(new_cell, scope_path.get_indices());
 		}
 		self.add_rule(scope_path.get_root_cell())
 	}
 
 	pub fn implications_derivation(&mut self, case_id : CellID, case_negation_id : CellID) -> Result<Cell, SRLError> {
-		let case_path = match case_id.get_path(&self.rules) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
-		let case_negation_path = match case_negation_id.get_path(&self.rules) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let case_path = case_id.get_path(&self.rules)?;
+		let case_negation_path = case_negation_id.get_path(&self.rules)?;
 
-		let case_cell = match case_path.get_cell() {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
-		let case_negation_cell = match case_negation_path.get_cell() {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let case_cell = case_path.get_cell()?;
+		let case_negation_cell = case_negation_path.get_cell()?;
 
 		let (case_condition, case_conclusion) = match case_cell {
 			Cell::Case { condition : x, conclusion : y} => (*x, *y),
@@ -445,10 +321,7 @@ impl Database {
 	}
 
 	pub fn scope_exchange(&mut self, outer_scope_id : CellID) -> Result<Cell, SRLError> {
-		let outer_scope_path = match outer_scope_id.get_path(&self.rules) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let outer_scope_path = outer_scope_id.get_path(&self.rules)?;
 
 		let inner_scope_path = outer_scope_path.get_child(0);
 		let outer_id = match outer_scope_path.get_cell() {
@@ -462,18 +335,12 @@ impl Database {
 			Err(srl_error) => return Err(srl_error)
 		};
 
-		let rule = match outer_scope_path.replace_by(scope(inner_id, scope(outer_id, body))) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let rule = outer_scope_path.replace_by(scope(inner_id, scope(outer_id, body)))?;
 		self.add_rule(rule)
 	}
 
 	pub fn case_creation(&mut self, cell_id : CellID, secure : SecureCell) -> Result<Cell, SRLError> {
-		let path = match cell_id.get_path(&self.rules) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let path = cell_id.get_path(&self.rules)?;
 		let wrapper = match path.get_wrapper() {
 			Some(x) => x,
 			None => return Err(SRLError("case_creation".to_string(), "no wrapper".to_string()))
@@ -481,15 +348,18 @@ impl Database {
 		if !wrapper.is_positive() {
 			return Err(SRLError("case_creation".to_string(), "wrapper is not positive".to_string()));
 		}
-		let cell = match path.get_cell() {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
-
-		let rule = match path.replace_by(case(secure.get_cell(), cell)) {
-			Ok(x) => x,
-			Err(srl_error) => return Err(srl_error)
-		};
+		let cell = path.get_cell()?;
+		let rule = path.replace_by(case(secure.get_cell(), cell))?;
 		self.add_rule(rule)
+	}
+	/*
+	10. Existance-law
+	    Sei R eine Regel, z(x) eine Zellenfunktion, x eine Zelle, W ein positiver nallq-Wrapper, und s eine bis jetzt nicht in der Datenbank vorkommende simple Zelle.
+	    Es gelte z(x) = "(= 'false' {[[number]] (= 'false' x)})".
+	    Man kann sich aus R = W(z(x)), die Regel W(x) ableiten,
+	    wobei alle Vorkommnisse von [[number]] mit s vertauscht werden m&uuml;ssen.
+	*/
+	pub fn declaration(&mut self) -> Result<Cell, SRLError> {
+		panic!("TODO")
 	}
 }
