@@ -47,9 +47,9 @@ impl Database {
 		let src_cell = src_path.get_cell()?;
 
 		let new : Cell;
-		if a == src_cell {
+		if a.matches(&src_cell) {
 			new = b;
-		} else if b == src_cell {
+		} else if b.matches(&src_cell) {
 			new = a;
 		} else {
 			return Err(SRLError("equals_law".to_string(), "replace cell does not occur in evidence".to_string()));
@@ -90,9 +90,9 @@ impl Database {
 		let src_cell = src_path.get_cell()?;
 
 		let new : Cell;
-		if a == src_cell {
+		if a.matches(&src_cell) {
 			new = b;
-		} else if b == src_cell {
+		} else if b.matches(&src_cell) {
 			new = a;
 		} else {
 			return Err(SRLError("equals_law".to_string(), "replace cell does not occur in evidence".to_string()));
@@ -264,7 +264,7 @@ impl Database {
 		for i in 0..indices.len()-1 {
 			let cell1 = CellPath::create(scope_path.get_root_cell(), indices[i].clone()).get_cell()?;
 			let cell2 = CellPath::create(scope_path.get_root_cell(), indices[i+1].clone()).get_cell()?;
-			if cell1 != cell2 { // XXX does not work for cells containing scopes
+			if !cell1.matches(&cell2) {
 				return Err(SRLError("scope_creation".to_string(), "indices do not represent the same cells".to_string()));
 			}
 		}

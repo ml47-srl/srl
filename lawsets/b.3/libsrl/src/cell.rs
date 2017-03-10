@@ -12,6 +12,9 @@ pub enum Cell {
 	Case { condition : Box<Cell>, conclusion : Box<Cell> }
 }
 
+#[derive(PartialEq)]
+enum CellType { Simple, Complex, Scope, Var, Case }
+
 impl fmt::Debug for Cell {
 	fn fmt(&self, f : &mut fmt::Formatter) -> fmt::Result {
 		f.write_str(&self.to_string())
@@ -176,6 +179,59 @@ impl Cell {
 			t = self.get_subcell(index).recurse(t, lambda_expr);
 		}
 		t
+	}
+
+	fn get_type(&self) -> CellType {
+		match self {
+			&Cell::Scope{..} => CellType::Scope,
+			&Cell::Simple{..} => CellType::Simple,
+			&Cell::Complex{..} => CellType::Complex,
+			&Cell::Case{..} => CellType::Case,
+			&Cell::Var{..} => CellType::Var,
+		}
+	}
+
+	// {0 = {1 (p 0 1) } {2 (p 0 2)}}.
+	// the scopes 1 and 2 would `match`, but not be `equal`
+	// == equals, when normalized (which you can't do because of vars out of scopes, as seen in example above)
+	pub fn matches(&self, cell : &Cell) -> bool {
+		self.matches_r(cell, vec![], vec![])
+	}
+
+	fn matches_r(&self, cell : &Cell, mut v1 : Vec<usize>, mut v2 : Vec<usize>) -> bool {
+		if self.get_type() != cell.get_type() {
+			return false;
+		}
+		if let &Cell::Var { id : id_out } = self {
+			let id_out = &(id_out as usize);
+			if let &Cell::Var { id : id_out2 } = cell {
+				let id_out2  = &(id_out2 as usize);
+				if v1.contains(id_out) != v2.contains(id_out2) {
+					return false;
+				}
+				if v1.contains(id_out) {
+					v1.iter().position(|x| x == id_out) == v2.iter().position(|x| x == id_out2);
+				} else {
+					return id_out == id_out2;
+				}
+			} else { panic!("whoah!") }
+		}
+		if let &Cell::Scope { id : id_out, .. } = self {
+			if let &Cell::Scope { id : id_out2, .. } = cell {
+				v1.push(id_out as usize);
+				v2.push(id_out2 as usize);
+			} else { panic!("whoah!") }
+		}
+		if self.count_subcells() != cell.count_subcells() {
+			return false;
+		}
+		for i in 0..self.count_subcells() {
+			if !self.get_subcell(i).matches(&cell.get_subcell(i)) {
+				return false;
+			}
+		}
+		true
+		
 	}
 
 	pub fn replace_all(&self, pattern : Cell, replacement : Cell) -> Result<Cell, SRLError> {
