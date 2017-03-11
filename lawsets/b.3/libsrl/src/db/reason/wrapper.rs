@@ -14,14 +14,8 @@ impl PartialEq for Wrapper {
 		if self.cell_path.get_indices() != wrapper.cell_path.get_indices() {
 			return false;
 		}
-		let c1 = match self.cell_path.replace_by(false_cell()) {
-			Ok(x) => x,
-			Err(_) => return false
-		};
-		let c2 = match wrapper.cell_path.replace_by(false_cell()) {
-			Ok(x) => x,
-			Err(_) => return false
-		};
+		let c1 = self.cell_path.replace_by(false_cell());
+		let c2 = wrapper.cell_path.replace_by(false_cell());
 
 		c1 == c2
 	}
@@ -94,14 +88,8 @@ impl Wrapper {
 		let indices1 = self.cell_path.get_indices();
 		let indices2 = path.get_indices();
 
-		let mut cell1 = match self.cell_path.get_cell() {
-			Ok(x) => x,
-			Err(_) => panic!("Wrapper::is_around(): should not happen!")
-		};
-		let mut cell2 = match path.get_cell() {
-			Ok(x) => x,
-			Err(_) => panic!("Wrapper::is_around(): should not happen! (2)")
-		};
+		let mut cell1 = self.cell_path.get_cell();
+		let mut cell2 = path.get_cell();
 
 		let tmp_cell : Cell = false_cell(); // any cell ..
 
