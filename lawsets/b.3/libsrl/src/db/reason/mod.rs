@@ -178,9 +178,9 @@ impl Database {
 			return Err(SRLError("scope_insertion".to_string(), "wrapper is not positive".to_string()));
 		}
 
-		let mut highest_id = scope_path.get_root_cell().get_next_id() - 1;
+		let mut highest_id : i32 = scope_path.get_root_cell().get_next_id() as i32 - 1;
 		let norm = secure.get_cell().get_normalized()?;
-		let id_amount_in_secure = norm.get_next_id();
+		let id_amount_in_secure : i32 = norm.get_next_id() as i32;
 
 		let mut path = CellPath::create(body.clone(), vec![])?;
 
