@@ -74,5 +74,17 @@ impl Cell {
 			}
 		}
 	}
-}
 
+	pub fn get_next_id(&self) -> usize {
+		fn find_highest(cell : &Cell, i : i32) -> i32 {
+			if let &Cell::Scope { id : x, ..} = cell {
+				if x as i32 > i { x as i32 }
+				else { i }
+			} else {
+				i
+			}
+
+		}
+		(self.recurse::<i32>(-1, find_highest) + 1) as usize
+	}
+}

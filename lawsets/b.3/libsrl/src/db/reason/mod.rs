@@ -8,15 +8,6 @@ use navi::CellID;
 use navi::CellPath;
 use secure::SecureCell;
 
-fn find_highest(cell : &Cell, i : i32) -> i32 {
-	if let &Cell::Scope { id : x, ..} = cell {
-		if x as i32 > i { x as i32 }
-		else { i }
-	} else {
-		i
-	}
-}
-
 impl Database {
 	fn add_rule(&mut self, rule : Cell) -> Result<Cell, SRLError> {
 		let norm = rule.get_normalized()?;
@@ -187,9 +178,9 @@ impl Database {
 			return Err(SRLError("scope_insertion".to_string(), "wrapper is not positive".to_string()));
 		}
 
-		let mut highest_id = scope_path.get_root_cell().recurse::<i32>(-1, find_highest);
+		let mut highest_id = scope_path.get_root_cell().get_next_id() - 1;
 		let norm = secure.get_cell().get_normalized()?;
-		let id_amount_in_secure = norm.recurse::<i32>(-1, find_highest) + 1;
+		let id_amount_in_secure = norm.get_next_id();
 
 		let mut path = CellPath::create(body.clone(), vec![])?;
 
@@ -233,7 +224,7 @@ impl Database {
 	pub fn scope_creation(&mut self, scope_id : CellID, indices : Vec<Vec<usize>>) -> Result<Cell, SRLError> {
 		let mut scope_path = scope_id.get_path(&self.rules)?;
 
-		let new_id : u32 = (scope_path.get_root_cell().recurse::<i32>(-1, find_highest) + 1) as u32;
+		let new_id : u32 = scope_path.get_root_cell().get_next_id() as u32;
 		let cell = scope_path.get_cell();
 
 		if !scope_path.is_complete_bool() {
