@@ -4,7 +4,7 @@ use libsrl::navi::CellID;
 use libsrl::secure::SecureCell;
 
 #[test]
-fn test_full() {
+fn test_equals_law_1() {
 	let mut db = match Database::by_string("(= x y). {0 (p x)}. {0 (= (this 0) 0)}.") {
 		Ok(x) => x,
 		Err(_) => panic!("panic!")
@@ -32,4 +32,19 @@ fn test_full() {
 		Ok(x) => println!("rule: {}", x.to_rule_string()),
 		Err(srl_error) => panic!("panic: {:?}", srl_error)
 	}
+}
+
+#[test]
+fn test_equals_law_2() {
+	let mut db = match Database::by_string("{0 (= (this 0) 0)}. {0 (= (self 0) 0)}.") {
+		Ok(x) => x,
+		Err(_) => panic!("panic!")
+	};
+
+	let evi = CellID::create(1, vec![0]);
+	let src = CellID::create(2, vec![0, 2]);
+	match db.equals_law(src, evi) {
+		Ok(x) => { assert_eq!(x.to_rule_string(), "{0 (= (self 0) (this 0))}."); }
+		Err(_) => panic!("failure!")
+	};
 }

@@ -14,7 +14,7 @@ pub fn false_cell() -> Cell {
 }
 
 pub fn equals_cell(cell1 : Cell, cell2 : Cell) -> Cell {
-	complex(vec![simple_by_str("equals"), cell1, cell2])
+	complex(vec![simple_by_str("="), cell1, cell2])
 }
 
 pub fn simple(string_arg : String) -> Cell {
