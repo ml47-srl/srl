@@ -94,7 +94,7 @@ impl Cell {
 			},
 			&&Cell::Case { condition : ref condition_out, conclusion : ref conclusion_out } => {
 				let mut string = String::new();
-				string.push('[');
+				string.push_str("[=> ");
 				string.push_str(&condition_out.to_string());
 				string.push(' ');
 				string.push_str(&conclusion_out.to_string());
