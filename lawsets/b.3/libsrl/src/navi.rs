@@ -29,7 +29,6 @@ impl CellID {
 
 	pub fn get_rule_id(&self) -> usize { self.rule_id.clone() }
 	pub fn get_indices(&self) -> Vec<usize> { self.indices.clone() }
-
 }
 
 impl CellPath {

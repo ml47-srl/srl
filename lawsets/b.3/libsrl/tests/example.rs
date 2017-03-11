@@ -12,7 +12,7 @@ fn test_example() {
 	let evi = CellID::create(1, vec![0]);
 	let src = CellID::create(2, vec![0, 2]);
 	match db.equals_law(src, evi) {
-		Ok(x) => { assert_eq!(x.to_rule_string(), "{0 (= (this 0) (self 0))}."); }
+		Ok(x) => { assert_eq!(x.to_rule_string(), "{0 (= (self 0) (this 0))}."); }
 		Err(_) => panic!("failure!")
 	};
 }

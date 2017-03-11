@@ -88,8 +88,8 @@ impl Wrapper {
 		let indices1 = self.cell_path.get_indices();
 		let indices2 = path.get_indices();
 
-		let mut cell1 = self.cell_path.get_cell();
-		let mut cell2 = path.get_cell();
+		let mut cell1 = self.cell_path.get_root_cell();
+		let mut cell2 = path.get_root_cell();
 
 		let tmp_cell : Cell = false_cell(); // any cell ..
 
