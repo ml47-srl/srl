@@ -24,7 +24,7 @@ impl Database {
 		let rule_strings = split_rules(string);
 
 		// core rule:
-		let mut rules : Vec<Cell> = vec![scope(0, complex(vec![simple_by_str("=")?, var(0), var(0)]))];
+		let mut rules : Vec<Cell> = vec![scope(0, complex(vec![simple_by_str("="), var(0), var(0)]))];
 
 		for rule_string in rule_strings {
 			let tokens = tokenize(rule_string)?;

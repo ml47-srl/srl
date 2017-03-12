@@ -51,7 +51,7 @@ fn simple_by_trimmed_tokens(tokens : Vec<String>) -> Result<Cell, SRLError> {
 		return Err(SRLError("simple_by_trimmed_tokens".to_string(), "tokens.len() != 1".to_string()));
 	}
 
-	return Ok(simple(tokens[0].clone())?);
+	return Ok(try_simple(tokens[0].clone())?);
 }
 
 fn find_cell_ending(cell_start : usize, tokens : &Vec<String>) -> Option<usize> {
@@ -96,7 +96,7 @@ fn complex_by_trimmed_tokens(tokens : Vec<String>) -> Result<Cell, SRLError> {
 fn test_complex_by_trimmed_tokens() {
 	assert_eq!(
 		complex_by_trimmed_tokens(vec!["a".to_string(), "b".to_string()]).unwrap(),
-		complex(vec![simple_by_str("a").unwrap(), simple_by_str("b").unwrap()])
+		complex(vec![simple_by_str("a"), simple_by_str("b")])
 	);
 }
 
@@ -120,8 +120,8 @@ fn scope_by_trimmed_tokens(mut tokens : Vec<String>) -> Result<Cell, SRLError> {
 
 #[test]
 fn test_scope_by_trimmed_tokens() {
-	assert_eq!(scope(0, simple_by_str("b").unwrap()), scope_by_trimmed_tokens(vec!["{".to_string(), "0".to_string(), "b".to_string(), "}".to_string()]).unwrap());
-	assert_eq!(scope(0, complex(vec![simple_by_str("b").unwrap(), simple_by_str("c").unwrap()])), scope_by_trimmed_tokens(vec!["{".to_string(), "0".to_string(), "b".to_string(), "c".to_string(), "}".to_string()]).unwrap());
+	assert_eq!(scope(0, simple_by_str("b")), scope_by_trimmed_tokens(vec!["{".to_string(), "0".to_string(), "b".to_string(), "}".to_string()]).unwrap());
+	assert_eq!(scope(0, complex(vec![simple_by_str("b"), simple_by_str("c")])), scope_by_trimmed_tokens(vec!["{".to_string(), "0".to_string(), "b".to_string(), "c".to_string(), "}".to_string()]).unwrap());
 
 	match scope_by_trimmed_tokens(vec!["0".to_string(), "b".to_string(), "c".to_string(), "}".to_string()]) {
 		Ok(_) => panic!("test_scope_by_trimmed_tokens should fail here (0)"),
@@ -213,11 +213,11 @@ pub fn assemble_str(tokens : Vec<&str>) -> Result<Cell, SRLError> {
 
 #[test]
 fn test_assemble() {
-	assert_eq!(complex(vec![simple_by_str("a").unwrap(), simple_by_str("b").unwrap()]),
+	assert_eq!(complex(vec![simple_by_str("a"), simple_by_str("b")]),
 		assemble_str(vec!["(", "a", ")", "b"]).unwrap());
-	assert_eq!(simple_by_str("wow").unwrap(),
+	assert_eq!(simple_by_str("wow"),
 		assemble_str(vec!["wow"]).unwrap());
-	assert_eq!(complex(vec![simple_by_str("equals").unwrap(), simple_by_str("a").unwrap(), simple_by_str("b").unwrap()]),
+	assert_eq!(complex(vec![simple_by_str("equals"), simple_by_str("a"), simple_by_str("b")]),
 		assemble_str(vec!["(", "equals", "a", "b", ")"]).unwrap());
 }
 

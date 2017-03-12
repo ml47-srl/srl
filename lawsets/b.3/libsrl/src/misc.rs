@@ -1,6 +1,5 @@
 use cell::Cell;
 use error::SRLError;
-use cell::SimpleString;
 use gen::*;
 
 pub fn contains_only(string : String, list : String) -> bool {
@@ -31,7 +30,7 @@ impl Cell {
 			if cells_out.len() != 3 {
 				return Err(SRLError("get_equals_cell_arguments".to_string(), "complex cell does not have 3 arguments".to_string()));
 			}
-			if cells_out[0] != simple_by_str("=")? {
+			if cells_out[0] != simple_by_str("=") {
 				return Err(SRLError("get_equals_cell_arguments".to_string(), "first cell is not =".to_string()));
 			}
 			return Ok((cells_out[1].clone(), cells_out[2].clone()));

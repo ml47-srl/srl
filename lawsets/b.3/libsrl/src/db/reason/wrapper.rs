@@ -107,9 +107,7 @@ impl Wrapper {
 
 #[test]
 fn test_get_wrapper() { // XXX pretty bad test
-	use misc::*;
-
-	let path = match CellPath::create(equals_cell(false_cell(), equals_cell(true_cell(), simple_by_str("x").unwrap())), vec![2]) {
+	let path = match CellPath::create(equals_cell(false_cell(), equals_cell(true_cell(), simple_by_str("x"))), vec![2]) {
 		Ok(x) => x,
 		Err(_) => panic!("panic! :/")
 	};

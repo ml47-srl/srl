@@ -395,7 +395,7 @@ impl Database {
 			return Err(SRLError("declaration".to_string(), "scope does not contain (= 'false' *)".to_string()));
 		}
 
-		let new = b.replace_all(var(id), simple(string.to_string()).unwrap())?;
+		let new = b.replace_all(var(id), try_simple(string.to_string())?)?;
 		let rule = cell_path.replace_by(new);
 		self.add_rule(rule)
 	}

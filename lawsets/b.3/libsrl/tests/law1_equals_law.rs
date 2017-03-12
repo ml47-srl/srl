@@ -21,7 +21,7 @@ fn test_equals_law_1() {
 	};
 	assert_eq!(db.get_rule(4).to_rule_string(), "{0 (p y)}.");
 
-	let cell = complex(vec![simple_by_str("a").unwrap(), simple_by_str("b").unwrap()]);
+	let cell = complex(vec![simple_by_str("a"), simple_by_str("b")]);
 
 	let blub = CellID::create(3, vec![]);
 	match db.scope_insertion(blub, cell) {
