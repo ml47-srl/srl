@@ -54,20 +54,9 @@ impl CellPath {
 						Ok((x, y)) => (x, y),
 						_ => return None
 					};
-					if index == 0 {
-						if y == false_cell() {
-							cell = x;
-							positive = !positive;
-						} else {
-							return None
-						}
-					} else if index == 1 {
-						if x == false_cell() {
-							cell = y;
-							positive = !positive;
-						} else {
-							return None
-						}
+					if index == 2  && x == false_cell() {
+						cell = y;
+						positive = !positive;
 					} else {
 						return None
 					}
@@ -114,4 +103,18 @@ impl Wrapper {
 			false
 		}
 	*/
+}
+
+#[test]
+fn test_get_wrapper() { // XXX pretty bad test
+	use misc::*;
+
+	let path = match CellPath::create(equals_cell(false_cell(), equals_cell(true_cell(), simple_by_str("x"))), vec![2]) {
+		Ok(x) => x,
+		Err(_) => panic!("panic! :/")
+	};
+
+	if let None = path.get_wrapper() {
+		assert!(false);
+	}
 }

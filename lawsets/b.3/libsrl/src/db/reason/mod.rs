@@ -221,18 +221,15 @@ impl Database {
 		}
 	}
 
+	// = 'false' (= 'true' x).
+	//                    <x>   => indices = vec![vec![2]] // indices relative to the scope_id
+	//          <(= 'true' x)>  => scope_id
 	pub fn scope_creation(&mut self, scope_id : CellID, indices : Vec<Vec<usize>>) -> Result<Cell, SRLError> {
 		let mut scope_path = scope_id.get_path(&self.rules)?;
-
-		let new_id : u32 = scope_path.get_root_cell().get_next_id() as u32;
-		let cell = scope_path.get_cell();
 
 		if !scope_path.is_complete_bool() {
 			return Err(SRLError("scope_creation".to_string(), "scope_id does not contain a complete bool-cell".to_string()));
 		}
-
-		let replaced = scope_path.replace_by(scope(new_id, cell));
-		scope_path = CellPath::create(replaced, scope_path.get_indices())?;
 
 		let wrapper = match scope_path.get_wrapper() {
 			Some(x) => x,
@@ -242,27 +239,28 @@ impl Database {
 			return Err(SRLError("scope_creation".to_string(), "wrapper is positive".to_string()));
 		}
 
-		for index in indices.clone() {
-			for i in 0..scope_path.get_indices().len() {
-				if scope_path.get_indices()[i] != index[i] {
-					return Err(SRLError("scope_creation".to_string(), "indices are not in the scope".to_string()))
-				}
-			}
-		}
-
+		let cell = scope_path.get_cell();
 		for i in 0..indices.len()-1 {
-			let cell1 = CellPath::create(scope_path.get_root_cell(), indices[i].clone())?.get_cell();
-			let cell2 = CellPath::create(scope_path.get_root_cell(), indices[i+1].clone())?.get_cell();
+			let cell1 = CellPath::create(cell.clone(), indices[i].clone())?.get_cell();
+			let cell2 = CellPath::create(cell.clone(), indices[i+1].clone())?.get_cell(); // optimizable by not calculating everything twice
 			if !cell1.matches(&cell2) {
 				return Err(SRLError("scope_creation".to_string(), "indices do not represent the same cells".to_string()));
 			}
 		}
 
-		for index in indices {
-			let tmp_path = CellPath::create(scope_path.get_root_cell(), index)?;
+		let new_id : u32 = scope_path.get_root_cell().get_next_id() as u32;
+		let replaced = scope_path.replace_by(scope(new_id, cell));
+		scope_path = CellPath::create(replaced, scope_path.get_indices())?.get_child(0)?;
+
+		for mut index in indices {
+			let mut correct_index = scope_path.get_indices();
+			correct_index.append(&mut index);
+
+			let tmp_path = CellPath::create(scope_path.get_root_cell(), correct_index)?;
 			let new_cell = tmp_path.replace_by(var(new_id));
 			scope_path = CellPath::create(new_cell, scope_path.get_indices())?;
 		}
+
 		self.add_rule(scope_path.get_root_cell())
 	}
 
