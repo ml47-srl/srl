@@ -1,6 +1,7 @@
 use error::SRLError;
 use cell::Cell;
 use misc::*;
+use gen::*;
 
 fn get_new_id(old_id : u32, scope_ids : &Vec<u32>, in_scope_vec : &Vec<bool>) -> Result<u32, SRLError> {
 	for index in 0..scope_ids.len() {
@@ -17,9 +18,9 @@ fn get_new_id(old_id : u32, scope_ids : &Vec<u32>, in_scope_vec : &Vec<bool>) ->
 
 #[test]
 fn test_get_normalized() {
-	if let Ok(_) = complex(vec![var(0), scope(0, simple_by_str("ok"))]).get_normalized() { panic!("test_get_normalized(): should not accept (0)"); }
-	if let Ok(_) = complex(vec![scope(0, simple_by_str("ok")), var(0)]).get_normalized() { panic!("test_get_normalized(): should not accept (1)"); }
-	if let Ok(_) = scope(0, scope(0, simple_by_str("wow"))).get_normalized() { panic!("test_get_normalized(): should not accept (2)"); }
+	if let Ok(_) = complex(vec![var(0), scope(0, simple_by_str("ok").unwrap())]).get_normalized() { panic!("test_get_normalized(): should not accept (0)"); }
+	if let Ok(_) = complex(vec![scope(0, simple_by_str("ok").unwrap()), var(0)]).get_normalized() { panic!("test_get_normalized(): should not accept (1)"); }
+	if let Ok(_) = scope(0, scope(0, simple_by_str("wow").unwrap())).get_normalized() { panic!("test_get_normalized(): should not accept (2)"); }
 	assert_eq!(scope(0, scope(1, var(1))).to_string(), scope(1, scope(2, var(2))).get_normalized().unwrap().to_string());
 }
 
@@ -40,7 +41,7 @@ impl Cell {
 	fn get_normalized_from_r(&self, vec : &mut Vec<u32>, in_scope_vec : &mut Vec<bool>, from : u32) -> Result<Cell, SRLError> {
 		match &self {
 			&&Cell::Simple { string : ref string_out } => {
-				return Ok(simple(string_out.to_string()));
+				return Ok(simple(string_out.get_string().to_string())?);
 			}
 			&&Cell::Complex { cells : ref cells_out } => {
 				let mut new_cells = Vec::new();

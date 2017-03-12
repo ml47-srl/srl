@@ -1,7 +1,7 @@
 extern crate libsrl;
 use libsrl::db::Database;
 use libsrl::navi::CellID;
-use libsrl::secure::SecureCell;
+use libsrl::gen::*;
 
 #[test]
 fn test_equals_law_1() {
@@ -21,14 +21,10 @@ fn test_equals_law_1() {
 	};
 	assert_eq!(db.get_rule(4).to_rule_string(), "{0 (p y)}.");
 
-
-	let secure = match SecureCell::by_string("(a b)") {
-		Ok(x) => x,
-		Err(_) => panic!("error!")
-	};
+	let cell = complex(vec![simple_by_str("a").unwrap(), simple_by_str("b").unwrap()]);
 
 	let blub = CellID::create(3, vec![]);
-	match db.scope_insertion(blub, secure) {
+	match db.scope_insertion(blub, cell) {
 		Ok(x) => println!("rule: {}", x.to_rule_string()),
 		Err(srl_error) => panic!("panic: {:?}", srl_error)
 	}

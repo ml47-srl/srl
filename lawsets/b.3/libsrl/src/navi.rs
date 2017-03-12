@@ -1,6 +1,7 @@
 use cell::Cell;
-use misc::*;
 use error::SRLError;
+use misc::*;
+use gen::*;
 
 #[derive(Clone, PartialEq)]
 pub struct CellID {
@@ -119,33 +120,33 @@ impl CellPath {
 #[test]
 fn test_cell_id_and_cell_path() {
 	let mut rules : Vec<Cell> = Vec::new();
-	rules.push(simple_by_str("truth"));
-	rules.push(complex(vec![simple_by_str("truth"), simple_by_str("wot")]));
+	rules.push(simple_by_str("truth").unwrap());
+	rules.push(complex(vec![simple_by_str("truth").unwrap(), simple_by_str("wot").unwrap()]));
 
 	assert_eq!(
 		CellPath { root_cell : rules[0].clone(), indices : Vec::new() }.get_cell(),
-		simple_by_str("truth")
+		simple_by_str("truth").unwrap()
 	);
 
 	assert_eq!(
 		CellPath { root_cell : rules[1].clone(), indices : vec![0] }.get_cell(),
-		simple_by_str("truth")
+		simple_by_str("truth").unwrap()
 	);
 
 	assert_eq!(
 		CellPath { root_cell : rules[1].clone(), indices : vec![1] }.get_cell(),
-		simple_by_str("wot")
+		simple_by_str("wot").unwrap()
 	);
 }
 
 #[test]
 fn test_cell_path_replace_by() {
 	let mut rules : Vec<Cell> = Vec::new();
-	rules.push(simple_by_str("truth"));
-	rules.push(complex(vec![simple_by_str("truth"), simple_by_str("wot")]));
+	rules.push(simple_by_str("truth").unwrap());
+	rules.push(complex(vec![simple_by_str("truth").unwrap(), simple_by_str("wot").unwrap()]));
 
 	assert_eq!(
-		CellPath { root_cell : rules[1].clone(), indices : vec![1] }.replace_by(simple_by_str("wow")),
-		complex(vec![simple_by_str("truth"), simple_by_str("wow")])
+		CellPath { root_cell : rules[1].clone(), indices : vec![1] }.replace_by(simple_by_str("wow").unwrap()),
+		complex(vec![simple_by_str("truth").unwrap(), simple_by_str("wow").unwrap()])
 	);
 }

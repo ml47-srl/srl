@@ -2,10 +2,16 @@ use misc::*;
 
 use std::fmt;
 use error::SRLError;
+use parse::SIMPLE_CELL_FILL_CHARS;
+use parse::SIMPLE_CELL_CHARS;
+use gen::*;
+
+#[derive(PartialEq, Clone)]
+pub struct SimpleString(String);
 
 #[derive(PartialEq, Clone)]
 pub enum Cell {
-	Simple { string : String },
+	Simple { string : SimpleString },
 	Complex { cells: Vec<Cell> },
 	Scope { id : u32, body : Box<Cell> }, // { ... }
 	Var { id : u32 },
@@ -14,6 +20,26 @@ pub enum Cell {
 
 #[derive(PartialEq)]
 enum CellType { Simple, Complex, Scope, Var, Case }
+
+impl SimpleString {
+	pub fn create(string : String) -> Result<SimpleString, SRLError> {
+		if string.len() == 0 {
+			return Err(SRLError("SimpleString::create".to_string(), "string has length 0".to_string()));
+		}
+		if !contains_only(string.clone(), SIMPLE_CELL_CHARS.to_string()) {
+			return Err(SRLError("SimpleString::create".to_string(), "invalid char".to_string()));
+		}
+		if string == "=" || contains_only(string.clone(), SIMPLE_CELL_FILL_CHARS.to_string()) {
+			return Ok(SimpleString(string));
+		}
+		if string.starts_with('\'') && string.ends_with('\'') && string.matches('\'').count() == 2 {
+			return Ok(SimpleString(string));
+		}
+		return Err(SRLError("SimpleString::create".to_string(), "weird invalid stuff".to_string()));
+	}
+
+	pub fn get_string(&self) -> String { self.0.clone() }
+}
 
 impl fmt::Debug for Cell {
 	fn fmt(&self, f : &mut fmt::Formatter) -> fmt::Result {
@@ -30,32 +56,8 @@ impl fmt::Display for Cell {
 impl Cell {
 	pub fn is_constant(&self) -> bool {
 		match &self {
-			&&Cell::Simple { string : ref string_out } => return string_out.starts_with('\'') && string_out.ends_with('\''),
+			&&Cell::Simple { string : ref string_out } => return string_out.0.starts_with('\'') && string_out.0.ends_with('\''),
 			_ => return false
-		}
-	}
-
-	pub fn is_valid(&self) -> bool {
-		match &self {
-			&&Cell::Simple { string : ref string_out } => {
-				let mut too_many_ticks = string_out.matches('\'').count();
-				if self.is_constant() {
-					too_many_ticks -= 2;
-				}
-				return too_many_ticks == 0;
-			}
-			&&Cell::Complex { cells : ref cells_out } => {
-				for cell in cells_out {
-					if ! cell.is_valid() {
-						return false;
-					}
-				}
-				return true;
-			}
-			&&Cell::Case { condition : ref cond_out, conclusion : ref conc_out } => {
-				return cond_out.is_valid() && conc_out.is_valid();
-			}
-			_ => return true // TODO Scope / Var
 		}
 	}
 
@@ -70,7 +72,7 @@ impl Cell {
 
 	pub fn to_unwrapped_string(&self) -> String { // equals a b | a
 		match &self {
-			&&Cell::Simple { string : ref string_out } => string_out.to_string(),
+			&&Cell::Simple { string : ref string_out } => string_out.0.clone(),
 			&&Cell::Complex { cells : ref cells_out } => {
 				let mut string = String::new();
 				string.push_str(&cells_out[0].to_string());
@@ -260,7 +262,7 @@ fn test_with_subcell() {
 
 #[test]
 fn test_to_string() {
-	assert_eq!(&simple_by_str("a").to_string(), "a");
-	assert_eq!(&complex(vec![simple_by_str("a"), simple_by_str("b")]).to_string(), "(a b)");
-	assert_eq!(&scope(3, simple_by_str("b")).to_string(), "{3 b}");
+	assert_eq!(&simple_by_str("a").unwrap().to_string(), "a");
+	assert_eq!(&complex(vec![simple_by_str("a").unwrap(), simple_by_str("b").unwrap()]).to_string(), "(a b)");
+	assert_eq!(&scope(3, simple_by_str("b").unwrap()).to_string(), "{3 b}");
 }

@@ -1,6 +1,6 @@
 use navi::CellPath;
 use cell::Cell;
-use misc::false_cell;
+use gen::*;
 
 pub struct Wrapper {
 	cell_path : CellPath,
@@ -109,7 +109,7 @@ impl Wrapper {
 fn test_get_wrapper() { // XXX pretty bad test
 	use misc::*;
 
-	let path = match CellPath::create(equals_cell(false_cell(), equals_cell(true_cell(), simple_by_str("x"))), vec![2]) {
+	let path = match CellPath::create(equals_cell(false_cell(), equals_cell(true_cell(), simple_by_str("x").unwrap())), vec![2]) {
 		Ok(x) => x,
 		Err(_) => panic!("panic! :/")
 	};

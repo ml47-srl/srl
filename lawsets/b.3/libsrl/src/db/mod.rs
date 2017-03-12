@@ -7,6 +7,7 @@ use cell::Cell;
 use std::fs::File;
 use std::io::Read;
 use misc::*;
+use gen::*;
 use error::SRLError;
 
 pub struct Database {
@@ -23,7 +24,7 @@ impl Database {
 		let rule_strings = split_rules(string);
 
 		// core rule:
-		let mut rules : Vec<Cell> = vec![scope(0, complex(vec![simple_by_str("="), var(0), var(0)]))];
+		let mut rules : Vec<Cell> = vec![scope(0, complex(vec![simple_by_str("=")?, var(0), var(0)]))];
 
 		for rule_string in rule_strings {
 			let tokens = tokenize(rule_string)?;
@@ -33,11 +34,6 @@ impl Database {
 			let cell = assemble(tokens)?;
 			let normalized = cell.get_normalized()?;
 			rules.push(normalized);
-		}
-		for rule in &rules {
-			if ! rule.is_valid() {
-				return Err(SRLError("Database::by_string()".to_string(), format!("rule '{}' is malformed", rule.to_rule_string())));
-			}
 		}
 		Ok(Database { rules : rules })
 	}

@@ -4,9 +4,9 @@ use super::Database;
 use cell::Cell;
 use error::SRLError;
 use misc::*;
+use gen::*;
 use navi::CellID;
 use navi::CellPath;
-use secure::SecureCell;
 
 impl Database {
 	fn add_rule(&mut self, rule : Cell) -> Result<Cell, SRLError> {
@@ -159,7 +159,7 @@ impl Database {
 		self.add_rule(rule)
 	}
 
-	pub fn scope_insertion(&mut self, scope_id : CellID, secure : SecureCell) -> Result<Cell, SRLError> {
+	pub fn scope_insertion(&mut self, scope_id : CellID, cell : Cell) -> Result<Cell, SRLError> {
 		let scope_path = scope_id.get_path(&self.rules)?;
 
 		let (id, body) : (u32, Cell) = match scope_path.get_cell() {
@@ -179,8 +179,8 @@ impl Database {
 		}
 
 		let mut highest_id : i32 = scope_path.get_root_cell().get_next_id() as i32 - 1;
-		let norm = secure.get_cell().get_normalized()?;
-		let id_amount_in_secure : i32 = norm.get_next_id() as i32;
+		let norm = cell.get_normalized()?;
+		let id_amount : i32 = norm.get_next_id() as i32;
 
 		let mut path = CellPath::create(body.clone(), vec![])?;
 
@@ -195,10 +195,10 @@ impl Database {
 			}
 			if let Cell::Var { id : id_out } = path.get_cell() {
 				if id_out == id {
-					let normalized = secure.get_cell().get_normalized_from((highest_id + 1) as u32)?;
+					let normalized = cell.get_normalized_from((highest_id + 1) as u32)?;
 					let replaced = path.replace_by(normalized);
 					path = CellPath::create(replaced, path.get_indices())?;
-					highest_id += id_amount_in_secure;
+					highest_id += id_amount;
 				}
 			}
 			loop {
@@ -327,7 +327,7 @@ impl Database {
 		self.add_rule(rule)
 	}
 
-	pub fn case_creation(&mut self, cell_id : CellID, secure : SecureCell) -> Result<Cell, SRLError> {
+	pub fn case_creation(&mut self, cell_id : CellID, arg_cell : Cell) -> Result<Cell, SRLError> {
 		let path = cell_id.get_path(&self.rules)?;
 		let wrapper = match path.get_wrapper() {
 			Some(x) => x,
@@ -337,7 +337,7 @@ impl Database {
 			return Err(SRLError("case_creation".to_string(), "wrapper is not positive".to_string()));
 		}
 		let cell = path.get_cell();
-		let rule = path.replace_by(case(secure.get_cell(), cell));
+		let rule = path.replace_by(case(arg_cell, cell));
 		self.add_rule(rule)
 	}
 
@@ -348,7 +348,7 @@ impl Database {
 				return (string, true);
 			}
 			if let Cell::Simple { string : string2 } = cell.clone() {
-				return (string.clone(), string == string2);
+				return (string.clone(), string == string2.get_string());
 			}
 			(string, false)
 		}
@@ -395,7 +395,7 @@ impl Database {
 			return Err(SRLError("declaration".to_string(), "scope does not contain (= 'false' *)".to_string()));
 		}
 
-		let new = b.replace_all(var(id), simple(string.to_string()))?;
+		let new = b.replace_all(var(id), simple(string.to_string()).unwrap())?;
 		let rule = cell_path.replace_by(new);
 		self.add_rule(rule)
 	}

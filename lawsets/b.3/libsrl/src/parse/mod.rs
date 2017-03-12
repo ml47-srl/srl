@@ -3,6 +3,7 @@ pub mod tokenize;
 
 pub static VALID_CHARS : &'static str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_=0123456789'(){} \n\t.";
 pub static SIMPLE_CELL_FILL_CHARS : &'static str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
+pub static SIMPLE_CELL_CHARS : &'static str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_''=";
 pub static VAR_FILL_CHARS : &'static str = "0123456789";
 pub static LPARENS : &'static str = "{(";
 pub static RPARENS : &'static str = "})";
