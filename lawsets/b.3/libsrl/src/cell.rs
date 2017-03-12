@@ -234,15 +234,15 @@ impl Cell {
 		
 	}
 
-	pub fn replace_all(&self, pattern : Cell, replacement : Cell) -> Result<Cell, SRLError> {
+	pub fn replace_all(&self, pattern : Cell, replacement : Cell) -> Cell {
 		let mut cell = self.clone();
-		if cell == pattern {
-			return Ok(replacement);
+		if cell == pattern { // XXX maybe cell.matches(pattern)
+			return replacement;
 		}
 		for i in 0..cell.count_subcells() {
-			cell = cell.with_subcell(cell.get_subcell(i).replace_all(pattern.clone(), replacement.clone())?, i);
+			cell = cell.with_subcell(cell.get_subcell(i).replace_all(pattern.clone(), replacement.clone()), i);
 		}
-		Ok(cell)
+		cell
 	}
 }
 
