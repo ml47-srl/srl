@@ -1,0 +1,11 @@
+[root]
+name = "srl_ui"
+version = "0.1.0"
+dependencies = [
+ "libsrl 0.1.0",
+]
+
+[[package]]
+name = "libsrl"
+version = "0.1.0"
+
