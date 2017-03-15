@@ -40,8 +40,22 @@ impl App {
 				}
 			},
 			keys::UP => {
+				if self.prim_marker.get_rule_id() == 0 {
+					return true;
+				}
+				self.prim_marker = CellID::create(self.prim_marker.get_rule_id() - 1, self.prim_marker.get_indices());
+				while self.prim_marker.get_path(&self.db.get_rules()).is_err() {
+					self.prim_marker = self.prim_marker.get_parent().unwrap();
+				}
 			},
 			keys::DOWN => {
+				if self.prim_marker.get_rule_id() == self.db.count_rules() - 1 {
+					return true;
+				}
+				self.prim_marker = CellID::create(self.prim_marker.get_rule_id() + 1, self.prim_marker.get_indices());
+				while self.prim_marker.get_path(&self.db.get_rules()).is_err() {
+					self.prim_marker = self.prim_marker.get_parent().unwrap();
+				}
 			},
 			keys::DELETE => {
 				self.put_message("Can't yet delete rules".to_string(), MsgType::Error);
