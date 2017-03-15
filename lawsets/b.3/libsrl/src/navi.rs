@@ -47,27 +47,26 @@ impl CellID {
 
 	pub fn get_left_sibling(&self) -> Result<CellID, SRLError> {
 		let mut vec = self.indices.clone();
-		match vec.pop() {
-			Some(x) => {
-				if x == 0 {
-					return Err(SRLError("CellID::get_left_sibling".to_string(), "no left sibling".to_string()));
-				}
-				vec.push(x-1);
-				return Ok(CellID::create(self.rule_id, vec));
-			}
+		let index = match vec.pop() {
+			Some(x) => x,
 			None => return Err(SRLError("CellID::get_left_sibling".to_string(), "no parent".to_string()))
+		};
+		if index == 0 {
+			return Err(SRLError("CellID::get_left_sibling".to_string(), "no left sibling".to_string()));
 		}
+
+		vec.push(index - 1);
+		return Ok(CellID::create(self.rule_id, vec));
 	}
 
 	pub fn get_right_sibling(&self) -> Result<CellID, SRLError> {
 		let mut vec = self.indices.clone();
-		match vec.pop() {
-			Some(x) => {
-				vec.push(x+1);
-				return Ok(CellID::create(self.rule_id, vec));
-			}
+		let index = match vec.pop() {
+			Some(x) => x,
 			None => return Err(SRLError("CellID::get_right_sibling".to_string(), "no parent".to_string()))
-		}
+		};
+		vec.push(index + 1);
+		return Ok(CellID::create(self.rule_id, vec));
 	}
 
 	pub fn is_valid(&self, rules : &Vec<Cell>) -> bool {
@@ -142,16 +141,16 @@ impl CellPath {
 
 	pub fn get_left_sibling(&self) -> Result<CellPath, SRLError> {
 		let mut vec = self.indices.clone();
-		match vec.pop() {
-			Some(x) => {
-				if x == 0 {
-					return Err(SRLError("CellPath::get_left_sibling".to_string(), "no left sibling".to_string()));
-				}
-				vec.push(x-1);
-				return CellPath::create(self.root_cell.clone(), vec);
-			}
-			None => return Err(SRLError("CellPath::get_left_sibling".to_string(), "no parent".to_string()))
+		let index = match vec.pop() {
+			Some(x) => x,
+			None => return Err(SRLError("CellPath::get_right_sibling".to_string(), "no parent".to_string()))
+		};
+		if index == 0 {
+			return Err(SRLError("CellPath::get_left_sibling".to_string(), "no left sibling".to_string()))
 		}
+
+		let parent = self.get_parent()?;
+		return parent.get_child(index - 1);
 	}
 
 	pub fn get_right_sibling(&self) -> Result<CellPath, SRLError> {

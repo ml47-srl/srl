@@ -3,7 +3,6 @@ mod wrapper;
 use super::Database;
 use cell::Cell;
 use error::SRLError;
-use misc::*;
 use gen::*;
 use navi::CellID;
 use navi::CellPath;
@@ -186,12 +185,12 @@ impl Database {
 
 		loop {
 			loop {
-				if path.get_cell().count_subcells() == 0 {
-					break;
+				match path.get_child(0) {
+					Ok(x) => {
+						path = x;
+					},
+					Err(_) => { break; }
 				}
-				let mut indices = path.get_indices();
-				indices.push(0);
-				path = CellPath::create(path.get_root_cell(), indices)?;
 			}
 			if let Cell::Var { id : id_out } = path.get_cell() {
 				if id_out == id {
@@ -202,19 +201,16 @@ impl Database {
 				}
 			}
 			loop {
-				let mut indices = path.get_indices();
-				if indices.is_empty() {
+				if path.get_indices().is_empty() {
 					let rule = scope_path.replace_by(path.get_root_cell());
 					return self.add_rule(rule);
 				} else {
-					let len = indices.len();
-					let last = indices.remove(len - 1);
-					path = CellPath::create(path.get_root_cell(), indices.clone())?;
-					let path_cell = path.get_cell();
-					if index_in_len(last + 1, path_cell.count_subcells()) {
-						indices.push(last + 1);
-						path = CellPath::create(path.get_root_cell(), indices)?;
-						break;
+					match path.get_right_sibling() {
+						Ok(x) => {
+							path = x;
+							break;
+						},
+						Err(_) => { path = path.get_parent().unwrap(); }
 					}
 				}
 			}
