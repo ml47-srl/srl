@@ -93,8 +93,11 @@ fn determine_indices(prim : Option<CellPath>, sec_vec : Vec<CellPath>) -> (Optio
 
 fn find_start_and_end(path : CellPath) -> (i32, i32) {
 	let x = find_inner_index(path.clone());
-	let y = x + path.get_cell().to_string().len() as i32;
-	(x, y)
+	if path.get_indices().is_empty() {
+		return (x, x + path.get_cell().to_unwrapped_string().len() as i32);
+	} else {
+		return (x, x + path.get_cell().to_string().len() as i32);
+	}
 }
 
 fn find_inner_index(path : CellPath) -> i32 {
