@@ -19,30 +19,36 @@ impl App {
 	fn render_rule(&self, rule : Cell, prim_indices : Option<(i32, i32)>, sec_indices_vec : Vec<(i32, i32)>) {
 		let string = rule.to_rule_string();
 		for i in 0..string.len() {
-			if let Some((x, y)) = prim_indices {
+			if let Some((x, _)) = prim_indices {
 				if x == i as i32 {
-					ncurses::attroff(ncurses::COLOR_PAIR(2));
+					ncurses::attron(ncurses::COLOR_PAIR(2));
 					ncurses::addch('<' as u64);
-				}
-				if y == i as i32 {
 					ncurses::attroff(ncurses::COLOR_PAIR(2));
-					ncurses::addch('>' as u64);
 				}
 			}
 			for sec_indices in sec_indices_vec.clone() {
 				let (x, y) = sec_indices;
 				if x == i as i32 {
-					ncurses::attroff(ncurses::COLOR_PAIR(3));
+					ncurses::attron(ncurses::COLOR_PAIR(3));
 					ncurses::addch('<' as u64);
+					ncurses::attroff(ncurses::COLOR_PAIR(3));
 				}
 				if y == i as i32 {
-					ncurses::attroff(ncurses::COLOR_PAIR(3));
+					ncurses::attron(ncurses::COLOR_PAIR(3));
 					ncurses::addch('>' as u64);
+					ncurses::attroff(ncurses::COLOR_PAIR(3));
 				}
 			}
-			ncurses::attroff(ncurses::COLOR_PAIR(1));
+			if let Some((_, y)) = prim_indices {
+				if y == i as i32 {
+					ncurses::attron(ncurses::COLOR_PAIR(2));
+					ncurses::addch('>' as u64);
+					ncurses::attroff(ncurses::COLOR_PAIR(2));
+				}
+			}
 			ncurses::addch(string.chars().nth(i).unwrap() as u64);
 		}
+		ncurses::addch('\n' as u64);
 	}
 
 	fn filter_important(&self, i : i32) -> (Option<CellPath>, Vec<CellPath>) {
