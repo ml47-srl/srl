@@ -2,6 +2,9 @@ extern crate libsrl;
 
 pub mod app;
 pub mod keys;
+pub mod render;
+pub mod handle;
+
 use app::App;
 
 use std::env;

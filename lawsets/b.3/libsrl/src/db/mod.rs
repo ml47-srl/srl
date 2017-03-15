@@ -54,6 +54,10 @@ impl Database {
 		self.rules.len()
 	}
 
+	pub fn get_rules(&self) -> Vec<Cell> {
+		self.rules.clone()
+	}
+
 	pub fn get_rule(&self, index : usize) -> Cell {
 		if ! index_in_len(index, self.rules.len()) {
 			panic!(format!("Database::get_rule({}): index out of range", index));
