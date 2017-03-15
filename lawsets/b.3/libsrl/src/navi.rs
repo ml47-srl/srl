@@ -30,6 +30,52 @@ impl CellID {
 
 	pub fn get_rule_id(&self) -> usize { self.rule_id.clone() }
 	pub fn get_indices(&self) -> Vec<usize> { self.indices.clone() }
+
+	pub fn get_parent(&self) -> Result<CellID, SRLError> {
+		let mut vec = self.indices.clone();
+		return match vec.pop() {
+			Some(_) => Ok(CellID::create(self.rule_id, vec)),
+			None => Err(SRLError("CellID::get_parent".to_string(), "no parent".to_string()))
+		}
+	}
+
+	pub fn get_child(&self, index : usize) -> Result<CellID, SRLError> {
+		let mut vec = self.indices.clone();
+		vec.push(index);
+		Ok(CellID::create(self.rule_id, vec))
+	}
+
+	pub fn get_left_sibling(&self) -> Result<CellID, SRLError> {
+		let mut vec = self.indices.clone();
+		match vec.pop() {
+			Some(x) => {
+				if x == 0 {
+					return Err(SRLError("CellID::get_left_sibling".to_string(), "no left sibling".to_string()));
+				}
+				vec.push(x-1);
+				return Ok(CellID::create(self.rule_id, vec));
+			}
+			None => return Err(SRLError("CellID::get_left_sibling".to_string(), "no parent".to_string()))
+		}
+	}
+
+	pub fn get_right_sibling(&self) -> Result<CellID, SRLError> {
+		let mut vec = self.indices.clone();
+		match vec.pop() {
+			Some(x) => {
+				vec.push(x+1);
+				return Ok(CellID::create(self.rule_id, vec));
+			}
+			None => return Err(SRLError("CellID::get_right_sibling".to_string(), "no parent".to_string()))
+		}
+	}
+
+	pub fn is_valid(&self, rules : &Vec<Cell>) -> bool {
+		if let Ok(_) = self.get_path(rules) {
+			return true;
+		}
+		return false;
+	}
 }
 
 impl CellPath {
@@ -92,6 +138,30 @@ impl CellPath {
 		let mut vec = self.indices.clone();
 		vec.push(index);
 		CellPath::create(self.root_cell.clone(), vec)
+	}
+
+	pub fn get_left_sibling(&self) -> Result<CellPath, SRLError> {
+		let mut vec = self.indices.clone();
+		match vec.pop() {
+			Some(x) => {
+				if x == 0 {
+					return Err(SRLError("CellPath::get_left_sibling".to_string(), "no left sibling".to_string()));
+				}
+				vec.push(x-1);
+				return CellPath::create(self.root_cell.clone(), vec);
+			}
+			None => return Err(SRLError("CellPath::get_left_sibling".to_string(), "no parent".to_string()))
+		}
+	}
+
+	pub fn get_right_sibling(&self) -> Result<CellPath, SRLError> {
+		let mut vec = self.indices.clone();
+		let index = match vec.pop() {
+			Some(x) => x,
+			None => return Err(SRLError("CellPath::get_right_sibling".to_string(), "no parent".to_string()))
+		};
+		let parent = self.get_parent()?;
+		return parent.get_child(index + 1);
 	}
 
 	pub fn replace_by(&self, mut cell : Cell) -> Cell {
