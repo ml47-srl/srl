@@ -1,6 +1,7 @@
 extern crate libsrl;
 
-mod app;
+pub mod app;
+pub mod keys;
 use app::App;
 
 use std::env;
