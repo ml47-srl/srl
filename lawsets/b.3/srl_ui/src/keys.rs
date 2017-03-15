@@ -17,6 +17,5 @@ pub const IMPL_DERIVATION	: i32 = 'v' as i32;
 pub const SCOPE_EXCHANGE	: i32 = 'h' as i32;
 pub const CASE_CREATION	: i32 = 'm' as i32;
 pub const DECLARATION		: i32 = 'n' as i32;
-pub const PRIM_MARKER		: i32 = 'w' as i32;
 pub const SEC_MARKER		: i32 = 's' as i32;
 pub const TOGGLE_SEC_MARKER	: i32 = 'a' as i32;

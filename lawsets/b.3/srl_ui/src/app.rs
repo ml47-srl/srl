@@ -84,11 +84,16 @@ impl App {
 			},
 			keys::DECLARATION => {
 			},
-			keys::PRIM_MARKER => {
-			},
 			keys::SEC_MARKER => {
+				self.sec_markers = vec![self.prim_marker.clone()];
 			},
 			keys::TOGGLE_SEC_MARKER => {
+				if self.sec_markers.contains(&self.prim_marker) {
+					let prim = self.prim_marker.clone();
+					self.sec_markers.retain(|x : &CellID| *x != prim);
+				} else {
+					self.sec_markers.push(self.prim_marker.clone());
+				}
 			},
 			_ => {
 				// self.put_message("unknown key", WHITE);
