@@ -18,7 +18,7 @@ impl App {
 		Ok(App { db : db, prim_marker :  cell_id, sec_markers : Vec::new()})
 	}
 
-	pub fn run(&self) {
+	pub fn run(&mut self) {
 		ncurses::initscr();
 		self.render();
 		while self.handle_key(ncurses::getch()) {
@@ -28,32 +28,32 @@ impl App {
 	}
 
 	// returns whether to go on
-	fn handle_key(&self, key : i32) -> bool {
+	fn handle_key(&mut self, key : i32) -> bool {
 		match key {
 			keys::QUIT => return false,
 			keys::LEFT => {
-				/* match self.prim_marker.get_left_sibling() {
+				match self.prim_marker.get_left_sibling() {
 					Ok(x) => self.prim_marker = x,
 					Err(_) => {}
-				} */
+				}
 			},
 			keys::RIGHT => {
-				/* match self.prim_marker.get_right_sibling() {
+				match self.prim_marker.get_right_sibling() {
 					Ok(x) => self.prim_marker = x,
 					Err(_) => {}
-				} */
+				}
 			},
 			keys::IN => {
-				/* match self.prim_marker.get_child(0) {
+				match self.prim_marker.get_child(0) {
 					Ok(x) => self.prim_marker = x,
 					Err(_) => {}
-				} */
+				}
 			},
 			keys::OUT => {
-				/* match self.prim_marker.get_parent() {
+				match self.prim_marker.get_parent() {
 					Ok(x) => self.prim_marker = x,
 					Err(_) => {}
-				} */
+				}
 			},
 			keys::UP => {
 			},

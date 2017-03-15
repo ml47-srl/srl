@@ -12,7 +12,7 @@ fn main() {
 		println!("usage: srl_ui <filename>");
 		return;
 	}
-	let app = match App::by_filename(&args[1]) {
+	let mut app = match App::by_filename(&args[1]) {
 		Ok(x) => x,
 		Err(srl_error) => {
 			println!("{}", srl_error.to_string());
