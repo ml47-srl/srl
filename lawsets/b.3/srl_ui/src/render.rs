@@ -2,6 +2,8 @@ use app::App;
 use libsrl::navi::CellPath;
 use libsrl::cell::Cell;
 use libsrl::gen::*;
+use app::MsgType;
+use app::get_height;
 
 extern crate ncurses;
 
@@ -12,6 +14,14 @@ impl App {
 			let (prim, sec_vec) = self.filter_important(i as i32);
 			let (prim_indices, sec_indices_vec) = determine_indices(prim, sec_vec);
 			self.render_rule(self.db.get_rule(i), prim_indices, sec_indices_vec);
+		}
+		ncurses::mv(get_height() - 1, 0);
+		if self.msg_type == MsgType::Error {
+			ncurses::attron(ncurses::COLOR_PAIR(4));
+		}
+		ncurses::printw(&self.msg);
+		if self.msg_type == MsgType::Error {
+			ncurses::attroff(ncurses::COLOR_PAIR(4));
 		}
 		ncurses::refresh();
 	}

@@ -1,6 +1,6 @@
 pub const QUIT			: i32 = 'q' as i32;
 pub const LEFT			: i32 = 'j' as i32;
-pub const RIGHT		: i32 = 'ö' as i32;
+pub const RIGHT			: i32 = 182 as i32; // ö
 pub const IN			: i32 = 'i' as i32;
 pub const OUT			: i32 = 'o' as i32;
 pub const UP			: i32 = 'k' as i32;
@@ -15,7 +15,7 @@ pub const SCOPE_INSERTION 	: i32 = 'd' as i32;
 pub const SCOPE_CREATION	: i32 = 'f' as i32;
 pub const IMPL_DERIVATION	: i32 = 'v' as i32;
 pub const SCOPE_EXCHANGE	: i32 = 'h' as i32;
-pub const CASE_CREATION	: i32 = 'm' as i32;
+pub const CASE_CREATION		: i32 = 'm' as i32;
 pub const DECLARATION		: i32 = 'n' as i32;
 pub const SEC_MARKER		: i32 = 's' as i32;
 pub const TOGGLE_SEC_MARKER	: i32 = 'a' as i32;

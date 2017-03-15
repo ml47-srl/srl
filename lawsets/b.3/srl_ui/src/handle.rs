@@ -1,4 +1,5 @@
 use app::App;
+use app::MsgType;
 use keys;
 extern crate libsrl;
 use libsrl::navi::CellID;
@@ -15,15 +16,21 @@ impl App {
 				}
 			},
 			keys::RIGHT => {
-				match self.prim_marker.get_right_sibling() {
-					Ok(x) => self.prim_marker = x,
-					Err(_) => {}
+				let new = match self.prim_marker.get_right_sibling() {
+					Ok(x) => x,
+					Err(_) => return true
+				};
+				if new.get_path(&self.db.get_rules()).is_ok() {
+					self.prim_marker = new;
 				}
 			},
 			keys::IN => {
-				match self.prim_marker.get_child(0) {
-					Ok(x) => self.prim_marker = x,
-					Err(_) => {}
+				let new = match self.prim_marker.get_child(0) {
+					Ok(x) => x,
+					Err(_) => return true
+				};
+				if new.get_path(&self.db.get_rules()).is_ok() {
+					self.prim_marker = new;
 				}
 			},
 			keys::OUT => {
@@ -37,7 +44,7 @@ impl App {
 			keys::DOWN => {
 			},
 			keys::DELETE => {
-				// self.put_message("Can't yet delete rules", RED);
+				self.put_message("Can't yet delete rules".to_string(), MsgType::Error);
 			},
 			keys::EQUALS_LAW => {
 			},
@@ -71,7 +78,7 @@ impl App {
 				}
 			},
 			_ => {
-				// self.put_message("unknown key", WHITE);
+				self.put_message(format!("unknown key {}", key), MsgType::Note);
 			}
 		}
 		true
