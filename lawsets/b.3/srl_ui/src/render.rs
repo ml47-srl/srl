@@ -2,8 +2,8 @@ use app::App;
 use libsrl::navi::CellPath;
 use libsrl::cell::Cell;
 use libsrl::gen::*;
-use app::MsgType;
 use app::get_height;
+use app::MsgType;
 
 extern crate ncurses;
 

@@ -33,13 +33,19 @@ impl App {
 		self.render();
 		while self.handle_key(ncurses::getch()) {
 			self.render();
+			self.put_note("".to_string());
 		}
 		ncurses::endwin();
 	}
 
-	pub fn put_message(&mut self, msg : String, msg_type : MsgType) {
+	pub fn put_error(&mut self, msg : String) {
 		self.msg = msg;
-		self.msg_type = msg_type;
+		self.msg_type = MsgType::Error;
+	}
+
+	pub fn put_note(&mut self, msg : String) {
+		self.msg = msg;
+		self.msg_type = MsgType::Note;
 	}
 }
 

@@ -1,5 +1,4 @@
 use app::App;
-use app::MsgType;
 use keys;
 extern crate libsrl;
 use libsrl::navi::CellID;
@@ -58,9 +57,19 @@ impl App {
 				}
 			},
 			keys::DELETE => {
-				self.put_message("Can't yet delete rules".to_string(), MsgType::Error);
+				self.put_error("Can't yet delete rules".to_string());
 			},
 			keys::EQUALS_LAW => {
+				let len = self.sec_markers.len();
+				if len != 1 {
+					self.put_error(format!("There are {} secondary markers, but only 1 is allowed", len));
+					return true;
+				}
+				let result = self.db.equals_law(self.prim_marker.clone(), self.sec_markers[0].clone());
+				match result {
+					Ok(_) => {},
+					Err(x) => self.put_error(x.to_string())
+				}
 			},
 			keys::EQUALS_LAW_IMPL => {
 			},
@@ -92,7 +101,7 @@ impl App {
 				}
 			},
 			_ => {
-				self.put_message(format!("unknown key {}", key), MsgType::Note);
+				self.put_note(format!("unknown key {}", key));
 			}
 		}
 		true
