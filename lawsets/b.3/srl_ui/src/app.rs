@@ -4,7 +4,7 @@ use libsrl::db::Database;
 use libsrl::navi::CellID;
 
 #[derive(PartialEq)]
-pub enum MsgType { Note, Error }
+pub enum MsgType { Note, Error, Input }
 
 pub struct App {
 	pub db : Database,
@@ -29,6 +29,7 @@ impl App {
 		ncurses::init_pair(2, ncurses::COLOR_BLUE, ncurses::COLOR_BLACK); // primary marker
 		ncurses::init_pair(3, ncurses::COLOR_GREEN, ncurses::COLOR_BLACK); // secondary markers
 		ncurses::init_pair(4, ncurses::COLOR_RED, ncurses::COLOR_BLACK); // error messages
+		ncurses::init_pair(5, ncurses::COLOR_YELLOW, ncurses::COLOR_BLACK); // input
 
 		self.render();
 		while self.handle_key(ncurses::getch()) {
@@ -46,6 +47,19 @@ impl App {
 	pub fn put_note(&mut self, msg : String) {
 		self.msg = msg;
 		self.msg_type = MsgType::Note;
+	}
+
+	pub fn read_input(&mut self) -> String {
+		self.msg_type = MsgType::Input;
+		self.msg = String::new();
+		self.render();
+		loop {
+			let chr = ncurses::getch();
+			if chr == '\n' as i32 { break; }
+			self.msg.push(chr as u8 as char);
+			self.render();
+		}
+		return self.msg.clone();
 	}
 }
 

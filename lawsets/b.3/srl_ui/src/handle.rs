@@ -167,6 +167,17 @@ impl App {
 			keys::CASE_CREATION => {
 			},
 			keys::DECLARATION => {
+				let input = self.read_input();
+				let len = self.sec_markers.len();
+				if len != 0 {
+					self.put_error(format!("There are {} secondary markers, but none allowed", len));
+					return true;
+				}
+				let result = self.db.declaration(self.prim_marker.clone(), &input);
+				match result {
+					Ok(_) => {},
+					Err(x) => self.put_error(x.to_string())
+				}
 			},
 			keys::SEC_MARKER => {
 				self.sec_markers = vec![self.prim_marker.clone()];

@@ -16,12 +16,16 @@ impl App {
 			self.render_rule(self.db.get_rule(i), prim_indices, sec_indices_vec);
 		}
 		ncurses::mv(get_height() - 1, 0);
-		if self.msg_type == MsgType::Error {
-			ncurses::attron(ncurses::COLOR_PAIR(4));
+		match self.msg_type {
+			MsgType::Error => { ncurses::attron(ncurses::COLOR_PAIR(4)); },
+			MsgType::Input => { ncurses::attron(ncurses::COLOR_PAIR(5)); ncurses::printw("> "); },
+			_ => {}
 		}
 		ncurses::printw(&self.msg);
-		if self.msg_type == MsgType::Error {
-			ncurses::attroff(ncurses::COLOR_PAIR(4));
+		match self.msg_type {
+			MsgType::Error => { ncurses::attroff(ncurses::COLOR_PAIR(4)); },
+			MsgType::Input => { ncurses::attroff(ncurses::COLOR_PAIR(5)); },
+			_ => {}
 		}
 		ncurses::refresh();
 	}
