@@ -15,7 +15,7 @@ impl Database {
 	pub fn by_string(string : &str) -> Result<Database, SRLError> {
 		use parse::*;
 
-		let rule_strings = split_rules(string.to_string());
+		let rule_strings = split_rules(string.trim().to_string());
 		let mut rules : Vec<Cell> = vec![scope(0, complex(vec![simple_by_str("="), var(0), var(0)]))];
 		for rule_string in rule_strings {
 			rules.push(Cell::by_string(&rule_string)?.get_normalized()?);
