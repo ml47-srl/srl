@@ -2,6 +2,7 @@ use app::App;
 use keys;
 extern crate libsrl;
 use libsrl::navi::CellID;
+use libsrl::cell::Cell;
 
 impl App {
 	// returns whether to go on
@@ -68,7 +69,7 @@ impl App {
 				let result = self.db.equals_law(self.prim_marker.clone(), self.sec_markers[0].clone());
 				match result {
 					Ok(_) => {},
-					Err(x) => self.put_error(x.to_string())
+					Err(srl_error) => self.put_error(srl_error.to_string())
 				}
 			},
 			keys::EQUALS_LAW_IMPL => {
@@ -80,7 +81,7 @@ impl App {
 				let result = self.db.equals_law_impl(self.prim_marker.clone(), self.sec_markers[0].clone());
 				match result {
 					Ok(_) => {},
-					Err(x) => self.put_error(x.to_string())
+					Err(srl_error) => self.put_error(srl_error.to_string())
 				}
 			},
 			keys::INEQUAL_CONSTANTS => {
@@ -92,7 +93,7 @@ impl App {
 				let result = self.db.inequal_constants(self.prim_marker.clone());
 				match result {
 					Ok(_) => {},
-					Err(x) => self.put_error(x.to_string())
+					Err(srl_error) => self.put_error(srl_error.to_string())
 				}
 			},
 			keys::ADD_EQT => {
@@ -104,7 +105,7 @@ impl App {
 				let result = self.db.add_eqt(self.prim_marker.clone());
 				match result {
 					Ok(_) => {},
-					Err(x) => self.put_error(x.to_string())
+					Err(srl_error) => self.put_error(srl_error.to_string())
 				}
 			},
 			keys::RM_EQT => {
@@ -116,10 +117,28 @@ impl App {
 				let result = self.db.rm_eqt(self.prim_marker.clone());
 				match result {
 					Ok(_) => {},
-					Err(x) => self.put_error(x.to_string())
+					Err(srl_error) => self.put_error(srl_error.to_string())
 				}
 			},
 			keys::SCOPE_INSERTION => {
+				let input = self.read_input();
+				let cell = match Cell::by_string(&input) {
+					Ok(x) => x,
+					Err(srl_error) => {
+						self.put_error(srl_error.to_string());
+						return true;
+					}
+				};
+				let len = self.sec_markers.len();
+				if len != 0 {
+					self.put_error(format!("There are {} secondary markers, but none allowed", len));
+					return true;
+				}
+				let result = self.db.scope_insertion(self.prim_marker.clone(), cell);
+				match result {
+					Ok(_) => {},
+					Err(srl_error) => self.put_error(srl_error.to_string())
+				}
 			},
 			keys::SCOPE_CREATION => {
 				let mut vec = Vec::new();
@@ -137,7 +156,7 @@ impl App {
 				let result = self.db.scope_creation(self.prim_marker.clone(), vec);
 				match result {
 					Ok(_) => {},
-					Err(x) => self.put_error(x.to_string())
+					Err(srl_error) => self.put_error(srl_error.to_string())
 				}
 			},
 			keys::IMPL_DERIVATION => {
@@ -149,7 +168,7 @@ impl App {
 				let result = self.db.implications_derivation(self.prim_marker.clone(), self.sec_markers[0].clone());
 				match result {
 					Ok(_) => {},
-					Err(x) => self.put_error(x.to_string())
+					Err(srl_error) => self.put_error(srl_error.to_string())
 				}
 			},
 			keys::SCOPE_EXCHANGE => {
@@ -161,10 +180,28 @@ impl App {
 				let result = self.db.scope_exchange(self.prim_marker.clone());
 				match result {
 					Ok(_) => {},
-					Err(x) => self.put_error(x.to_string())
+					Err(srl_error) => self.put_error(srl_error.to_string())
 				}
 			},
 			keys::CASE_CREATION => {
+				let input = self.read_input();
+				let cell = match Cell::by_string(&input) {
+					Ok(x) => x,
+					Err(srl_error) => {
+						self.put_error(srl_error.to_string());
+						return true;
+					}
+				};
+				let len = self.sec_markers.len();
+				if len != 0 {
+					self.put_error(format!("There are {} secondary markers, but none allowed", len));
+					return true;
+				}
+				let result = self.db.case_creation(self.prim_marker.clone(), cell);
+				match result {
+					Ok(_) => {},
+					Err(srl_error) => self.put_error(srl_error.to_string())
+				}
 			},
 			keys::DECLARATION => {
 				let input = self.read_input();
@@ -176,7 +213,7 @@ impl App {
 				let result = self.db.declaration(self.prim_marker.clone(), &input);
 				match result {
 					Ok(_) => {},
-					Err(x) => self.put_error(x.to_string())
+					Err(srl_error) => self.put_error(srl_error.to_string())
 				}
 			},
 			keys::SEC_MARKER => {
