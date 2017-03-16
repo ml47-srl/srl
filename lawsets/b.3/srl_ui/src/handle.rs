@@ -72,18 +72,97 @@ impl App {
 				}
 			},
 			keys::EQUALS_LAW_IMPL => {
+				let len = self.sec_markers.len();
+				if len != 1 {
+					self.put_error(format!("There are {} secondary markers, but only 1 is allowed", len));
+					return true;
+				}
+				let result = self.db.equals_law_impl(self.prim_marker.clone(), self.sec_markers[0].clone());
+				match result {
+					Ok(_) => {},
+					Err(x) => self.put_error(x.to_string())
+				}
 			},
 			keys::INEQUAL_CONSTANTS => {
+				let len = self.sec_markers.len();
+				if len != 0 {
+					self.put_error(format!("There are {} secondary markers, but none allowed", len));
+					return true;
+				}
+				let result = self.db.inequal_constants(self.prim_marker.clone());
+				match result {
+					Ok(_) => {},
+					Err(x) => self.put_error(x.to_string())
+				}
 			},
 			keys::ADD_EQT => {
+				let len = self.sec_markers.len();
+				if len != 0 {
+					self.put_error(format!("There are {} secondary markers, but none allowed", len));
+					return true;
+				}
+				let result = self.db.add_eqt(self.prim_marker.clone());
+				match result {
+					Ok(_) => {},
+					Err(x) => self.put_error(x.to_string())
+				}
 			},
 			keys::RM_EQT => {
+				let len = self.sec_markers.len();
+				if len != 0 {
+					self.put_error(format!("There are {} secondary markers, but none allowed", len));
+					return true;
+				}
+				let result = self.db.rm_eqt(self.prim_marker.clone());
+				match result {
+					Ok(_) => {},
+					Err(x) => self.put_error(x.to_string())
+				}
+			},
+			keys::SCOPE_INSERTION => {
 			},
 			keys::SCOPE_CREATION => {
+				let mut vec = Vec::new();
+				let prim_indices = self.prim_marker.get_indices();
+				for sec in self.sec_markers.clone() {
+					let mut sec_indices = sec.get_indices();
+					for index in prim_indices.clone() {
+						if index != sec_indices.remove(0) {
+							self.put_error("sec_marker is out of prim_marker".to_string());
+							return true;
+						}
+					}
+					vec.push(sec_indices);
+				}
+				let result = self.db.scope_creation(self.prim_marker.clone(), vec);
+				match result {
+					Ok(_) => {},
+					Err(x) => self.put_error(x.to_string())
+				}
 			},
 			keys::IMPL_DERIVATION => {
+				let len = self.sec_markers.len();
+				if len != 1 {
+					self.put_error(format!("There are {} secondary markers, but only 1 is allowed", len));
+					return true;
+				}
+				let result = self.db.implications_derivation(self.prim_marker.clone(), self.sec_markers[0].clone());
+				match result {
+					Ok(_) => {},
+					Err(x) => self.put_error(x.to_string())
+				}
 			},
 			keys::SCOPE_EXCHANGE => {
+				let len = self.sec_markers.len();
+				if len != 0 {
+					self.put_error(format!("There are {} secondary markers, but none allowed", len));
+					return true;
+				}
+				let result = self.db.scope_exchange(self.prim_marker.clone());
+				match result {
+					Ok(_) => {},
+					Err(x) => self.put_error(x.to_string())
+				}
 			},
 			keys::CASE_CREATION => {
 			},
