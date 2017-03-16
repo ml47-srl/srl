@@ -202,36 +202,55 @@ impl Cell {
 		if self.get_type() != cell.get_type() {
 			return false;
 		}
-		if let &Cell::Var { id : id_out } = self {
-			let id_out = &(id_out as usize);
-			if let &Cell::Var { id : id_out2 } = cell {
-				let id_out2  = &(id_out2 as usize);
-				if v1.contains(id_out) != v2.contains(id_out2) {
-					return false;
+		match self {
+			&Cell::Var { id : id_out } => {
+				let id_out = &(id_out as usize);
+				if let &Cell::Var { id : id_out2 } = cell {
+					let id_out2  = &(id_out2 as usize);
+					if v1.contains(id_out) != v2.contains(id_out2) {
+						return false;
+					}
+					if v1.contains(id_out) {
+						v1.iter().position(|x| x == id_out) == v2.iter().position(|x| x == id_out2);
+					} else {
+						return id_out == id_out2;
+					}
+					return true;
+				} else { panic!("whoah!") }
+			},
+			&Cell::Scope { id : id_out, .. } => {
+				if let &Cell::Scope { id : id_out2, .. } = cell {
+					v1.push(id_out as usize);
+					v2.push(id_out2 as usize);
+				} else { panic!("whoah!") }
+				for i in 0..self.count_subcells() {
+					if !self.get_subcell(i).matches(&cell.get_subcell(i)) {
+						return false;
+					}
 				}
-				if v1.contains(id_out) {
-					v1.iter().position(|x| x == id_out) == v2.iter().position(|x| x == id_out2);
-				} else {
-					return id_out == id_out2;
-				}
-			} else { panic!("whoah!") }
-		}
-		if let &Cell::Scope { id : id_out, .. } = self {
-			if let &Cell::Scope { id : id_out2, .. } = cell {
-				v1.push(id_out as usize);
-				v2.push(id_out2 as usize);
-			} else { panic!("whoah!") }
-		}
-		if self.count_subcells() != cell.count_subcells() {
-			return false;
-		}
-		for i in 0..self.count_subcells() {
-			if !self.get_subcell(i).matches(&cell.get_subcell(i)) {
-				return false;
+				return true;
+			},
+			&Cell::Simple { string : ref string_out } => {
+				if let &Cell::Simple { string : ref string2_out } = cell {
+					return string_out == string2_out;
+				} else { panic!("whoah!"); }
+			},
+			&Cell::Complex { cells : ref cells_out } => {
+				if let &Cell::Complex { cells : ref cells2_out } = cell {
+					for i in 0..cells_out.len() {
+						if cells_out[i] != cells2_out[i] {
+							return false;
+						}
+					}
+					return true;
+				} else { panic!("whoah!"); }
+			},
+			&Cell::Case { condition : ref cond_out, conclusion : ref conc_out } => {
+				if let &Cell::Case { condition : ref cond2_out, conclusion : ref conc2_out } = cell {
+					return cond_out.matches(cond2_out) && conc_out.matches(conc2_out);
+				} else { panic!("whoah!"); }
 			}
 		}
-		true
-		
 	}
 
 	pub fn replace_all(&self, pattern : Cell, replacement : Cell) -> Cell {

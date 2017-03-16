@@ -44,3 +44,18 @@ fn test_equals_law_2() {
 		Err(_) => panic!("failure!")
 	};
 }
+
+#[test]
+fn test_equals_law_3() {
+	let mut db = match Database::by_string("(= a b). p b.") {
+		Ok(x) => x,
+		Err(_) => panic!("panic!")
+	};
+
+	let evi = CellID::create(1, vec![]);
+	let src = CellID::create(2, vec![1]);
+	match db.equals_law(src, evi) {
+		Ok(x) => { assert_eq!(x.to_rule_string(), "p a."); }
+		Err(_) => panic!("failure!")
+	};
+}
