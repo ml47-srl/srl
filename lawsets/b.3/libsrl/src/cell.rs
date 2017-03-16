@@ -52,6 +52,27 @@ impl fmt::Display for Cell {
 }
 
 impl Cell {
+	pub fn by_string(string : &str) -> Result<Cell, SRLError> {
+		use parse::*;
+		use parse::assemble::*;
+		use parse::tokenize::*;
+
+		if string.contains('.') {
+			return Err(SRLError("Cell::by_string".to_string(), "string contains '.'".to_string()));
+		}
+
+		match find_invalid_char(string) {
+			Some(_) => return Err(SRLError("Cell::by_string".to_string(), "invalid char".to_string())),
+			None => {}
+		}
+		let string : String = fix_whitespaces(string);
+		let tokens = tokenize(string)?;
+		if ! check_paren_correctness(tokens.clone()) {
+			return Err(SRLError("Cell::by_string".to_string(), "parens incorrect".to_string()));
+		}
+		assemble(tokens)
+	}
+
 	pub fn is_constant(&self) -> bool {
 		match &self {
 			&&Cell::Simple { string : ref string_out } => return string_out.0.starts_with('\'') && string_out.0.ends_with('\''),

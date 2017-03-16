@@ -1,8 +1,5 @@
 pub mod reason;
 
-use parse::*;
-use parse::assemble::*;
-use parse::tokenize::*;
 use cell::Cell;
 use std::fs::File;
 use std::io::Read;
@@ -16,24 +13,12 @@ pub struct Database {
 
 impl Database {
 	pub fn by_string(string : &str) -> Result<Database, SRLError> {
-		match find_invalid_char(&string) {
-			Some(x) => return Err(SRLError("Database::by_string".to_string(), format!("invalid char '{}'", string.chars().nth(x as usize).unwrap()))),
-			None => {}
-		}
-		let string : String = fix_whitespaces(string);
-		let rule_strings = split_rules(string);
+		use parse::*;
 
-		// core rule:
+		let rule_strings = split_rules(string.to_string());
 		let mut rules : Vec<Cell> = vec![scope(0, complex(vec![simple_by_str("="), var(0), var(0)]))];
-
 		for rule_string in rule_strings {
-			let tokens = tokenize(rule_string)?;
-			if ! check_paren_correctness(tokens.clone()) {
-				return Err(SRLError("Database::by_string()".to_string(), "Parens are not correct".to_string()));
-			}
-			let cell = assemble(tokens)?;
-			let normalized = cell.get_normalized()?;
-			rules.push(normalized);
+			rules.push(Cell::by_string(&rule_string)?.get_normalized()?);
 		}
 		Ok(Database { rules : rules })
 	}
