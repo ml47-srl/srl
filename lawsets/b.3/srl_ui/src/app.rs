@@ -55,8 +55,12 @@ impl App {
 		self.render();
 		loop {
 			let chr = ncurses::getch();
-			if chr == '\n' as i32 { break; }
-			self.msg.push(chr as u8 as char);
+			if chr == 127 { self.msg.pop(); }
+			else if chr == '\n' as i32 {
+				break;
+			} else {
+				self.msg.push(chr as u8 as char);
+			}
 			self.render();
 		}
 		return self.msg.clone();
