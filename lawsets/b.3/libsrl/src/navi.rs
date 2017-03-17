@@ -116,7 +116,7 @@ impl CellPath {
 		// positionals
 		let parent = match self.get_parent() {
 			Ok(x) => x,
-			Err(_) => return false // no parent
+			Err(_) => return true // no parent => rule
 		};
 		match parent.get_cell() {
 			Cell::Scope{..} | Cell::Case{..} => return true,
