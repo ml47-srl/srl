@@ -16,6 +16,7 @@ impl App {
 			self.render_rule(self.db.get_rule(i), prim_indices, sec_indices_vec);
 		}
 		ncurses::mv(get_height() - 1, 0);
+		ncurses::clrtoeol();
 		match self.msg_type {
 			MsgType::Error => { ncurses::attron(ncurses::COLOR_PAIR(4)); },
 			MsgType::Input => { ncurses::attron(ncurses::COLOR_PAIR(5)); ncurses::printw("> "); },

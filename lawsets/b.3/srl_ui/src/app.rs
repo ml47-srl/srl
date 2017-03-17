@@ -23,6 +23,7 @@ impl App {
 
 	pub fn run(&mut self) {
 		ncurses::initscr();
+		ncurses::noecho();
 		ncurses::start_color();
 		ncurses::curs_set(ncurses::CURSOR_VISIBILITY::CURSOR_INVISIBLE);
 		ncurses::init_pair(1, ncurses::COLOR_WHITE, ncurses::COLOR_BLACK); // default
