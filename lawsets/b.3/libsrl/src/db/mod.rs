@@ -8,7 +8,8 @@ use gen::*;
 use error::SRLError;
 
 pub struct Database {
-	rules : Vec<Cell>
+	rules : Vec<Cell>,
+	src_rules_count : usize
 }
 
 impl Database {
@@ -20,7 +21,8 @@ impl Database {
 		for rule_string in rule_strings {
 			rules.push(Cell::by_string(&rule_string)?.get_normalized()?);
 		}
-		Ok(Database { rules : rules })
+		let len = rules.len();
+		Ok(Database { rules : rules, src_rules_count : len })
 	}
 
 	pub fn by_filename(filename : &str) -> Result<Database, SRLError> {
@@ -48,5 +50,16 @@ impl Database {
 			panic!(format!("Database::get_rule({}): index out of range", index));
 		}
 		self.rules[index].clone()
+	}
+
+	pub fn delete_rule(&mut self, index : usize) -> Result<(), SRLError> {
+		if index_in_len(index, self.src_rules_count) {
+			return Err(SRLError("Database::delete_rule".to_string(), "This rule is write protected".to_string()))
+		}
+		if index_in_len(index, self.count_rules()) {
+			self.rules.remove(index);
+			return Ok(());
+		}
+		return Err(SRLError("Database::delete_rule".to_string(), "out of range".to_string()))
 	}
 }

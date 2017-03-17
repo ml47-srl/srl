@@ -58,7 +58,10 @@ impl App {
 				}
 			},
 			keys::DELETE => {
-				self.put_error("Can't yet delete rules".to_string());
+				match self.db.delete_rule(self.prim_marker.get_rule_id()) {
+					Ok(_) => {},
+					Err(srl_error) => self.put_error(srl_error.to_string())
+				}
 			},
 			keys::EQUALS_LAW => {
 				let len = self.sec_markers.len();
