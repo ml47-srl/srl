@@ -64,8 +64,22 @@ impl App {
 	}
 
 	pub fn handle_delete(&mut self) -> bool {
-		match self.db.delete_rule(self.prim_marker.get_rule_id()) {
-			Ok(_) => {},
+		let rule_id = self.prim_marker.get_rule_id();
+		match self.db.delete_rule(rule_id) {
+			Ok(_) => {
+				let old_sec_markers = self.sec_markers.clone();
+				self.sec_markers = Vec::new();
+				for old_sec in old_sec_markers {
+					let old_id = old_sec.get_rule_id();
+					if old_id < rule_id {
+						self.sec_markers.push(old_sec);
+					} else if old_id > rule_id {
+						let new = CellID::create(old_sec.get_rule_id() - 1, old_sec.get_indices());
+						self.sec_markers.push(new);
+					} // else: old_id == rule_id => sec has to be deleted (or just not added back again)
+				}
+				self.handle_up(); // for not having problems, when deleting rule at the bottom
+			}
 			Err(srl_error) => self.put_error(srl_error.to_string())
 		}
 		return true;
