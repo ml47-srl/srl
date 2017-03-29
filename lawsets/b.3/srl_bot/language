@@ -9,10 +9,18 @@ starter:	|
 		[core] |
 		[target]
 innerspec:	|
+		<innerspec><innerspec> |
 		[which(<bool_pattern>)] | # stops if you don't match the pattern
-		[child(<bool_pattern> | <num>)] | # goes into all subcells matching the pattern, if no subcell matches, you stop
-		[parent] | # goes to the supercell, if there is no supercell, you stop
-		<innerspec><innerspec>
+
+		[child(<bool_pattern> | <num>)] | # starts all subcells matching the pattern, stops you
+		[parent] | # starts your supercell, stops you
+
+		[child_r(<bool_pattern> | <num>)] | # starts all subcells matching the pattern, recursively
+		[parent_r] | # starts all supercells, recursively
+
+		[child_re(<bool_pattern> | <num>)] | # starts all subcells matching the pattern, recursively, stops you, if you start a subcell
+		[parent_re] # starts the topmost supercell, stops you
+
 action:		[equals_replace(<arg_cell_id>, <arg_cell_id>)] |
 		[equals_law_impl(<arg_cell_id>, <arg_cell_id>)] |
 		[inequal_constants(<arg_cell_id>)] |
@@ -59,5 +67,33 @@ scope_insertion(,):
 for rule1 in db.rules {
 	for rule2 in db.rules {
 		db.scope_insertion(rule1, rule2);
+	}
+}
+
+scope_insertion(child_r(*), child_r(*))
+
+for rule1 in db.rules {
+	for rule2 in db.rules {
+		for subcell1 in rule1.get_recursive_subcells() {
+			for subcell2 in rule2.get_recursive_subcells() {
+				db.scope_insertion(subcell1, subcell2);
+			}
+		}
+	}
+}
+
+scope_insertion(child_r(*).which(bool), child_r(*).which(bool))
+
+for rule1 in db.rules {
+	for rule2 in db.rules {
+		for subcell1 in rule1.get_recursive_subcells() {
+			for subcell2 in rule2.get_recursive_subcells() {
+				if subcell1.is_bool() {
+					if subcell2.is_bool() {
+						db.scope_insertion(subcell1, subcell2);
+					}
+				}
+			}
+		}
 	}
 }
