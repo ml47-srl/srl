@@ -1,0 +1,54 @@
+start: <action>
+
+real_pattern:	?
+pattern:	<real_pattern> | [bool] | [complete_bool] | [nexq_wrapper] | [wrapper] | [nallq_wrapper] | [positive_wrapper] | [negative_wrapper]
+bool_pattern:	!<pattern> |
+		<pattern>
+spec: 		<starter><innerspec> # a path to specify some cells
+starter:	|
+		[core] |
+		[target]
+innerspec:	|
+		[which(<bool_pattern>)] | # stops if you don't match the pattern
+		[child(<bool_pattern> | <num>)] | # goes into the first subcell matching the pattern, if no subcell matches, you stay
+		[child_or_stop(<bool_pattern> | <num>)] | # goes into the first subcell matching the pattern, if no subcell matches, you stop
+		[parent] # goes to the supercell, if there is no supercell, you stay
+		[parent_or_stop] # goes to the supercell, if there is no supercell, you stop
+		<innerspec><innerspec>
+exspec:		<ex_starter><inner_exspec> | # a path to execute actions on
+		[core]
+ex_starter:	|
+		[core]
+inner_exspec:	|
+		[which(<bool_pattern>)] |
+		<innerspec><innerspec>
+action:		<exspec>{<actions>}
+actions:	[equals_replace(<arg>, <arg>)] |
+		[equals_law_impl(<arg>, <arg>)] |
+		[inequal_constants(<arg>)] |
+		[add_eqt(<arg>)] |
+		[rm_eqt(<arg>)] |
+		[scope_insertion(<arg>, cell(<arg>))] |
+		[scope_creation(<arg>, indices(<arg>))] |
+		[implications_derivation(<arg>, <arg>)] |
+		[scope_exchange(<arg>)] |
+		[case_creation(<arg>, cell(<arg>))] |
+		[declaration(<arg>)] |
+		<actions>; <actions>
+arg:		[ex] |
+		[ex]<innerspec> |
+		<spec>[first()] # if there is no cell in <spec> then the whole thing is not executed
+num: <num><num> | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+
+cell_path(x): x.get_path()
+cell(x): x.get_path().get_cell()
+indices(x): x.get_indices()
+
+##########################################################################################################################################################################
+example:
+
+[which(!<pattern1>)][which(<pattern2>)] { # if there is no cell matching !<pattern1> & <pattern2>, then none of the actions will be executed
+	[equals_replace(ex, [which(<pattern3>)][first()])] # if there is no rule matching the <pattern3>, then this action will not be executed,
+						     # nevertheless the next action will be executed
+	[inequal_constants([first())]]
+}

@@ -1,0 +1,7 @@
+[package]
+name = "srl_bot"
+version = "0.1.0"
+authors = ["memoryleak47 <memoryleak47@protonmail.ch>"]
+
+[dependencies]
+libsrl = { path = "../libsrl" }
