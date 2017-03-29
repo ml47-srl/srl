@@ -1,3 +1,5 @@
-fn proof(rule : Cell, &mut db : Database) -> Option<Cell> {
-	
-}
+extern crate libsrl;
+pub mod solver;
+mod action;
+mod pattern;
+mod spec;
