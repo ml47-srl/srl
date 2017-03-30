@@ -1,6 +1,8 @@
 mod step;
+mod cidwt;
 
 use self::step::SpecStep;
+use self::cidwt::CellIDWithTarget;
 use pattern::Pattern;
 use libsrl::db::Database;
 use libsrl::navi::CellID;
@@ -12,11 +14,6 @@ enum Starter { ALL, CORE, TARGET }
 pub struct Spec {
 	steps : Vec<SpecStep>,
 	starter : Starter
-}
-
-enum CellIDWithTarget {
-	CellID(CellID),
-	Target(Vec<usize>)
 }
 
 impl Spec {
@@ -75,18 +72,5 @@ impl Spec {
 			}
 		}
 		vec
-	}
-}
-
-impl CellIDWithTarget {
-	fn get_cell(&self, db : &mut Database, target : &Cell) -> Cell {
-		let cell_path = match &self {
-			&&CellIDWithTarget::CellID(ref cell_id) => { cell_id.get_path(&db.get_rules()) },
-			&&CellIDWithTarget::Target(ref x) => { CellPath::create(target.clone(), x.clone()) }
-		};
-		match cell_path {
-			Ok(x) => return x.get_cell(),
-			Err(_) => panic!("CellIDWithTarget err")
-		}
 	}
 }
