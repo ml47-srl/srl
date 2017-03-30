@@ -3,10 +3,8 @@ mod cidwt;
 
 use self::step::SpecStep;
 use self::cidwt::CellIDWithTarget;
-use pattern::Pattern;
 use libsrl::db::Database;
 use libsrl::navi::CellID;
-use libsrl::navi::CellPath;
 use libsrl::cell::Cell;
 
 enum Starter { ALL, CORE, TARGET }

@@ -1,6 +1,7 @@
 use spec::Spec;
 use libsrl::db::Database;
 use libsrl::cell::Cell;
+use libsrl::gen::simple_by_str;
 
 pub enum Action {
 	EqualsLaw(Spec, Spec),
@@ -22,9 +23,9 @@ impl Action {
 	}
 
 	pub fn call(&self, target : &Cell, db : &mut Database) -> u32 { // returns the amount of created rules
+		let mut counter = 0;
 		match &self {
 			&&Action::EqualsLaw(ref spec1, ref spec2) => {
-				let mut counter = 0;
 				let ids1 = spec1.get_cell_ids(db, target);
 				let ids2 = spec2.get_cell_ids(db, target);
 				for id1 in &ids1 {
@@ -34,29 +35,101 @@ impl Action {
 						}
 					}
 				}
-				return counter;
 			},
 			&&Action::EqualsLawImpl(ref spec1, ref spec2) => {
+				let ids1 = spec1.get_cell_ids(db, target);
+				let ids2 = spec2.get_cell_ids(db, target);
+				for id1 in &ids1 {
+					for id2 in &ids2 {
+						if db.equals_law_impl(id1.clone(), id2.clone()).is_ok() {
+							counter += 1;
+						}
+					}
+				}
 			},
 			&&Action::InequalConstants(ref spec) => {
+				let ids = spec.get_cell_ids(db, target);
+				for id in &ids {
+					if db.inequal_constants(id.clone()).is_ok() {
+						counter += 1;
+					}
+				}
 			},
 			&&Action::AddEqt(ref spec) => {
+				let ids = spec.get_cell_ids(db, target);
+				for id in &ids {
+					if db.add_eqt(id.clone()).is_ok() {
+						counter += 1;
+					}
+				}
 			},
 			&&Action::RmEqt(ref spec) => {
+				let ids = spec.get_cell_ids(db, target);
+				for id in &ids {
+					if db.rm_eqt(id.clone()).is_ok() {
+						counter += 1;
+					}
+				}
 			},
 			&&Action::ScopeInsertion(ref spec1, ref spec2) => {
+				let ids = spec1.get_cell_ids(db, target);
+				let cells = spec2.get_cells(db, target);
+				for id in &ids {
+					for cell in &cells {
+						if db.scope_insertion(id.clone(), cell.clone()).is_ok() {
+							counter += 1;
+						}
+					}
+				}
 			},
 			&&Action::ScopeCreation(ref spec1, ref spec2) => {
+				let ids = spec1.get_cell_ids(db, target);
+				let indices = spec2.get_indices(db, target);
+				for id in &ids {
+					if db.scope_creation(id.clone(), indices.clone()).is_ok() { // XXX indices is not really gonna be useful here
+						counter += 1;
+					}
+				}
 			},
 			&&Action::ImplicationsDerivation(ref spec1, ref spec2) => {
+				let ids1 = spec1.get_cell_ids(db, target);
+				let ids2 = spec2.get_cell_ids(db, target);
+				for id1 in &ids1 {
+					for id2 in &ids2 {
+						if db.implications_derivation(id1.clone(), id2.clone()).is_ok() {
+							counter += 1;
+						}
+					}
+				}
 			},
 			&&Action::ScopeExchange(ref spec) => {
+				let ids = spec.get_cell_ids(db, target);
+				for id in &ids {
+					if db.scope_exchange(id.clone()).is_ok() {
+						counter += 1;
+					}
+				}
 			},
 			&&Action::CaseCreation(ref spec1, ref spec2) => {
+				let ids = spec1.get_cell_ids(db, target);
+				let cells = spec2.get_cells(db, target);
+				for id in &ids {
+					for cell in &cells {
+						if db.case_creation(id.clone(), cell.clone()).is_ok() {
+							counter += 1;
+						}
+					}
+				}
 			},
 			&&Action::Declaration(ref spec) => {
+				let ids = spec.get_cell_ids(db, target);
+				for id in &ids {
+					if db.case_creation(id.clone(), simple_by_str("ok")).is_ok() { // TODO get_free_declaration_name
+						counter += 1;
+					}
+				}
 			}
 		}
-		panic!("")
+		return counter;
 	}
 }
