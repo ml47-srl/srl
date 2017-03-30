@@ -6,6 +6,7 @@ use self::cidwt::CellIDWithTarget;
 use libsrl::db::Database;
 use libsrl::navi::CellID;
 use libsrl::cell::Cell;
+use rand::{Rng, thread_rng};
 
 enum Starter { ALL, CORE, TARGET }
 
@@ -16,7 +17,18 @@ pub struct Spec {
 
 impl Spec {
 	pub fn gen() -> Spec {
-		panic!("return random Spec")
+		let mut rng = thread_rng();
+		let starter = match rng.gen_range(0, 3) {
+			0 => Starter::ALL,
+			1 => Starter::CORE,
+			2 => Starter::TARGET,
+			_ => panic!("Spec::gen() rng outta range -- snh")
+		};
+		let mut steps = vec![];
+		for _ in 0..rng.gen_range(0, 3) {
+			steps.push(SpecStep::gen());
+		}
+		Spec { starter  : starter, steps : steps }
 	}
 
 	fn get_cell_idwts(&self, db : &mut Database, target : &Cell) -> Vec<CellIDWithTarget> {

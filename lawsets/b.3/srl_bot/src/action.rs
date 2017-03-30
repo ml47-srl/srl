@@ -21,18 +21,18 @@ pub enum Action {
 impl Action {
 	pub fn gen() -> Action {
 		let mut rng = thread_rng();
-		return match rng.gen_range(1, 11) {
-			1 => Action::EqualsLaw(Spec::gen(), Spec::gen()),
-			2 => Action::EqualsLawImpl(Spec::gen(), Spec::gen()),
-			3 => Action::InequalConstants(Spec::gen()),
-			4 => Action::AddEqt(Spec::gen()),
-			5 => Action::RmEqt(Spec::gen()),
-			6 => Action::ScopeInsertion(Spec::gen(), Spec::gen()),
-			7 => Action::ScopeCreation(Spec::gen(), Spec::gen()),
-			8 => Action::ImplicationsDerivation(Spec::gen(), Spec::gen()),
-			9 => Action::ScopeExchange(Spec::gen()),
-			10 => Action::CaseCreation(Spec::gen(), Spec::gen()),
-			11 => Action::Declaration(Spec::gen()),
+		return match rng.gen_range(0, 11) {
+			0 => Action::EqualsLaw(Spec::gen(), Spec::gen()),
+			1 => Action::EqualsLawImpl(Spec::gen(), Spec::gen()),
+			2 => Action::InequalConstants(Spec::gen()),
+			3 => Action::AddEqt(Spec::gen()),
+			4 => Action::RmEqt(Spec::gen()),
+			5 => Action::ScopeInsertion(Spec::gen(), Spec::gen()),
+			6 => Action::ScopeCreation(Spec::gen(), Spec::gen()),
+			7 => Action::ImplicationsDerivation(Spec::gen(), Spec::gen()),
+			8 => Action::ScopeExchange(Spec::gen()),
+			9 => Action::CaseCreation(Spec::gen(), Spec::gen()),
+			10 => Action::Declaration(Spec::gen()),
 			_ => panic!("Action::gen() -- snh")
 		};
 	}

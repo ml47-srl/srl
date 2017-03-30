@@ -4,3 +4,4 @@ pub mod bot;
 mod action;
 mod pattern;
 mod spec;
+mod cond;

@@ -1,7 +1,7 @@
 use libsrl::db::Database;
 use libsrl::cell::Cell;
 use libsrl::navi::{CellID, CellPath};
-use pattern::Pattern;
+use cond::Condition;
 
 #[derive(PartialEq)]
 #[derive(Clone)]
@@ -22,7 +22,7 @@ impl CellIDWithTarget {
 		}
 	}
 
-	pub fn matches(&self, pattern : &Pattern) -> bool {
+	pub fn matches(&self, condition : &Condition) -> bool {
 		panic!("TODO")
 	}
 

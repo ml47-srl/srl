@@ -1,15 +1,16 @@
 use super::cidwt::CellIDWithTarget;
-use pattern::Pattern;
 use libsrl::cell::Cell;
+use rand::{Rng, thread_rng};
+use cond::Condition;
 
 pub enum SpecStep {
-	Which(Pattern),
+	Which(Condition),
 	Parent,
 	ParentR,
 	ParentRE,
-	Child(Pattern),
-	ChildR(Pattern),
-	ChildRE(Pattern)
+	Child(Condition),
+	ChildR(Condition),
+	ChildRE(Condition)
 }
 
 impl SpecStep {
@@ -25,8 +26,8 @@ impl SpecStep {
 
 	fn translate_single(&self, c : CellIDWithTarget, target : &Cell) -> Vec<CellIDWithTarget> {
 		match &self {
-			&&SpecStep::Which(ref pattern) => {
-				if c.matches(pattern) {
+			&&SpecStep::Which(ref cond) => {
+				if c.matches(cond) {
 					return vec![c];
 				} else {
 					return vec![];
@@ -57,23 +58,23 @@ impl SpecStep {
 					}
 				}
 			},
-			&&SpecStep::Child(ref pattern) => {
+			&&SpecStep::Child(ref cond) => {
 				let mut vec = vec![];
 				for child in c.get_children(target) {
-					if child.matches(pattern) {
+					if child.matches(cond) {
 						vec.push(child);
 					}
 				}
 				return vec;
 			},
-			&&SpecStep::ChildR(ref pattern) => {
+			&&SpecStep::ChildR(ref cond) => {
 				let mut vec = vec![c];
 				let mut done = false;
 				while !done {
 					done = true;
 					for v in vec.clone() {
 						for child in v.get_children(target) {
-							if child.matches(&pattern) && !vec.contains(&child) {
+							if child.matches(&cond) && !vec.contains(&child) {
 								done = false;
 								vec.push(child);
 							}
@@ -82,14 +83,14 @@ impl SpecStep {
 				}
 				return vec;
 			},
-			&&SpecStep::ChildRE(ref pattern) => {
+			&&SpecStep::ChildRE(ref cond) => {
 				let mut vec = vec![c];
 				let mut done = false;
 				while !done {
 					done = true;
 					for v in vec.clone() {
 						for child in v.get_children(target) {
-							if child.matches(&pattern) && !vec.contains(&child) {
+							if child.matches(&cond) && !vec.contains(&child) {
 								done = false;
 								vec.push(child);
 								match vec.iter().position(|ref a| **a == v) {
@@ -104,5 +105,18 @@ impl SpecStep {
 			},
 		}
 	}
-}
 
+	pub fn gen() -> SpecStep {
+		let mut rng = thread_rng();
+		return match rng.gen_range(0, 7) {
+			0 => SpecStep::Which(Condition::gen()),
+			1 => SpecStep::Parent,
+			2 => SpecStep::ParentR,
+			3 => SpecStep::ParentRE,
+			4 => SpecStep::Child(Condition::gen()),
+			5 => SpecStep::ChildR(Condition::gen()),
+			6 => SpecStep::ChildRE(Condition::gen()),
+			_ => panic!("SpecStep::gen() outta range -- snh")
+		};
+	}
+}
