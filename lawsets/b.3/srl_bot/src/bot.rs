@@ -25,7 +25,12 @@ impl Bot {
 		};
 		for i in (len - count)..len {
 			if Some(i) != result_i {
-				db.delete_rule(i);
+				match db.delete_rule(i) {
+					Ok(_) => {},
+					Err(srl_error) => {
+						panic!("Bot::proof(): error while deleting unused rules: -- snh -- {}", srl_error)
+					}
+				}
 			}
 		}
 		result_i.is_some()
