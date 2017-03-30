@@ -1,8 +1,8 @@
 mod step;
-mod cidwt;
+mod lpath;
 
 use self::step::SpecStep;
-use self::cidwt::CellIDWithTarget;
+use self::lpath::{LocatedCellPath, Location};
 use libsrl::db::Database;
 use libsrl::navi::CellID;
 use libsrl::cell::Cell;
@@ -28,58 +28,56 @@ impl Spec {
 		for _ in 0..rng.gen_range(0, 3) {
 			steps.push(SpecStep::gen());
 		}
-		Spec { starter  : starter, steps : steps }
+		Spec { starter : starter, steps : steps }
 	}
 
-	fn get_cell_idwts(&self, db : &mut Database, target : &Cell) -> Vec<CellIDWithTarget> {
+	fn get_lpaths(&self, db : &Database, target : &Cell) -> Vec<LocatedCellPath> {
 		let mut vec;
 		match self.starter {
 			Starter::ALL => {
 				vec = vec![];
 				for i in 0..db.count_rules() {
-					vec.push(CellIDWithTarget::CellID(CellID::create(i, vec![])));
+					vec.push(LocatedCellPath::create_rule(db, CellID::create(i, vec![])));
 				}
 			},
 			Starter::CORE => {
-				vec = vec![CellIDWithTarget::CellID(CellID::create(0, vec![]))];
+				vec = vec![LocatedCellPath::create_rule(db, CellID::create(0, vec![]))];
 			},
 			Starter::TARGET => {
-				vec = vec![CellIDWithTarget::Target(vec![])];
+				vec = vec![LocatedCellPath::create_target(target.clone(), vec![])];
 			}
 		}
 
 		for step in &self.steps {
-			vec = step.translate(vec, target);
-		}
-		return vec;
-	}
-
-	pub fn get_cell_ids(&self, db : &mut Database, target : &Cell) -> Vec<CellID> {
-		let mut vec = vec![];
-		for c in self.get_cell_idwts(db, target) {
-			match c {
-				CellIDWithTarget::CellID(cell_id) => { vec.push(cell_id); },
-				CellIDWithTarget::Target(_) => {}
-			}
+			vec = step.translate(vec);
 		}
 		vec
 	}
 
-	pub fn get_cells(&self, db : &mut Database, target : &Cell) -> Vec<Cell> {
+	pub fn get_cell_ids(&self, db : &Database, target : &Cell) -> Vec<CellID> {
 		let mut vec = vec![];
-		for c in self.get_cell_idwts(db, target) {
-			vec.push(c.get_cell(db, target));
+		for c in self.get_lpaths(db, target) {
+			let rule_index = match c.get_location() {
+				Location::Rule { rule_index : x } => x,
+				Location::Target => continue
+			};
+			vec.push(CellID::create(rule_index, c.get_indices()));
 		}
 		vec
 	}
 
-	pub fn get_indices(&self, db : &mut Database, target : &Cell) -> Vec<Vec<usize>> {
+	pub fn get_cells(&self, db : &Database, target : &Cell) -> Vec<Cell> {
 		let mut vec = vec![];
-		for c in self.get_cell_idwts(db, target) {
-			match c {
-				CellIDWithTarget::CellID(cell_id) => { vec.push(cell_id.get_indices()); },
-				CellIDWithTarget::Target(x) => { vec.push(x); }
-			}
+		for c in self.get_lpaths(db, target) {
+			vec.push(c.get_cell());
+		}
+		vec
+	}
+
+	pub fn get_indices(&self, db : &Database, target : &Cell) -> Vec<Vec<usize>> { // XXX probabbly not very useful
+		let mut vec = vec![];
+		for c in self.get_lpaths(db, target) {
+			vec.push(c.get_indices());
 		}
 		vec
 	}

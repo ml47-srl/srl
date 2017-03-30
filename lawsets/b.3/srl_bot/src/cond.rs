@@ -1,5 +1,6 @@
 use pattern::Pattern;
 use rand::{Rng, thread_rng};
+use libsrl::navi::CellPath;
 
 pub enum Condition {
 	Pattern(Pattern),
@@ -26,5 +27,9 @@ impl Condition {
 			7 => Condition::NegativeWrapper,
 			_ => panic!("Condition::gen() outta range -- snh")
 		};
+	}
+
+	pub fn matched_by(&self, c : &CellPath) -> bool {
+		panic!("TODO")
 	}
 }

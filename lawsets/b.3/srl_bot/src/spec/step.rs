@@ -1,5 +1,4 @@
-use super::cidwt::CellIDWithTarget;
-use libsrl::cell::Cell;
+use super::lpath::LocatedCellPath;
 use rand::{Rng, thread_rng};
 use cond::Condition;
 
@@ -14,53 +13,53 @@ pub enum SpecStep {
 }
 
 impl SpecStep {
-	pub fn translate(&self, vec : Vec<CellIDWithTarget>, target : &Cell) -> Vec<CellIDWithTarget> {
+	pub fn translate(&self, vec : Vec<LocatedCellPath>) -> Vec<LocatedCellPath> {
 		let mut new_vec = vec![];
 		for x in vec {
-			for y in self.translate_single(x, target) {
+			for y in self.translate_single(x) {
 				new_vec.push(y);
 			}
 		}
 		new_vec
 	}
 
-	fn translate_single(&self, c : CellIDWithTarget, target : &Cell) -> Vec<CellIDWithTarget> {
+	fn translate_single(&self, p : LocatedCellPath) -> Vec<LocatedCellPath> {
 		match &self {
 			&&SpecStep::Which(ref cond) => {
-				if c.matches(cond) {
-					return vec![c];
+				if p.matches(cond) {
+					return vec![p];
 				} else {
 					return vec![];
 				}
 			},
 			&&SpecStep::Parent => {
-				match c.get_parent() {
-					Some(x) => return vec![x],
-					None => return vec![]
+				match p.get_parent() {
+					Ok(x) => vec![x],
+					Err(_) => vec![]
 				}
 			},
 			&&SpecStep::ParentR => {
-				let mut vec = vec![c.clone()];
-				let mut newest = c;
+				let mut vec = vec![p.clone()];
+				let mut newest = p;
 				loop {
 					match newest.get_parent() {
-						Some(x) => { vec.push(x.clone()); newest = x; }
-						None => return vec
+						Ok(x) => { vec.push(x.clone()); newest = x; }
+						Err(_) => return vec
 					}
 				}
 			},
 			&&SpecStep::ParentRE => {
-				let mut c_new = c;
+				let mut p_new = p;
 				loop {
-					match c_new.get_parent() {
-						Some(x) => c_new = x,
-						None => return vec![c_new]
+					match p_new.get_parent() {
+						Ok(x) => p_new = x,
+						Err(_) => return vec![p_new]
 					}
 				}
 			},
 			&&SpecStep::Child(ref cond) => {
 				let mut vec = vec![];
-				for child in c.get_children(target) {
+				for child in p.get_children() {
 					if child.matches(cond) {
 						vec.push(child);
 					}
@@ -68,12 +67,12 @@ impl SpecStep {
 				return vec;
 			},
 			&&SpecStep::ChildR(ref cond) => {
-				let mut vec = vec![c];
+				let mut vec = vec![p];
 				let mut done = false;
 				while !done {
 					done = true;
 					for v in vec.clone() {
-						for child in v.get_children(target) {
+						for child in v.get_children() {
 							if child.matches(&cond) && !vec.contains(&child) {
 								done = false;
 								vec.push(child);
@@ -84,12 +83,12 @@ impl SpecStep {
 				return vec;
 			},
 			&&SpecStep::ChildRE(ref cond) => {
-				let mut vec = vec![c];
+				let mut vec = vec![p];
 				let mut done = false;
 				while !done {
 					done = true;
 					for v in vec.clone() {
-						for child in v.get_children(target) {
+						for child in v.get_children() {
 							if child.matches(&cond) && !vec.contains(&child) {
 								done = false;
 								vec.push(child);
