@@ -5,3 +5,4 @@ authors = ["memoryleak47 <memoryleak47@protonmail.ch>"]
 
 [dependencies]
 libsrl = { path = "../libsrl" }
+rand = "*"

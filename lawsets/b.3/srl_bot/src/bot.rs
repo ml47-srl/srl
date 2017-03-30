@@ -1,6 +1,7 @@
 use action::Action;
 use libsrl::cell::Cell;
 use libsrl::db::Database;
+use rand::{Rng, thread_rng};
 
 pub struct Bot {
 	actions : Vec<Action>
@@ -37,6 +38,12 @@ impl Bot {
 	}
 
 	pub fn gen() -> Bot {
-		panic!("generate random Bot")
+		let mut rng = thread_rng();
+		let n : u32 = rng.gen_range(4, 30);
+		let mut actions = vec![];
+		for _ in 0..n {
+			actions.push(Action::gen());
+		}
+		Bot { actions : actions }
 	}
 }
