@@ -25,8 +25,8 @@ impl Action {
 		match &self {
 			&&Action::EqualsLaw(ref spec1, ref spec2) => {
 				let mut counter = 0;
-				let ids1 = spec1.get_cell_ids(db);
-				let ids2 = spec2.get_cell_ids(db);
+				let ids1 = spec1.get_cell_ids(db, target);
+				let ids2 = spec2.get_cell_ids(db, target);
 				for id1 in &ids1 {
 					for id2 in &ids2 {
 						if db.equals_law(id1.clone(), id2.clone()).is_ok() {
