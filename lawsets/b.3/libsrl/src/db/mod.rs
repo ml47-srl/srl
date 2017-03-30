@@ -62,4 +62,24 @@ impl Database {
 		}
 		return Err(SRLError("Database::delete_rule".to_string(), "out of range".to_string()))
 	}
+
+	pub fn contains_cellname(&self, string : &str) -> bool {
+		fn cell_has_string(cell : &Cell, tuple : (String, bool)) -> (String, bool) {
+			let (string, b) = tuple;
+			if b {
+				return (string, true);
+			}
+			if let Cell::Simple { string : string2 } = cell.clone() {
+				return (string.clone(), string == string2.get_string());
+			}
+			(string, false)
+		}
+		for rule in self.rules.clone() {
+			let (_, b) = rule.recurse::<(String, bool)>((string.to_string(), false), cell_has_string);
+			if b {
+				return true;
+			}
+		}
+		false
+	}
 }

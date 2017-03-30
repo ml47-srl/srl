@@ -337,30 +337,10 @@ impl Database {
 		self.add_rule(rule)
 	}
 
-	fn string_does_occur(&self, string : String) -> bool {
-		fn cell_has_string(cell : &Cell, tuple : (String, bool)) -> (String, bool) {
-			let (string, b) = tuple;
-			if b {
-				return (string, true);
-			}
-			if let Cell::Simple { string : string2 } = cell.clone() {
-				return (string.clone(), string == string2.get_string());
-			}
-			(string, false)
-		}
-		for rule in self.rules.clone() {
-			let (_, b) = rule.recurse::<(String, bool)>((string.clone(), false), cell_has_string);
-			if b {
-				return true;
-			}
-		}
-		false
-	}
-
 	// <(= 'false' {0 (= 'false' (p 0 1))})>
 	pub fn declaration(&mut self, cell_id : CellID, string : &str) -> Result<Cell, SRLError> {
 		// occurence checks
-		if self.string_does_occur(string.to_string()) {
+		if self.contains_cellname(string) {
 			return Err(SRLError("declaration".to_string(), "string does already occur".to_string()));
 		}
 

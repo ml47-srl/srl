@@ -1,7 +1,7 @@
 use spec::Spec;
 use libsrl::db::Database;
 use libsrl::cell::Cell;
-use libsrl::gen::simple_by_str;
+use libsrl::gen::simple;
 
 pub enum Action {
 	EqualsLaw(Spec, Spec),
@@ -124,7 +124,8 @@ impl Action {
 			&&Action::Declaration(ref spec) => {
 				let ids = spec.get_cell_ids(db, target);
 				for id in &ids {
-					if db.case_creation(id.clone(), simple_by_str("ok")).is_ok() { // TODO get_free_declaration_name
+					let simple_cell = simple(get_free_declaration_name(db));
+					if db.case_creation(id.clone(), simple_cell).is_ok() {
 						counter += 1;
 					}
 				}
@@ -132,4 +133,17 @@ impl Action {
 		}
 		return counter;
 	}
+
+}
+
+fn get_free_declaration_name(db : &Database) -> String {
+	let mut string : String = "_decl_a".to_string();
+	while db.contains_cellname(&string) {
+		match string.pop() {
+			Some('z') => { string.push_str("aa"); },
+			Some(x) => { string.push(((x as u8) + 1) as char); },
+			None => panic!("get_free_declaration_name(): string is empty")
+		}
+	}
+	string
 }
