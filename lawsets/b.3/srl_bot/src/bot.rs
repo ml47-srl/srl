@@ -2,11 +2,11 @@ use action::Action;
 use libsrl::cell::Cell;
 use libsrl::db::Database;
 
-pub struct Solver {
+pub struct Bot {
 	actions : Vec<Action>
 }
 
-impl Solver {
+impl Bot {
 	pub fn proof(&self, rule : &Cell, db : &mut Database) -> bool {
 		let mut count : usize = 0;
 		for action in &self.actions {
@@ -31,7 +31,7 @@ impl Solver {
 		result_i.is_some()
 	}
 
-	pub fn gen() -> Solver {
-		panic!("generate random Solver")
+	pub fn gen() -> Bot {
+		panic!("generate random Bot")
 	}
 }

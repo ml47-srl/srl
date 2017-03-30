@@ -1,5 +1,5 @@
 extern crate libsrl;
-pub mod solver;
+pub mod bot;
 mod action;
 mod pattern;
 mod spec;

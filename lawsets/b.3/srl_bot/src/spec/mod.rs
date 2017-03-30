@@ -1,3 +1,6 @@
+mod step;
+
+use self::step::SpecStep;
 use pattern::Pattern;
 use libsrl::db::Database;
 use libsrl::navi::CellID;
@@ -9,16 +12,6 @@ enum Starter { ALL, CORE, TARGET }
 pub struct Spec {
 	steps : Vec<SpecStep>,
 	starter : Starter
-}
-
-enum SpecStep {
-	Which(Pattern),
-	Parent,
-	ParentR,
-	parentRE,
-	Child(Pattern),
-	ChildR(Pattern),
-	ChildRE(Pattern)
 }
 
 enum CellIDWithTarget {
@@ -85,12 +78,6 @@ impl Spec {
 	}
 }
 
-impl SpecStep {
-	fn translate(&self, vec : Vec<CellIDWithTarget>) -> Vec<CellIDWithTarget> {
-		panic!("TODO")
-	}
-}
-
 impl CellIDWithTarget {
 	fn get_cell(&self, db : &mut Database, target : &Cell) -> Cell {
 		let cell_path = match &self {
@@ -99,7 +86,7 @@ impl CellIDWithTarget {
 		};
 		match cell_path {
 			Ok(x) => return x.get_cell(),
-			Err(srl_error) => panic!("CellIDWithTarget err")
+			Err(_) => panic!("CellIDWithTarget err")
 		}
 	}
 }
