@@ -1,5 +1,6 @@
 use super::cidwt::CellIDWithTarget;
 use pattern::Pattern;
+use libsrl::cell::Cell;
 
 pub enum SpecStep {
 	Which(Pattern),
@@ -12,17 +13,17 @@ pub enum SpecStep {
 }
 
 impl SpecStep {
-	pub fn translate(&self, vec : Vec<CellIDWithTarget>) -> Vec<CellIDWithTarget> {
+	pub fn translate(&self, vec : Vec<CellIDWithTarget>, target : &Cell) -> Vec<CellIDWithTarget> {
 		let mut new_vec = vec![];
 		for x in vec {
-			for y in self.translate_single(x) {
+			for y in self.translate_single(x, target) {
 				new_vec.push(y);
 			}
 		}
 		new_vec
 	}
 
-	fn translate_single(&self, c : CellIDWithTarget) -> Vec<CellIDWithTarget> {
+	fn translate_single(&self, c : CellIDWithTarget, target : &Cell) -> Vec<CellIDWithTarget> {
 		match &self {
 			&&SpecStep::Which(ref pattern) => {
 				if c.matches(pattern) {
@@ -58,7 +59,7 @@ impl SpecStep {
 			},
 			&&SpecStep::Child(ref pattern) => {
 				let mut vec = vec![];
-				for child in c.get_children() {
+				for child in c.get_children(target) {
 					if child.matches(pattern) {
 						vec.push(child);
 					}
@@ -71,7 +72,7 @@ impl SpecStep {
 				while !done {
 					done = true;
 					for v in vec.clone() {
-						for child in v.get_children() {
+						for child in v.get_children(target) {
 							if child.matches(&pattern) && !vec.contains(&child) {
 								done = false;
 								vec.push(child);
@@ -87,7 +88,7 @@ impl SpecStep {
 				while !done {
 					done = true;
 					for v in vec.clone() {
-						for child in v.get_children() {
+						for child in v.get_children(target) {
 							if child.matches(&pattern) && !vec.contains(&child) {
 								done = false;
 								vec.push(child);

@@ -37,7 +37,7 @@ impl Spec {
 		}
 
 		for step in &self.steps {
-			vec = step.translate(vec);
+			vec = step.translate(vec, target);
 		}
 		return vec;
 	}
