@@ -24,12 +24,12 @@ impl Idea {
 			}
 			result
 		};
-		for i in (len - count)..len {
+		for i in ((len - count)..len).rev() {
 			if Some(i) != result_i {
 				match db.delete_rule(i) {
 					Ok(_) => {},
 					Err(srl_error) => {
-						panic!("Idea::proof(): error while deleting unused rules: -- snh -- {}", srl_error)
+						panic!("Idea::proof(): error while deleting unused rule({}), len({}): -- snh -- {}", i, db.count_rules(), srl_error)
 					}
 				}
 			}

@@ -8,5 +8,5 @@ use srl_bot::libsrl::gen::simple_by_str;
 fn test_1() {
 	let mut db = Database::by_string("").unwrap();
 	let mut bot = Bot::gen();
-	println!("did? {}", bot.proof(&equals_cell(simple_by_str("a"), simple_by_str("a")), &mut db));
+	bot.proof(&equals_cell(simple_by_str("a"), simple_by_str("a")), &mut db);
 }

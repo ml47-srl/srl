@@ -1,6 +1,7 @@
 use navi::CellPath;
 use cell::Cell;
 use gen::*;
+use misc::index_in_len;
 
 pub struct Wrapper {
 	cell_path : CellPath,
@@ -83,6 +84,10 @@ impl Wrapper {
 		let tmp_cell : Cell = false_cell(); // any cell ..
 
 		for i in 0..indices1.len() {
+			if !index_in_len(i, indices2.len()) { // XXX unchecked
+				return true;
+			}
+
 			let index : usize = indices1[i];
 			if index != indices2[i] {
 				return false
