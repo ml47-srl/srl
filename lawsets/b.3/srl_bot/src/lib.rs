@@ -1,4 +1,4 @@
-extern crate libsrl;
+pub extern crate libsrl;
 extern crate rand;
 pub mod bot;
 mod idea;
