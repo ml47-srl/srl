@@ -9,7 +9,7 @@ use libsrl::cell::Cell;
 use rand::{Rng, thread_rng};
 
 #[derive(Clone)]
-enum Starter { ALL, CORE, TARGET }
+enum Starter { ALL, TARGET }
 
 #[derive(Clone)]
 pub struct Spec {
@@ -20,10 +20,9 @@ pub struct Spec {
 impl Spec {
 	pub fn gen() -> Spec {
 		let mut rng = thread_rng();
-		let starter = match rng.gen_range(0, 3) {
+		let starter = match rng.gen_range(0, 2) {
 			0 => Starter::ALL,
-			1 => Starter::CORE,
-			2 => Starter::TARGET,
+			1 => Starter::TARGET,
 			_ => panic!("Spec::gen() rng outta range -- snh")
 		};
 		let mut steps = vec![];
@@ -41,9 +40,6 @@ impl Spec {
 				for i in 0..db.count_rules() {
 					vec.push(LocatedCellPath::create_rule(db, CellID::create(i, vec![])));
 				}
-			},
-			Starter::CORE => {
-				vec = vec![LocatedCellPath::create_rule(db, CellID::create(0, vec![]))];
 			},
 			Starter::TARGET => {
 				vec = vec![LocatedCellPath::create_target(target.clone(), vec![])];
