@@ -56,8 +56,41 @@ impl LocatedCellPath {
 		self.get_cell_path().get_cell()
 	}
 
+	pub fn get_child(&self, index : usize) -> Result<LocatedCellPath, SRLError> {
+		let new_cell_path = match self.path.get_child(index) {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+		Ok(LocatedCellPath { path : new_cell_path, location : self.get_location() })
+	}
+
+	pub fn get_right_sibling(&self) -> Result<LocatedCellPath, SRLError> {
+		let new_cell_path = match self.path.get_right_sibling() {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+		Ok(LocatedCellPath { path : new_cell_path, location : self.get_location() })
+	}
+
+	pub fn get_left_sibling(&self) -> Result<LocatedCellPath, SRLError> {
+		let new_cell_path = match self.path.get_left_sibling() {
+			Ok(x) => x,
+			Err(srl_error) => return Err(srl_error)
+		};
+		Ok(LocatedCellPath { path : new_cell_path, location : self.get_location() })
+	}
+
 	pub fn get_children(&self) -> Vec<LocatedCellPath> {
-		panic!("TODO")
+		let mut current_child = match self.get_child(0) {
+			Ok(x) => x,
+			Err(_) => return vec![]
+		};
+		let mut vec = vec![current_child.clone()];
+		while let Ok(x) = current_child.get_right_sibling() {
+			current_child = x;
+			vec.push(current_child.clone());
+		}
+		vec
 	}
 
 	pub fn get_indices(&self) -> Vec<usize> {
