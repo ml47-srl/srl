@@ -4,6 +4,7 @@ use libsrl::cell::Cell;
 use libsrl::gen::simple;
 use rand::{Rng, thread_rng};
 
+#[derive(Clone)]
 pub enum Action {
 	EqualsLaw(Spec, Spec),
 	EqualsLawImpl(Spec, Spec),
@@ -149,6 +150,9 @@ impl Action {
 		return counter;
 	}
 
+	pub fn mutate(&self, keep : i32) -> Action {
+		Action::gen() // XXX
+	}
 }
 
 fn get_free_declaration_name(db : &Database) -> String {

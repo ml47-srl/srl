@@ -8,8 +8,10 @@ use libsrl::navi::CellID;
 use libsrl::cell::Cell;
 use rand::{Rng, thread_rng};
 
+#[derive(Clone)]
 enum Starter { ALL, CORE, TARGET }
 
+#[derive(Clone)]
 pub struct Spec {
 	steps : Vec<SpecStep>,
 	starter : Starter

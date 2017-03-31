@@ -2,6 +2,7 @@ use pattern::Pattern;
 use rand::{Rng, thread_rng};
 use libsrl::navi::CellPath;
 
+#[derive(Clone)]
 pub enum Condition {
 	Pattern(Pattern),
 	Bool,
@@ -9,6 +10,7 @@ pub enum Condition {
 	Wrapper { positive : Trool, nallq : Trool, nexq : Trool },
 }
 
+#[derive(Clone)]
 pub enum Trool { True, Ignore, False }
 
 impl Condition {

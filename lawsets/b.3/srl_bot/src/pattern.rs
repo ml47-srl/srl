@@ -2,6 +2,7 @@ use libsrl::cell::{CellType, Cell};
 use libsrl::gen::simple_by_str;
 use rand::{Rng, thread_rng};
 
+#[derive(Clone)]
 pub enum Pattern {
 	AnyCell,
 	Complex { subpatterns : Vec<Pattern> },

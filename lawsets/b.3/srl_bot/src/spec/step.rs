@@ -2,6 +2,7 @@ use super::lpath::LocatedCellPath;
 use rand::{Rng, thread_rng};
 use cond::Condition;
 
+#[derive(Clone)]
 pub enum SpecStep {
 	Which(Condition),
 	Parent,
