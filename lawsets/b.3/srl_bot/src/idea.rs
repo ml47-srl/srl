@@ -3,6 +3,7 @@ use libsrl::cell::Cell;
 use libsrl::db::Database;
 use rand::{Rng, thread_rng};
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Idea {
 	actions : Vec<Action>
 }

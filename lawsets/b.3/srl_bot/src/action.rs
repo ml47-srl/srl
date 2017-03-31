@@ -5,6 +5,7 @@ use libsrl::gen::simple;
 use rand::{Rng, thread_rng};
 
 #[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum Action {
 	EqualsLaw(Spec, Spec),
 	EqualsLawImpl(Spec, Spec),

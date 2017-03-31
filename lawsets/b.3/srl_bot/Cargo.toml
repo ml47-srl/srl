@@ -5,4 +5,7 @@ authors = ["memoryleak47 <memoryleak47@protonmail.ch>"]
 
 [dependencies]
 libsrl = { path = "../libsrl" }
-rand = "*"
+rand = "0.3"
+serde = "*"
+serde_derive = "*"
+serde_json = "*"

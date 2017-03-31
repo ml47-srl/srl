@@ -3,6 +3,7 @@ use rand::{Rng, thread_rng};
 use cond::Condition;
 
 #[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum SpecStep {
 	Which(Condition),
 	Parent,

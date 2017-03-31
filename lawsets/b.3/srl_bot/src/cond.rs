@@ -3,6 +3,7 @@ use rand::{Rng, thread_rng};
 use libsrl::navi::CellPath;
 
 #[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum Condition {
 	Pattern(Pattern),
 	Bool,
@@ -11,6 +12,7 @@ pub enum Condition {
 }
 
 #[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum Trool { True, Ignore, False }
 
 impl Condition {

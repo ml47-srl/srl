@@ -9,9 +9,11 @@ use libsrl::cell::Cell;
 use rand::{Rng, thread_rng};
 
 #[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug)]
 enum Starter { ALL, TARGET }
 
 #[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Spec {
 	steps : Vec<SpecStep>,
 	starter : Starter
