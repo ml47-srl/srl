@@ -1,4 +1,5 @@
-use libsrl::navi::CellPath;
+use libsrl::cell::{CellType, Cell};
+use libsrl::gen::simple_by_str;
 use rand::{Rng, thread_rng};
 
 pub enum Pattern {
@@ -8,7 +9,7 @@ pub enum Pattern {
 	AnyConstant,
 	BoolConstant { b : bool },
 	AnyScope,
-	Scope { id : usize, body : Box<Pattern> }, // the ids are not literal, so {0 } matches the pattern "{3 }"
+	Scope { id : usize, body : Box<Pattern> },
 	AnyVar,
 	Var { id : usize }
 }
@@ -20,7 +21,8 @@ impl Pattern {
 
 	fn gen_with_id(next_id : usize) -> Pattern {
 		let mut rng = thread_rng();
-		match rng.gen_range(0, 9) {
+		let max_chance = if next_id == 0 { 8 } else { 9 };
+		match rng.gen_range(0, max_chance) {
 			0 => Pattern::AnyCell,
 			1 => {
 				let mut vec = vec![];
@@ -40,7 +42,7 @@ impl Pattern {
 			7 => Pattern::AnyVar,
 			8 => {
 				if next_id == 0 {
-					panic!("well... this will chance should depend on how many scopes are there")
+					panic!("Pattern::gen_with_id: trying to generate var without scope around")
 				}
 				Pattern::Var { id : rng.gen_range(0, next_id) }
 			},
@@ -48,7 +50,46 @@ impl Pattern {
 		}
 	}
 
-	pub fn matched_by(&self, c : &CellPath) -> bool {
-		panic!("TODO")
+	pub fn matched_by(&self, c : &Cell) -> bool {
+		match &self {
+			&&Pattern::AnyCell => true,
+			&&Pattern::Complex { subpatterns : ref subpatterns_out } => {
+				if let &Cell::Complex { cells : ref cells_out } = c {
+					if subpatterns_out.len() != cells_out.len() {
+						return false;
+					}
+
+					for i in 0..subpatterns_out.len() {
+						if !subpatterns_out[i].matched_by(&cells_out[i]) { return false; }
+					}
+					return true;
+				} else {
+					return false;
+				}
+			},
+			&&Pattern::AnySimple => c.get_type() == CellType::Simple,
+			&&Pattern::AnyConstant => c.is_constant(),
+			&&Pattern::BoolConstant { b : b_out } => {
+				let my_cell = if b_out {
+					simple_by_str("'true'")
+				} else {
+					simple_by_str("'false'")
+				};
+				&my_cell == c
+			},
+			&&Pattern::AnyScope => c.get_type() == CellType::Scope,
+			&&Pattern::Scope { id : id_out, body : ref body_out } => {
+				if let &Cell::Scope { id : id_out2, body : ref body_out2 } = c {
+					if id_out != id_out2 as usize { return false; }
+					body_out.matched_by(body_out2.as_ref())
+				} else { return false; }
+			},
+			&&Pattern::AnyVar => c.get_type() == CellType::Var,
+			&&Pattern::Var { id : id_out } => {
+				if let &Cell::Var { id : id_out2 } = c {
+					id_out == id_out2 as usize
+				} else { return false; }
+			}
+		}
 	}
 }

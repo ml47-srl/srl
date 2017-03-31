@@ -25,7 +25,7 @@ impl Condition {
 
 	pub fn matched_by(&self, c : &CellPath) -> bool {
 		match &self {
-			&&Condition::Pattern(ref pat) => pat.matched_by(c),
+			&&Condition::Pattern(ref pat) => pat.matched_by(&c.get_cell()),
 			&&Condition::Bool => c.is_bool(),
 			&&Condition::CompleteBool => c.is_complete_bool(),
 			&&Condition::Wrapper { positive : ref positive_out, nallq : ref nallq_out, nexq : ref nexq_out } => {

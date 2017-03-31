@@ -1,4 +1,4 @@
-use cell::Cell;
+use cell::{Cell, CellType};
 use error::SRLError;
 use misc::*;
 use gen::*;
@@ -180,6 +180,10 @@ impl CellPath {
 			cell = tmp.with_subcell(cell, last_index);
 		}
 		cell
+	}
+
+	pub fn get_type(&self) -> CellType {
+		self.get_cell().get_type()
 	}
 
 	pub fn get_root_cell(&self) -> Cell { self.root_cell.clone() }

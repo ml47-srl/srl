@@ -17,7 +17,7 @@ pub enum Cell {
 }
 
 #[derive(PartialEq)]
-enum CellType { Simple, Complex, Scope, Var, Case }
+pub enum CellType { Simple, Complex, Scope, Var, Case }
 
 impl SimpleString {
 	pub fn create(string : String) -> Result<SimpleString, SRLError> {
@@ -202,7 +202,7 @@ impl Cell {
 		t
 	}
 
-	fn get_type(&self) -> CellType {
+	pub fn get_type(&self) -> CellType {
 		match self {
 			&Cell::Scope{..} => CellType::Scope,
 			&Cell::Simple{..} => CellType::Simple,
