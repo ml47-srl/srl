@@ -2,10 +2,11 @@ use idea::Idea;
 use libsrl::cell::Cell;
 use libsrl::db::Database;
 use libsrl::error::SRLError;
-use rand::{Rng, thread_rng};
 use std::fs::File;
 use std::io::{Read, Write, BufReader, BufWriter};
 use serde_json;
+
+const MIN_IDEAS : usize = 200;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Bot {
@@ -20,26 +21,46 @@ struct WeightedIdea {
 }
 
 impl Bot {
-	pub fn proof(&mut self, rule : &Cell, db : &mut Database) -> bool {
-		for _ in 0..20 {
-			let index = self.get_next_idea_index();
-			if self.ideas[index].proof(rule, db) {
-				self.ideas[index].eval(1);
+	pub fn proof(&self, rule : &Cell, db : &mut Database) -> bool {
+		for i in 0..self.ideas.len() {
+			if self.ideas[i].proof(rule, db) {
+				return true;
+			} else {
+			}
+		}
+		false
+	}
 
-				if self.ideas[index].get_weighted_niceness() > 100 {
-					let mutation = self.ideas[index].mutate();
+	pub fn practice(&mut self, rule : &Cell, db : &mut Database) -> bool {
+		for i in 0..self.ideas.len() {
+			if self.ideas[i].proof(rule, db) {
+				self.ideas[i].eval(1);
+
+				if self.ideas[i].get_weighted_niceness() > 100 {
+					let mutation = self.ideas[i].mutate();
 					self.ideas.push(mutation); // XXX would cause too many mutations sometimes
 				}
 				return true;
 			} else {
-				self.ideas[index].eval(-1);
+				self.ideas[i].eval(-1);
 
-				if self.ideas[index].get_weighted_niceness() < -100 {
-					self.ideas.remove(index);
+				if self.ideas[i].get_weighted_niceness() < -100 {
+					self.remove_idea(i);
 				}
 			}
 		}
 		false
+	}
+
+	fn remove_idea(&mut self, i : usize) {
+		self.ideas.remove(i);
+		if self.ideas.len() < MIN_IDEAS {
+			self.find_new_idea();
+		}
+	}
+
+	fn find_new_idea(&mut self) {
+		self.ideas.push(WeightedIdea::gen()); // XXX maybe use mutation of best ideas here
 	}
 
 	pub fn from_file(filename : &str) -> Result<Bot, SRLError> {
@@ -77,15 +98,10 @@ impl Bot {
 
 	pub fn gen() -> Bot {
 		let mut ideas = vec![];
-		for _ in 0..40 {
+		for _ in 0..MIN_IDEAS {
 			ideas.push(WeightedIdea::gen())
 		}
 		Bot { ideas : ideas }
-	}
-
-	fn get_next_idea_index(&self) -> usize {
-		let mut rng = thread_rng();
-		rng.gen_range(0, self.ideas.len())
 	}
 }
 
