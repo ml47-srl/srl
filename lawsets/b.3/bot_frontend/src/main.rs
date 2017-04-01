@@ -11,4 +11,5 @@ fn main() {
 	let target : Cell = equals_cell(simple_by_str("a"), simple_by_str("a"));
 	let result = bot.practice(&target, &mut db);
 	println!("practice worked: {}", result);
+	bot.to_file("default.bot").expect("failed writing in the bot file");
 }

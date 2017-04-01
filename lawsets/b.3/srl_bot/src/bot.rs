@@ -32,6 +32,7 @@ impl Bot {
 	}
 
 	pub fn practice(&mut self, rule : &Cell, db : &mut Database) -> bool {
+		let mut worked = false;
 		for i in 0..self.ideas.len() {
 			if self.ideas[i].proof(rule, db) {
 				self.ideas[i].eval(1);
@@ -40,7 +41,7 @@ impl Bot {
 					let mutation = self.ideas[i].mutate();
 					self.ideas.push(mutation); // XXX would cause too many mutations sometimes
 				}
-				return true;
+				worked = true;
 			} else {
 				self.ideas[i].eval(-1);
 
@@ -49,7 +50,7 @@ impl Bot {
 				}
 			}
 		}
-		false
+		worked
 	}
 
 	fn remove_idea(&mut self, i : usize) {
