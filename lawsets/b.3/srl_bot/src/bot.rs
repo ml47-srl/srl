@@ -8,7 +8,6 @@ use serde_json;
 
 const MIN_IDEAS : usize = 200;
 
-#[derive(Serialize, Deserialize, Debug)]
 pub struct Bot {
 	ideas : Vec<WeightedIdea>
 }
@@ -75,10 +74,7 @@ impl Bot {
 			Ok(_) => {},
 			Err(_) => return Err(SRLError("Bot::from_file".to_string(), format!("error reading file '{}'", filename)))
 		}
-		match serde_json::from_str(&string) {
-			Ok(x) => Ok(x),
-			Err(_) => Err(SRLError("Bot::from_file".to_string(), format!("serde_json::from_str failed on file '{}'", filename)))
-		}
+		Ok(Bot::by_string(string))
 	}
 
 	pub fn to_file(&self, filename : &str) -> Result<(), SRLError> {
@@ -87,14 +83,27 @@ impl Bot {
 			Err(_) => return Err(SRLError("Bot::to_file".to_string(), format!("error opening file '{}'", filename)))
 		};
 		let mut bw = BufWriter::new(file);
-		match bw.write_all(self.to_json().as_bytes()) {
+		match bw.write_all(self.to_string().as_bytes()) {
 			Ok(_) => Ok(()),
 			Err(_) => Err(SRLError("Bot::to_file".to_string(), format!("error writing file '{}'", filename)))
 		}
 	}
 
-	pub fn to_json(&self) -> String {
-		serde_json::to_string(&self).expect("serde_json::to_string failed on Bot")
+	fn to_string(&self) -> String {
+		let mut string_vec = vec![];
+		for idea in &self.ideas {
+			string_vec.push(serde_json::to_string(&idea).expect("serde_json::to_string failed on idea"));
+		}
+		string_vec.join("\n")
+	}
+
+	fn by_string(string : String) -> Bot {
+		let mut ideas = vec![];
+		for split in string.split('\n') {
+			if split.is_empty() { continue; }
+			ideas.push(serde_json::from_str(&split).expect("by_string failed"));
+		}
+		Bot { ideas : ideas }
 	}
 
 	pub fn gen() -> Bot {
