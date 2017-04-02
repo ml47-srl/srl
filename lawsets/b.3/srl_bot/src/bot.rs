@@ -24,7 +24,6 @@ impl Bot {
 		for i in 0..self.ideas.len() {
 			if self.ideas[i].proof(rule, db) {
 				return true;
-			} else {
 			}
 		}
 		false
@@ -33,23 +32,31 @@ impl Bot {
 	pub fn practice(&mut self, rule : &Cell, db : &mut Database) -> bool {
 		let mut worked = false;
 		for i in 0..self.ideas.len() {
-			if self.ideas[i].proof(rule, db) {
-				self.ideas[i].eval(1);
-
-				if self.ideas[i].get_weighted_niceness() > 100 {
-					let mutation = self.ideas[i].mutate();
-					self.ideas.push(mutation); // XXX would cause too many mutations sometimes
-				}
+			let (time, b) = self.ideas[i].proof_timed(rule, db);
+			let mut evaluation = 0;
+			evaluation -= ((time as f64) / (500 as f64)) as i32;
+			if b {
+				evaluation += 5;
 				worked = true;
 			} else {
-				self.ideas[i].eval(-1);
-
-				if self.ideas[i].get_weighted_niceness() < -100 {
-					self.remove_idea(i);
-				}
+				evaluation -= 1;
 			}
+			self.execute_idea_evaluation(i, evaluation);
 		}
 		worked
+	}
+
+	fn execute_idea_evaluation(&mut self, i : usize, evaluation : i32) {
+		self.ideas[i].eval(evaluation);
+		let weighted_niceness = self.ideas[i].get_weighted_niceness();
+
+		if weighted_niceness > 100 {
+			let mutation = self.ideas[i].mutate();
+			self.ideas.push(mutation); // XXX would cause too many mutations sometimes
+		} else if weighted_niceness < -100 {
+			self.remove_idea(i);
+		}
+		
 	}
 
 	fn remove_idea(&mut self, i : usize) {
@@ -132,6 +139,10 @@ impl WeightedIdea {
 	fn mutate(&self) -> WeightedIdea {
 		let keep = self.get_weighted_niceness();
 		WeightedIdea { idea : self.idea.mutate(keep), niceness : 0, familiarness : 0 }
+	}
+
+	fn proof_timed(&self, rule : &Cell, db : &mut Database) -> (i64, bool) {
+		self.idea.proof_timed(rule, db)
 	}
 
 	fn proof(&self, rule : &Cell, db : &mut Database) -> bool {
