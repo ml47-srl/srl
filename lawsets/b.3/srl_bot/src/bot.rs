@@ -34,9 +34,9 @@ impl Bot {
 		for i in 0..self.ideas.len() {
 			let (time, b) = self.ideas[i].proof_timed(rule, db);
 			let mut evaluation = 0;
-			evaluation -= ((time as f64) / (500 as f64)) as i32;
+			evaluation -= ((time as f64) / (200 as f64)) as i32;
 			if b {
-				evaluation += 5;
+				evaluation += 20;
 				worked = true;
 			} else {
 				evaluation -= 1;
