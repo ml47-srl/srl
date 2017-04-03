@@ -1,6 +1,6 @@
 use pattern::Pattern;
-use rand::{Rng, thread_rng};
 use libsrl::navi::CellPath;
+use chance::chance;
 
 #[derive(Clone)]
 #[derive(Serialize, Deserialize, Debug)]
@@ -17,14 +17,12 @@ pub enum Trool { True, Ignore, False }
 
 impl Condition {
 	pub fn gen() -> Condition {
-		let mut rng = thread_rng();
-		return match rng.gen_range(0, 4) {
-			0 => Condition::Pattern(Pattern::gen()),
-			1 => Condition::Bool,
-			2 => Condition::CompleteBool,
-			3 => Condition::Wrapper { positive : Trool::gen(), nallq : Trool::gen(), nexq : Trool::gen() },
-			_ => panic!("Condition::gen() outta range -- snh")
-		};
+		chance::<Condition>(vec![
+			(0, &|| Condition::Pattern(Pattern::gen())),
+			(1, &|| Condition::Bool),
+			(2, &|| Condition::CompleteBool),
+			(3, &|| Condition::Wrapper { positive : Trool::gen(), nallq : Trool::gen(), nexq : Trool::gen() }),
+		])
 	}
 
 	pub fn matched_by(&self, c : &CellPath) -> bool {
@@ -61,13 +59,10 @@ impl Trool {
 	}
 
 	fn gen() -> Trool {
-		let mut rng = thread_rng();
-		return match rng.gen_range(0, 3) {
-			0 => Trool::True,
-			1 => Trool::Ignore,
-			2 => Trool::False,
-			_ => panic!("Trool::gen() outta range -- snh")
-		};
-		
+		chance::<Trool>(vec![
+			(1, &|| Trool::True),
+			(1, &|| Trool::Ignore),
+			(1, &|| Trool::False),
+		])
 	}
 }

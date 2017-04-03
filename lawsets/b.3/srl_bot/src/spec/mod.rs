@@ -6,11 +6,7 @@ use self::lpath::{LocatedCellPath, Location};
 use libsrl::db::Database;
 use libsrl::navi::CellID;
 use libsrl::cell::Cell;
-use rand::{Rng, thread_rng};
-
-#[derive(Clone)]
-#[derive(Serialize, Deserialize, Debug)]
-enum Starter { ALL, TARGET }
+use chance::{chance, gen_range};
 
 #[derive(Clone)]
 #[derive(Serialize, Deserialize, Debug)]
@@ -19,16 +15,15 @@ pub struct Spec {
 	starter : Starter
 }
 
+#[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug)]
+enum Starter { ALL, TARGET }
+
 impl Spec {
 	pub fn gen() -> Spec {
-		let mut rng = thread_rng();
-		let starter = match rng.gen_range(0, 2) {
-			0 => Starter::ALL,
-			1 => Starter::TARGET,
-			_ => panic!("Spec::gen() rng outta range -- snh")
-		};
+		let starter = Starter::gen();
 		let mut steps = vec![];
-		for _ in 0..rng.gen_range(0, 3) {
+		for _ in 0..gen_range(0, 3) {
 			steps.push(SpecStep::gen());
 		}
 		Spec { starter : starter, steps : steps }
@@ -80,5 +75,14 @@ impl Spec {
 			vec.push(c.get_indices());
 		}
 		vec
+	}
+}
+
+impl Starter {
+	fn gen() -> Starter {
+		chance::<Starter>(vec![
+			(1, &|| Starter::ALL),
+			(1, &|| Starter::TARGET)
+		])
 	}
 }

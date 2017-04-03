@@ -2,7 +2,7 @@ use spec::Spec;
 use libsrl::db::Database;
 use libsrl::cell::Cell;
 use libsrl::gen::simple;
-use rand::{Rng, thread_rng};
+use chance::chance;
 
 #[derive(Clone)]
 #[derive(Serialize, Deserialize, Debug)]
@@ -22,21 +22,19 @@ pub enum Action {
 
 impl Action {
 	pub fn gen() -> Action {
-		let mut rng = thread_rng();
-		return match rng.gen_range(0, 11) {
-			0 => Action::EqualsLaw(Spec::gen(), Spec::gen()),
-			1 => Action::EqualsLawImpl(Spec::gen(), Spec::gen()),
-			2 => Action::InequalConstants(Spec::gen()),
-			3 => Action::AddEqt(Spec::gen()),
-			4 => Action::RmEqt(Spec::gen()),
-			5 => Action::ScopeInsertion(Spec::gen(), Spec::gen()),
-			6 => Action::ScopeCreation(Spec::gen(), Spec::gen()),
-			7 => Action::ImplicationsDerivation(Spec::gen(), Spec::gen()),
-			8 => Action::ScopeExchange(Spec::gen()),
-			9 => Action::CaseCreation(Spec::gen(), Spec::gen()),
-			10 => Action::Declaration(Spec::gen()),
-			_ => panic!("Action::gen() -- snh")
-		};
+		chance::<Action>(vec![
+			(4, &|| Action::EqualsLaw(Spec::gen(), Spec::gen())),
+			(1, &|| Action::EqualsLawImpl(Spec::gen(), Spec::gen())),
+			(3, &|| Action::InequalConstants(Spec::gen())),
+			(3, &|| Action::AddEqt(Spec::gen())),
+			(3, &|| Action::RmEqt(Spec::gen())),
+			(2, &|| Action::ScopeInsertion(Spec::gen(), Spec::gen())),
+			(1, &|| Action::ScopeCreation(Spec::gen(), Spec::gen())),
+			(1, &|| Action::ImplicationsDerivation(Spec::gen(), Spec::gen())),
+			(1, &|| Action::ScopeExchange(Spec::gen())),
+			(1, &|| Action::CaseCreation(Spec::gen(), Spec::gen())),
+			(1, &|| Action::Declaration(Spec::gen()))
+		])
 	}
 
 	pub fn call(&self, target : &Cell, db : &mut Database) -> u32 { // returns the amount of created rules

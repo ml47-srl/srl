@@ -1,5 +1,5 @@
 use super::lpath::LocatedCellPath;
-use rand::{Rng, thread_rng};
+use chance::chance;
 use cond::Condition;
 
 #[derive(Clone)]
@@ -108,16 +108,14 @@ impl SpecStep {
 	}
 
 	pub fn gen() -> SpecStep {
-		let mut rng = thread_rng();
-		return match rng.gen_range(0, 7) {
-			0 => SpecStep::Which(Condition::gen()),
-			1 => SpecStep::Parent,
-			2 => SpecStep::ParentR,
-			3 => SpecStep::ParentRE,
-			4 => SpecStep::Child(Condition::gen()),
-			5 => SpecStep::ChildR(Condition::gen()),
-			6 => SpecStep::ChildRE(Condition::gen()),
-			_ => panic!("SpecStep::gen() outta range -- snh")
-		};
+		chance::<SpecStep>(vec![
+			(1, &|| SpecStep::Which(Condition::gen())),
+			(1, &|| SpecStep::Parent),
+			(1, &|| SpecStep::ParentR),
+			(1, &|| SpecStep::ParentRE),
+			(1, &|| SpecStep::Child(Condition::gen())),
+			(1, &|| SpecStep::ChildR(Condition::gen())),
+			(1, &|| SpecStep::ChildRE(Condition::gen()))
+		])
 	}
 }
