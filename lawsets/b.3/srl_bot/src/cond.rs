@@ -18,10 +18,10 @@ pub enum Trool { True, Ignore, False }
 impl Condition {
 	pub fn gen() -> Condition {
 		chance::<Condition>(vec![
-			(0, &|| Condition::Pattern(Pattern::gen())),
+			(4, &|| Condition::Pattern(Pattern::gen())),
 			(1, &|| Condition::Bool),
-			(2, &|| Condition::CompleteBool),
-			(3, &|| Condition::Wrapper { positive : Trool::gen(), nallq : Trool::gen(), nexq : Trool::gen() }),
+			(1, &|| Condition::CompleteBool),
+			(2, &|| Condition::Wrapper { positive : Trool::gen(), nallq : Trool::gen(), nexq : Trool::gen() }),
 		])
 	}
 

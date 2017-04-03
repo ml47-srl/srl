@@ -109,13 +109,13 @@ impl SpecStep {
 
 	pub fn gen() -> SpecStep {
 		chance::<SpecStep>(vec![
-			(1, &|| SpecStep::Which(Condition::gen())),
-			(1, &|| SpecStep::Parent),
+			(10, &|| SpecStep::Which(Condition::gen())),
+			(3, &|| SpecStep::Parent),
 			(1, &|| SpecStep::ParentR),
-			(1, &|| SpecStep::ParentRE),
-			(1, &|| SpecStep::Child(Condition::gen())),
+			(3, &|| SpecStep::ParentRE),
+			(3, &|| SpecStep::Child(Condition::gen())),
 			(1, &|| SpecStep::ChildR(Condition::gen())),
-			(1, &|| SpecStep::ChildRE(Condition::gen()))
+			(3, &|| SpecStep::ChildRE(Condition::gen()))
 		])
 	}
 }

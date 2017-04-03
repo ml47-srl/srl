@@ -23,7 +23,7 @@ impl Pattern {
 
 	fn gen_with_id(next_id : usize) -> Pattern {
 		chance::<Pattern>(vec![
-			(1, &|| Pattern::AnyCell),
+			(4, &|| Pattern::AnyCell),
 			(1, &|| {
 				let mut vec = vec![];
 				for _ in 0..gen_range(0, 4) {
@@ -32,8 +32,8 @@ impl Pattern {
 				Pattern::Complex { subpatterns : vec }
 			}),
 			(1, &|| Pattern::AnySimple),
-			(1, &|| Pattern::AnyConstant),
-			(1, &|| Pattern::BoolConstant { b : gen_bool() }),
+			(2, &|| Pattern::AnyConstant),
+			(3, &|| Pattern::BoolConstant { b : gen_bool() }),
 			(1, &|| Pattern::AnyScope),
 			(1, &|| Pattern::Scope { id : next_id, body : Box::new(Pattern::gen_with_id(next_id + 1)) }),
 			(1, &|| Pattern::AnyVar),
