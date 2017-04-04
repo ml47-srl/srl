@@ -1,6 +1,6 @@
-use pattern::Pattern;
+use super::pattern::Pattern;
 use libsrl::navi::CellPath;
-use chance::chance;
+use super::chance::chance;
 
 #[derive(Clone)]
 #[derive(Serialize, Deserialize, Debug)]

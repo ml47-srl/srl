@@ -1,6 +1,6 @@
 use libsrl::cell::{CellType, Cell};
 use libsrl::gen::simple_by_str;
-use chance::{chance, gen_range, gen_bool};
+use super::chance::{chance, gen_range, gen_bool};
 
 #[derive(Clone)]
 #[derive(Serialize, Deserialize, Debug)]

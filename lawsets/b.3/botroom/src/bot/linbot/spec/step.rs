@@ -1,6 +1,6 @@
 use super::lpath::LocatedCellPath;
-use chance::chance;
-use cond::Condition;
+use super::super::chance::chance;
+use super::super::cond::Condition;
 
 #[derive(Clone)]
 #[derive(Serialize, Deserialize, Debug)]

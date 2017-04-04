@@ -1,7 +1,0 @@
-[package]
-name = "bot_frontend"
-version = "0.1.0"
-authors = ["memoryleak47 <memoryleak47@protonmail.ch>"]
-
-[dependencies]
-srl_bot = { path = "../srl_bot" }

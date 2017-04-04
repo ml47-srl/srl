@@ -6,7 +6,7 @@ use self::lpath::{LocatedCellPath, Location};
 use libsrl::db::Database;
 use libsrl::navi::CellID;
 use libsrl::cell::Cell;
-use chance::{chance, gen_range};
+use super::chance::{chance, gen_range};
 
 #[derive(Clone)]
 #[derive(Serialize, Deserialize, Debug)]

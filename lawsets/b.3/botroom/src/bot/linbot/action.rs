@@ -1,8 +1,8 @@
-use spec::Spec;
+use super::spec::Spec;
 use libsrl::db::Database;
 use libsrl::cell::Cell;
 use libsrl::gen::simple;
-use chance::chance;
+use super::chance::chance;
 
 #[derive(Clone)]
 #[derive(Serialize, Deserialize, Debug)]

@@ -1,12 +1,12 @@
 [package]
-name = "srl_bot"
+name = "botroom"
 version = "0.1.0"
 authors = ["memoryleak47 <memoryleak47@protonmail.ch>"]
 
 [dependencies]
 libsrl = { path = "../libsrl" }
-rand = "0.3"
 serde = "0.9"
-serde_derive = "0.9"
 serde_json = "0.9"
+serde_derive = "0.9"
+rand = "0.3"
 time = "0.1"

@@ -1,4 +1,13 @@
-use idea::Idea;
+mod chance;
+mod idea;
+mod action;
+mod pattern;
+mod spec;
+mod cond;
+
+use bot::Bot;
+
+use self::idea::Idea;
 use libsrl::cell::Cell;
 use libsrl::db::Database;
 use libsrl::error::SRLError;
@@ -8,7 +17,8 @@ use serde_json;
 
 const MIN_IDEAS : usize = 200;
 
-pub struct Bot {
+// linear bot
+pub struct LinBot {
 	ideas : Vec<WeightedIdea>
 }
 
@@ -19,33 +29,7 @@ struct WeightedIdea {
 	familiarness : u32 // number of usages
 }
 
-impl Bot {
-	pub fn proof(&self, rule : &Cell, db : &mut Database) -> bool {
-		for i in 0..self.ideas.len() {
-			if self.ideas[i].proof(rule, db) {
-				return true;
-			}
-		}
-		false
-	}
-
-	pub fn practice(&mut self, rule : &Cell, db : &mut Database) -> bool {
-		let mut worked = false;
-		for i in 0..self.ideas.len() {
-			let (time, b) = self.ideas[i].proof_timed(rule, db);
-			let mut evaluation = 0;
-			evaluation -= ((time as f64) / (200 as f64)) as i32;
-			if b {
-				evaluation += 20;
-				worked = true;
-			} else {
-				evaluation -= 1;
-			}
-			self.execute_idea_evaluation(i, evaluation);
-		}
-		worked
-	}
-
+impl LinBot {
 	fn execute_idea_evaluation(&mut self, i : usize, evaluation : i32) {
 		self.ideas[i].eval(evaluation);
 		let weighted_niceness = self.ideas[i].get_weighted_niceness();
@@ -70,32 +54,6 @@ impl Bot {
 		self.ideas.push(WeightedIdea::gen()); // XXX maybe use mutation of best ideas here
 	}
 
-	pub fn from_file(filename : &str) -> Result<Bot, SRLError> {
-		let file = match File::open(filename) {
-			Ok(x) => x,
-			Err(_) => return Err(SRLError("Bot::from_file".to_string(), format!("error opening file '{}'", filename)))
-		};
-		let mut string = String::new();
-		let mut br = BufReader::new(file);
-		match br.read_to_string(&mut string) {
-			Ok(_) => {},
-			Err(_) => return Err(SRLError("Bot::from_file".to_string(), format!("error reading file '{}'", filename)))
-		}
-		Ok(Bot::by_string(string))
-	}
-
-	pub fn to_file(&self, filename : &str) -> Result<(), SRLError> {
-		let file = match File::create(filename) {
-			Ok(x) => x,
-			Err(_) => return Err(SRLError("Bot::to_file".to_string(), format!("error opening file '{}'", filename)))
-		};
-		let mut bw = BufWriter::new(file);
-		match bw.write_all(self.to_string().as_bytes()) {
-			Ok(_) => Ok(()),
-			Err(_) => Err(SRLError("Bot::to_file".to_string(), format!("error writing file '{}'", filename)))
-		}
-	}
-
 	fn to_string(&self) -> String {
 		let mut string_vec = vec![];
 		for idea in &self.ideas {
@@ -104,23 +62,80 @@ impl Bot {
 		string_vec.join("\n")
 	}
 
-	fn by_string(string : String) -> Bot {
+	fn by_string(string : String) -> LinBot {
 		let mut ideas = vec![];
 		for split in string.split('\n') {
 			if split.is_empty() { continue; }
 			ideas.push(serde_json::from_str(&split).expect("by_string failed"));
 		}
-		Bot { ideas : ideas }
+		LinBot { ideas : ideas }
 	}
 
-	pub fn gen() -> Bot {
+	pub fn gen() -> LinBot {
 		let mut ideas = vec![];
 		for _ in 0..MIN_IDEAS {
 			ideas.push(WeightedIdea::gen())
 		}
-		Bot { ideas : ideas }
+		LinBot { ideas : ideas }
+	}
+
+	pub fn by_file(filename : &str) -> Result<LinBot, SRLError> {
+		let file = match File::open(filename) {
+			Ok(x) => x,
+			Err(_) => return Err(SRLError("LinBot::from_file".to_string(), format!("error opening file '{}'", filename)))
+		};
+		let mut string = String::new();
+		let mut br = BufReader::new(file);
+		match br.read_to_string(&mut string) {
+			Ok(_) => {},
+			Err(_) => return Err(SRLError("LinBot::from_file".to_string(), format!("error reading file '{}'", filename)))
+		}
+		Ok(LinBot::by_string(string))
 	}
 }
+
+impl Bot for LinBot {
+	fn to_file(&self, filename : &str) -> Result<(), SRLError> {
+		let file = match File::create(filename) {
+			Ok(x) => x,
+			Err(_) => return Err(SRLError("LinBot::to_file".to_string(), format!("error opening file '{}'", filename)))
+		};
+		let mut bw = BufWriter::new(file);
+		match bw.write_all(self.to_string().as_bytes()) {
+			Ok(_) => Ok(()),
+			Err(_) => Err(SRLError("LinBot::to_file".to_string(), format!("error writing file '{}'", filename)))
+		}
+	}
+
+	fn proof(&self, rule : &Cell, db : &mut Database) -> bool {
+		for i in 0..self.ideas.len() {
+			if self.ideas[i].proof(rule, db) {
+				return true;
+			}
+		}
+		false
+	}
+
+	fn practice(&mut self, rule : &Cell, db : &mut Database) -> bool {
+		let mut worked = false;
+		for i in 0..self.ideas.len() {
+			let (time, b) = self.ideas[i].proof_timed(rule, db);
+			let mut evaluation = 0;
+			evaluation -= ((time as f64) / (200 as f64)) as i32;
+			if b {
+				evaluation += 20;
+				worked = true;
+			} else {
+				evaluation -= 1;
+			}
+			self.execute_idea_evaluation(i, evaluation);
+		}
+		worked
+	}
+
+
+}
+
 
 impl WeightedIdea {
 	fn gen() -> WeightedIdea {

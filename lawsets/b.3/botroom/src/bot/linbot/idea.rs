@@ -1,7 +1,7 @@
-use action::Action;
+use super::action::Action;
 use libsrl::cell::Cell;
 use libsrl::db::Database;
-use chance::gen_range;
+use super::chance::gen_range;
 use time::now;
 
 #[derive(Serialize, Deserialize, Debug)]

@@ -2,7 +2,7 @@ use libsrl::db::Database;
 use libsrl::cell::Cell;
 use libsrl::navi::{CellID, CellPath};
 use libsrl::error::SRLError;
-use cond::Condition;
+use super::super::cond::Condition;
 
 #[derive(PartialEq)]
 #[derive(Clone)]
