@@ -1,35 +1,23 @@
 use libsrl::cell::Cell;
 use libsrl::db::Database;
-use serde::{Serialize, Serializer, Deserialize, Deserializer};
 
+#[derive(Serialize, Deserialize)]
 pub struct Proof {
-	target : Cell,
-	db : Database
+	target_string : String,
+	db_string : String
 }
 
 impl Proof {
-	pub fn create(target : Cell, db : Database) -> Proof {
-		Proof { target : target, db : db }
+	pub fn create(target_string : String, db_string : String) -> Proof {
+		Proof { target_string : target_string, db_string : db_string }
 	}
 
-	pub fn get_target(&self) -> &Cell {
-		&self.target
+	pub fn get_target(&self) -> Cell {
+		Cell::by_string(&self.target_string).unwrap()
 	}
 
-	pub fn get_db(&self) -> &Database {
-		&self.db
+	pub fn get_db(&self) -> Database {
+		Database::by_string(&self.db_string).unwrap()
 	}
 
 }
-
-impl Serialize for Proof {
-	fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
-		panic!("TODO")
-	}
-}
-
-impl Deserialize for Proof {
-	fn deserialize<D>(deserializer: D) -> Result<Proof, D::Error> where D: Deserializer {
-		panic!("TODO")
-	}
-} 

@@ -9,6 +9,7 @@ pub extern crate rand;
 pub extern crate time;
 
 mod fs;
+mod cont;
 mod proof;
 mod room;
 mod bot;
@@ -16,6 +17,6 @@ mod bot;
 use room::Room;
 
 fn main() {
-	let room = Room::init("./room");
+	let room = Room::init("./room", vec![]);
 	room.tick();
 }

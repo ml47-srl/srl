@@ -12,7 +12,7 @@ use libsrl::cell::Cell;
 use libsrl::db::Database;
 use libsrl::error::SRLError;
 use std::fs::File;
-use std::io::{Read, Write, BufReader, BufWriter};
+use std::io::{Read, BufReader};
 use serde_json;
 
 const MIN_IDEAS : usize = 200;
@@ -54,14 +54,6 @@ impl LinBot {
 		self.ideas.push(WeightedIdea::gen()); // XXX maybe use mutation of best ideas here
 	}
 
-	fn to_string(&self) -> String {
-		let mut string_vec = vec![];
-		for idea in &self.ideas {
-			string_vec.push(serde_json::to_string(&idea).expect("serde_json::to_string failed on idea"));
-		}
-		string_vec.join("\n")
-	}
-
 	fn by_string(string : String) -> LinBot {
 		let mut ideas = vec![];
 		for split in string.split('\n') {
@@ -95,16 +87,12 @@ impl LinBot {
 }
 
 impl Bot for LinBot {
-	fn to_file(&self, filename : &str) -> Result<(), SRLError> {
-		let file = match File::create(filename) {
-			Ok(x) => x,
-			Err(_) => return Err(SRLError("LinBot::to_file".to_string(), format!("error opening file '{}'", filename)))
-		};
-		let mut bw = BufWriter::new(file);
-		match bw.write_all(self.to_string().as_bytes()) {
-			Ok(_) => Ok(()),
-			Err(_) => Err(SRLError("LinBot::to_file".to_string(), format!("error writing file '{}'", filename)))
+	fn to_string(&self) -> String {
+		let mut string_vec = vec![];
+		for idea in &self.ideas {
+			string_vec.push(serde_json::to_string(&idea).expect("serde_json::to_string failed on idea"));
 		}
+		string_vec.join("\n")
 	}
 
 	fn proof(&self, rule : &Cell, db : &mut Database) -> bool {
