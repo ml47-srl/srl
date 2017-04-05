@@ -17,6 +17,6 @@ mod bot;
 use room::Room;
 
 fn main() {
-	let room = Room::init("./room", vec![]);
+	let room = Room::init("./room");
 	room.tick();
 }

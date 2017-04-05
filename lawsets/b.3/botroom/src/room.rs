@@ -6,19 +6,18 @@ use serde_json;
 
 use fs::{assert_dir, ls};
 use bot::Bot;
-use cont::BotContainer;
+use cont::{BotContainer, get_containers};
 use proof::Proof;
 
 pub struct Room<'a> {
-	path : &'a Path,
-	containers : Vec<BotContainer<'a>>
+	path : &'a Path
 }
 
 impl<'a> Room<'a> {
 
 	// loads bots & proofs from file or creates an empty folder for it
-	pub fn init(path_str : &'a str, containers : Vec<BotContainer<'a>>) -> Room<'a> {
-		let room = Room { path : Path::new(path_str), containers : containers };
+	pub fn init(path_str : &'a str) -> Room<'a> {
+		let room = Room { path : Path::new(path_str) };
 		assert_dir(room.get_path());
 		assert_dir(room.get_bots_path().as_path());
 		assert_dir(room.get_proofs_path().as_path());
@@ -57,9 +56,9 @@ impl<'a> Room<'a> {
 	}
 
 	fn get_container_by_botname(&self, botname : &str) -> Option<BotContainer> {
-		for c in &self.containers {
+		for c in get_containers() {
 			if c.get_botname() == botname {
-				return Some((*c).clone());
+				return Some(c.clone());
 			}
 		}
 		None
@@ -124,8 +123,8 @@ impl<'a> Room<'a> {
 	}
 
 	pub fn tick(&self) {
-		let mut botname = self.get_botname_with_least_work();
-		let mut instance = self.get_smallest_instance_for_botname(&botname);
+		let botname = self.get_botname_with_least_work();
+		let instance = self.get_smallest_instance_for_botname(&botname);
 
 		let path_buf : PathBuf = self.get_bots_path().join(&botname).join(&instance.to_string()).join("botfile");
 		let path : &Path = path_buf.as_path();
