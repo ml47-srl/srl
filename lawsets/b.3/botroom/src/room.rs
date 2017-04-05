@@ -48,7 +48,12 @@ impl<'a> Room<'a> {
 	}
 
 	fn get_free_res_file(&self, botname : &str, instance : u32) -> PathBuf {
-		panic!("TODO")
+		let mut i = 0;
+		let start : PathBuf = self.get_bots_path().join(botname);
+		while start.join(i.to_string()).exists() {
+			i += 1;
+		}
+		start.join(i.to_string())
 	}
 
 	fn get_path(&self) -> &Path {
@@ -62,10 +67,6 @@ impl<'a> Room<'a> {
 			}
 		}
 		None
-	}
-
-	pub fn add_bot(&mut self, bot : Box<Bot>) {
-		panic!("TODO")
 	}
 
 	fn get_existing_botnames(&self) -> Vec<String> {
@@ -113,7 +114,18 @@ impl<'a> Room<'a> {
 	}
 
 	fn get_proofs(&self) -> Vec<Proof> {
-		panic!("TODO")
+		let mut i = 0;
+		let mut vec = Vec::new();
+		while self.get_path().join("p".to_string() + &i.to_string()).exists() {
+			let path = self.get_path().join("p".to_string() + &i.to_string());
+			let mut file = File::open(path).unwrap();
+			let mut string = String::new();
+			file.read_to_string(&mut string);
+			let proof = serde_json::from_str(&string).unwrap();
+			vec.push(proof);
+			i += 1;
+		}
+		vec
 	}
 
 	fn add_res(&self, botname : &str, instance : u32, data : ()) {

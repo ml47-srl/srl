@@ -19,5 +19,4 @@ impl Proof {
 	pub fn get_db(&self) -> Database {
 		Database::by_string(&self.db_string).unwrap()
 	}
-
 }
