@@ -1,17 +1,26 @@
 use std::path::{Path, PathBuf};
-use std::fs::File;
-use std::io::{Read, Write, BufWriter};
 
 use serde_json;
 
-use fs::{assert_dir, ls};
+use fs::*;
 use bot::Bot;
 use cont::{BotContainer, get_containers};
 use proof::Proof;
+use libsrl::error::SRLError;
 
 pub struct Room<'a> {
 	path : &'a Path
 }
+
+/*
+	The complete error-system asserts that there are the directories:
+		room.get_path(),
+		room.get_bots_pbuf().as_path(),
+		room.get_proofs_pbuf().as_path()
+	exist
+
+	The existance of all other directories has to be checked
+*/
 
 impl<'a> Room<'a> {
 
@@ -19,41 +28,59 @@ impl<'a> Room<'a> {
 	pub fn init(path_str : &'a str) -> Room<'a> {
 		let room = Room { path : Path::new(path_str) };
 		assert_dir(room.get_path());
-		assert_dir(room.get_bots_path().as_path());
-		assert_dir(room.get_proofs_path().as_path());
+		assert_dir(room.get_bots_pbuf().as_path());
+		assert_dir(room.get_proofs_pbuf().as_path());
 		room
 	}
 
-	fn get_bots_path(&self) -> PathBuf {
+	fn get_bots_pbuf(&self) -> PathBuf {
 		self.path.join("bots")
 	}
 
-	fn get_proofs_path(&self) -> PathBuf {
+	fn get_bot_pbuf(&self, botname : &str) -> PathBuf {
+		self.get_bots_pbuf().join(botname)
+	}
+
+	fn get_botinstance_pbuf(&self, botname : &str, instance : u32) -> PathBuf {
+		self.get_bot_pbuf(botname).join(&instance.to_string())
+	}
+
+	fn get_botinstance_res_pbuf(&self, botname : &str, instance : u32, res_id : u32) -> PathBuf {
+		self.get_botinstance_pbuf(botname, instance).join(&res_id.to_string())
+	}
+
+	fn get_proofs_pbuf(&self) -> PathBuf {
 		self.path.join("proofs")
 	}
 
-	pub fn add_proof(&mut self, proof : Proof) {
-		let file = File::open(self.get_free_proof_file()).expect("Room::add_proof: failed opening get_free_proof_file()");
-		let string = serde_json::to_string(&proof).expect("Room::add_proof: failed serializing proof");
-		let mut bw = BufWriter::new(file);
-		bw.write(string.as_bytes());
+	fn get_proof_pbuf(&self, proof_id : u32) -> PathBuf {
+		self.get_proofs_pbuf().join(&proof_id.to_string())
 	}
 
-	fn get_free_proof_file(&self) -> PathBuf {
-		let mut i = 0;
-		while self.get_path().join("p".to_string() + &i.to_string()).exists() {
-			i += 1;
-		}
-		self.get_path().join("p".to_string() + &i.to_string())
+	pub fn add_proof(&mut self, proof : Proof) -> Result<(), SRLError> {
+		let pbuf = self.get_free_proof_pbuf();
+		let string = match serde_json::to_string(&proof) {
+			Ok(x) => x,
+			Err(_) => return Err(SRLError("add_proof".to_string(), "serialization failed".to_string()))
+		};
+		write_file(pbuf.as_path(), &string)?;
+		Ok(())
 	}
 
-	fn get_free_res_file(&self, botname : &str, instance : u32) -> PathBuf {
+	fn get_free_proof_pbuf(&self) -> PathBuf {
 		let mut i = 0;
-		let start : PathBuf = self.get_bots_path().join(botname);
-		while start.join(i.to_string()).exists() {
+		while self.get_proof_pbuf(i).exists() {
 			i += 1;
 		}
-		start.join(i.to_string())
+		self.get_proof_pbuf(i)
+	}
+
+	fn get_free_res_pbuf(&self, botname : &str, instance : u32) -> PathBuf {
+		let mut i = 0;
+		while self.get_botinstance_res_pbuf(botname, instance, i).exists() {
+			i += 1;
+		}
+		self.get_botinstance_res_pbuf(botname, instance, i)
 	}
 
 	fn get_path(&self) -> &Path {
@@ -69,80 +96,91 @@ impl<'a> Room<'a> {
 		None
 	}
 
-	fn get_existing_botnames(&self) -> Vec<String> {
-		ls(self.get_bots_path().as_path())
+	fn get_botnames(&self) -> Vec<String> {
+		match ls(self.get_bots_pbuf().as_path()) {
+			Ok(x) => x,
+			Err(_) => panic!("get_botnames failed -- snh")
+		}
 	}
 
-	fn count_botname_instances(&self, botname : &str) -> u32 {
-		ls(self.get_bots_path().join(botname).as_path()).len() as u32
+	fn count_botname_instances(&self, botname : &str) -> Result<u32, SRLError> {
+		Ok(ls(self.get_bots_pbuf().join(botname).as_path())?.len() as u32)
 	}
 
-	fn count_botinstance_work(&self, botname : &str, i : u32) -> u32 {
-		let path_buf : PathBuf = self.get_bots_path().join(botname).join(&i.to_string());
-		ls(path_buf.as_path()).len() as u32
+	fn count_botinstance_work(&self, botname : &str, instance : u32) -> Result<u32, SRLError> {
+		let pbuf : PathBuf = self.get_botinstance_pbuf(botname, instance);
+		Ok(ls(pbuf.as_path())?.len() as u32)
 	}
 
-	fn get_botname_with_least_work(&self) -> String {
+	fn get_botname_with_least_work(&self) -> Result<String, SRLError> {
 		let mut smallest_work = None;
 		let mut smallest_botname = None;
 
-		for botname in self.get_existing_botnames() {
+		for botname in self.get_botnames() {
 			let mut work = 0;
-			for i in 0..self.count_botname_instances(&botname) {
-				work += self.count_botinstance_work(&botname, i);
+			for i in 0..self.count_botname_instances(&botname)? {
+				work += self.count_botinstance_work(&botname, i)?;
 			}
-			if smallest_work == None || smallest_work.unwrap() > work {
+			if match smallest_work {
+				Some(x) => x > work,
+				None => true
+			}
+			{
 				smallest_work = Some(work);
 				smallest_botname = Some(botname);
 			}
 		}
-		smallest_botname.unwrap()
+		match smallest_botname {
+			Some(x) => Ok(x),
+			None => Err(SRLError("get_botname_with_least_work".to_string(), "no botname found".to_string()))
+		}
 	}
 
-	fn get_smallest_instance_for_botname(&self, botname : &str) -> u32 {
+	fn get_smallest_instance_for_botname(&self, botname : &str) -> Result<u32, SRLError> {
 		let mut smallest_work = None;
 		let mut smallest_instance = None;
 
-		for i in 0..self.count_botname_instances(botname) {
-			let work = self.count_botinstance_work(botname, i);
+		for i in 0..self.count_botname_instances(botname)? {
+			let work = self.count_botinstance_work(botname, i)?;
 			if smallest_work == None || smallest_work.unwrap() > work {
 				smallest_work = Some(work);
 				smallest_instance = Some(i);
 			}
 		}
-		smallest_instance.unwrap() as u32
+		match smallest_instance {
+			Some(x) => Ok(x),
+			None => Err(SRLError("get_smallest_instance_for_botname".to_string(), "no instance found".to_string()))
+		}
 	}
 
 	fn get_proofs(&self) -> Vec<Proof> {
 		let mut i = 0;
 		let mut vec = Vec::new();
-		while self.get_path().join("p".to_string() + &i.to_string()).exists() {
-			let path = self.get_path().join("p".to_string() + &i.to_string());
-			let mut file = File::open(path).unwrap();
-			let mut string = String::new();
-			file.read_to_string(&mut string);
-			let proof = serde_json::from_str(&string).unwrap();
+		while self.get_proof_pbuf(i).exists() {
+			let pbuf = self.get_proof_pbuf(i);
+			let string = read_file(pbuf.as_path()).unwrap();
+			let proof = match serde_json::from_str(&string) {
+				Ok(x) => x,
+				Err(_) => panic!("failed loading proof from file")
+			};
 			vec.push(proof);
 			i += 1;
 		}
 		vec
 	}
 
-	fn add_res(&self, botname : &str, instance : u32, data : ()) {
-		let res_file = self.get_free_res_file(botname, instance);
-		let mut log_file = File::create(res_file).unwrap();
-		log_file.write("ok".as_bytes());
+	fn add_res(&self, botname : &str, instance : u32, data : ()) { // TODO make data useful
+		let pbuf = self.get_free_res_pbuf(botname, instance);
+		write_file(pbuf.as_path(), "ok").unwrap();
 	}
 
 	pub fn tick(&self) {
-		let botname = self.get_botname_with_least_work();
-		let instance = self.get_smallest_instance_for_botname(&botname);
+		let botname = self.get_botname_with_least_work().unwrap();
+		let instance = self.get_smallest_instance_for_botname(&botname).unwrap();
 
-		let path_buf : PathBuf = self.get_bots_path().join(&botname).join(&instance.to_string()).join("botfile");
+		let path_buf : PathBuf = self.get_bots_pbuf().join(&botname).join(&instance.to_string()).join("botfile");
 		let path : &Path = path_buf.as_path();
-		let mut string = String::new();
-		let mut file = File::open(path).unwrap();
-		file.read_to_string(&mut string);
+		let string = read_file(path).unwrap();
 
 		let bot : &mut Bot = &mut self.get_container_by_botname(&botname).unwrap().get_load_fn()(&string);
 
@@ -155,7 +193,7 @@ impl<'a> Room<'a> {
 		for proof in self.get_proofs() {
 			proof_vec.push(bot.proof(&proof.get_target(), &mut proof.get_db()));
 		}
-		file.write(bot.to_string().as_bytes());
+		write_file(path, &bot.to_string()).unwrap();
 		self.add_res(&botname, instance, ());
 	}
 }
