@@ -142,7 +142,11 @@ impl<'a> Room<'a> {
 
 		for i in 0..self.count_botname_instances(botname)? {
 			let work = self.count_botinstance_work(botname, i)?;
-			if smallest_work == None || smallest_work.unwrap() > work {
+			if match smallest_work {
+				Some(x) => x > work,
+				None => true
+			}
+			{
 				smallest_work = Some(work);
 				smallest_instance = Some(i);
 			}
