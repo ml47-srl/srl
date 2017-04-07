@@ -11,7 +11,6 @@ use libsrl::error::SRLError;
 pub struct Room<'a> {
 	path : &'a Path
 }
-
 /*
 	The complete error-system asserts that there are the directories:
 		room.get_path(),
@@ -40,6 +39,7 @@ impl<'a> Room<'a> {
 	fn get_bot_pbuf(&self, botname : &str) -> PathBuf {
 		self.get_bots_pbuf().join(botname)
 	}
+
 
 	fn get_botinstance_pbuf(&self, botname : &str, instance : u32) -> PathBuf {
 		self.get_bot_pbuf(botname).join(&instance.to_string())
@@ -102,6 +102,7 @@ impl<'a> Room<'a> {
 			Err(_) => panic!("get_botnames failed -- snh")
 		}
 	}
+
 
 	fn count_botname_instances(&self, botname : &str) -> Result<u32, SRLError> {
 		Ok(ls(self.get_bots_pbuf().join(botname).as_path())?.len() as u32)
@@ -186,7 +187,12 @@ impl<'a> Room<'a> {
 		let path : &Path = path_buf.as_path();
 		let string = read_file(path).unwrap();
 
-		let bot : &mut Bot = &mut self.get_container_by_botname(&botname).unwrap().get_load_fn()(&string);
+		let container : BotContainer = match self.get_container_by_botname(&botname) {
+			Some(x) => x,
+			None => panic!("invalid shit")
+		};
+		let load_fn = container.get_load_fn();
+		let bot : &mut Bot = &mut *load_fn(&string);
 
 		let mut practice_vec = Vec::new();
 		for proof in self.get_proofs() {

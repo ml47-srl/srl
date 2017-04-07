@@ -7,13 +7,11 @@ pub extern crate serde_derive;
 pub extern crate serde_json;
 pub extern crate rand;
 pub extern crate time;
-
 mod fs;
+mod bot;
 mod cont;
 mod proof;
 mod room;
-mod bot;
-
 use room::Room;
 
 fn main() {
