@@ -207,7 +207,10 @@ impl<'a> Room<'a> {
 			Ok(x) => x,
 			Err(_) => { println!("no botnames"); return; }
 		};
-		let instance = self.get_smallest_instance_for_botname(&botname).unwrap();
+		let instance = match self.get_smallest_instance_for_botname(&botname) {
+			Ok(x) => x,
+			Err(_) => { println!("no instance for '{}'", botname); return; }
+		};
 
 		let path_buf : PathBuf = self.get_bots_pbuf().join(&botname).join(&instance.to_string()).join("botfile");
 		let path : &Path = path_buf.as_path();
