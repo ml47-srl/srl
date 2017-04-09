@@ -145,11 +145,7 @@ impl<'a> Room<'a> {
 			for i in 0..self.count_botname_instances(&botname)? {
 				work += self.count_botinstance_work(&botname, i)?;
 			}
-			if match smallest_work {
-				Some(x) => x > work,
-				None => true
-			}
-			{
+			if is_less_than(smallest_work, work) {
 				smallest_work = Some(work);
 				smallest_botname = Some(botname);
 			}
@@ -166,11 +162,7 @@ impl<'a> Room<'a> {
 
 		for i in 0..self.count_botname_instances(botname)? {
 			let work = self.count_botinstance_work(botname, i)?;
-			if match smallest_work {
-				Some(x) => x > work,
-				None => true
-			}
-			{
+			if is_less_than(smallest_work, work) {
 				smallest_work = Some(work);
 				smallest_instance = Some(i);
 			}
@@ -234,5 +226,12 @@ impl<'a> Room<'a> {
 		}
 		write_file(path, &bot.to_string()).unwrap();
 		self.add_res(&botname, instance, ());
+	}
+}
+
+fn is_less_than(x : Option<u32>, y : u32) -> bool {
+	match x {
+		Some(x) => x > y,
+		None => true
 	}
 }
