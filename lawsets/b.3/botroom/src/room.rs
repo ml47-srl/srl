@@ -8,6 +8,10 @@ use cont::{BotContainer, get_containers};
 use proof::Proof;
 use libsrl::error::SRLError;
 
+// botname
+//	exists: is in container
+//	instanciated: exists as directory
+
 pub struct Room<'a> {
 	path : &'a Path
 }
@@ -97,18 +101,37 @@ impl<'a> Room<'a> {
 	}
 
 	fn get_botnames(&self) -> Vec<String> {
-		match ls(self.get_bots_pbuf().as_path()) {
-			Ok(x) => x,
-			Err(_) => panic!("get_botnames failed -- snh")
+		let mut vec = Vec::new();
+		for c in get_containers() {
+			vec.push(c.get_botname().to_string());
+		}
+		vec
+	}
+
+	fn botname_exists(&self, botname : &str) -> bool {
+		match self.get_container_by_botname(botname) {
+			Some(_) => true,
+			None => false
 		}
 	}
 
-
 	fn count_botname_instances(&self, botname : &str) -> Result<u32, SRLError> {
-		Ok(ls(self.get_bots_pbuf().join(botname).as_path())?.len() as u32)
+		if !self.botname_exists(botname) {
+			return Err(SRLError("count_botname_instances".to_string(), format!("botname \"{}\" does not exist", botname)))
+		}
+
+		let pbuf = self.get_bots_pbuf().join(botname);
+		Ok(match ls(pbuf.as_path()) {
+			Ok(x) => x.len() as u32,
+			Err(_) => 0
+		})
 	}
 
 	fn count_botinstance_work(&self, botname : &str, instance : u32) -> Result<u32, SRLError> {
+		if !self.botname_exists(botname) {
+			return Err(SRLError("count_botinstance_work".to_string(), format!("botname \"{}\" does not exist", botname)))
+		}
+
 		let pbuf : PathBuf = self.get_botinstance_pbuf(botname, instance);
 		Ok(ls(pbuf.as_path())?.len() as u32)
 	}
@@ -180,7 +203,10 @@ impl<'a> Room<'a> {
 	}
 
 	pub fn tick(&self) {
-		let botname = self.get_botname_with_least_work().unwrap();
+		let botname = match self.get_botname_with_least_work() {
+			Ok(x) => x,
+			Err(_) => { println!("no botnames"); return; }
+		};
 		let instance = self.get_smallest_instance_for_botname(&botname).unwrap();
 
 		let path_buf : PathBuf = self.get_bots_pbuf().join(&botname).join(&instance.to_string()).join("botfile");

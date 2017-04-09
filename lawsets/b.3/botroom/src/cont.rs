@@ -9,7 +9,8 @@ pub struct BotContainer<'a> {
 }
 
 pub fn get_containers<'a>() -> Vec<BotContainer<'a>> {
-	panic!("")
+	println!("get_containers: TODO");
+	Vec::new()
 }
 
 impl<'a> BotContainer<'a> {
