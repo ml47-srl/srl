@@ -54,35 +54,21 @@ impl LinBot {
 		self.ideas.push(WeightedIdea::gen()); // XXX maybe use mutation of best ideas here
 	}
 
-	fn by_string(string : String) -> LinBot {
+	pub fn by_string(string : String) -> Box<LinBot> {
 		let mut ideas = vec![];
 		for split in string.split('\n') {
 			if split.is_empty() { continue; }
 			ideas.push(serde_json::from_str(&split).expect("by_string failed"));
 		}
-		LinBot { ideas : ideas }
+		Box::new(LinBot { ideas : ideas })
 	}
 
-	pub fn gen() -> LinBot {
+	pub fn gen() -> Box<LinBot> {
 		let mut ideas = vec![];
 		for _ in 0..MIN_IDEAS {
 			ideas.push(WeightedIdea::gen())
 		}
-		LinBot { ideas : ideas }
-	}
-
-	pub fn by_file(filename : &str) -> Result<LinBot, SRLError> {
-		let file = match File::open(filename) {
-			Ok(x) => x,
-			Err(_) => return Err(SRLError("LinBot::from_file".to_string(), format!("error opening file '{}'", filename)))
-		};
-		let mut string = String::new();
-		let mut br = BufReader::new(file);
-		match br.read_to_string(&mut string) {
-			Ok(_) => {},
-			Err(_) => return Err(SRLError("LinBot::from_file".to_string(), format!("error reading file '{}'", filename)))
-		}
-		Ok(LinBot::by_string(string))
+		Box::new(LinBot { ideas : ideas })
 	}
 }
 

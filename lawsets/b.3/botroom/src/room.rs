@@ -217,8 +217,8 @@ impl<'a> Room<'a> {
 			Some(x) => x,
 			None => panic!("invalid shit")
 		};
-		let load_fn = container.get_load_fn();
-		let bot : &mut Bot = &mut *load_fn(&string);
+		let deserialize_fn = container.get_deserialize_fn();
+		let bot : &mut Bot = &mut *deserialize_fn(&string);
 
 		let mut practice_vec = Vec::new();
 		for proof in self.get_proofs() {
