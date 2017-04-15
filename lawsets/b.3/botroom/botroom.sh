@@ -34,9 +34,9 @@ create_botpair() {
 		)
 		(cd botwrapper
 			cargo build
-			mv target/debug/botwrapper ../bot
+			mv target/debug/botwrapper ../bin
 		)
-		ls | grep -v bot | xargs rm -rf
+		ls | grep -v ^bin$ | xargs rm -rf
 	)
 }
 
@@ -65,7 +65,10 @@ rev_from_botpair() {
 
 # $1 = botpair
 exec_botpair() {
-	echo "TODO executing botpair '$1'"
+	echo "Executing botpair: '$1'"
+	(cd botpairs/$1
+		./bin
+	)
 }
 
 get_bots() {
