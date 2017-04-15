@@ -1,5 +1,3 @@
 */test/*
 */debug
-lawsets/b.3/libsrl/target
-lawsets/b.3/srl_ui/target
-lawsets/b.3/botroom/target
+**/target
