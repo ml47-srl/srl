@@ -2,7 +2,8 @@ use std::path::Path;
 
 use bot::Bot;
 use proof::Proof;
-use fs::force_file;
+use fs::{read_file, write_file, force_file};
+use bot::libsrl::db::Database;
 
 fn get_proof(proofspath : &Path, i : i32) -> Option<Proof> {
 	let pbuf = proofspath.join("p".to_string() + &i.to_string());
@@ -25,19 +26,29 @@ fn get_proofs(proofspath : &Path) -> Vec<Proof> {
 	vec
 }
 
-fn add_res(botname : &str, instance : u32, data : ()) { // TODO make data useful
-	panic!("TODO")
-}
+pub fn exec(instancepath_str : &str, proofspath_str : &str) {
+	let proofspath = Path::new(proofspath_str);
 
-pub fn exec(instancepath : &str, proofspath : &str) {
-	let instancepath = Path::new(instancepath);
-	let proofspath = Path::new(proofspath);
-	// TODO
+	let instancepath = Path::new(instancepath_str);
+	let botfile_pbuf = instancepath.join("botfile");
+
+	let content = read_file(botfile_pbuf.as_path());
+	let mut bot = Bot::by_string(content.unwrap());
+	for proof in get_proofs(proofspath) {
+		let mut db : Database = (*proof.get_db()).clone();
+		bot.practice(proof.get_target(), &mut db);
+	}
+	for proof in get_proofs(proofspath) {
+		let mut db : Database = (*proof.get_db()).clone();
+		bot.proof(proof.get_target(), &mut db);
+	}
+	write_file(botfile_pbuf.as_path(), &bot.to_string());
+	// TODO write result
 }
 
 pub fn new(instancepath : &str) {
 	let instancepath = Path::new(instancepath);
-	let botpath = instancepath.join("botfile");
+	let botfile_pbuf = instancepath.join("botfile");
 	let content = Bot::gen().to_string();
-	force_file(botpath.as_path(), &content);
+	force_file(botfile_pbuf.as_path(), &content);
 }

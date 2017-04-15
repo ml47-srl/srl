@@ -7,6 +7,7 @@ use misc::*;
 use gen::*;
 use error::SRLError;
 
+#[derive(Clone)]
 pub struct Database {
 	rules : Vec<Cell>,
 	src_rules_count : usize
