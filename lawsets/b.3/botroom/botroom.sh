@@ -12,8 +12,11 @@ die() {
 
 # $1 = bot
 get_revs() {
-	cd bots/$1;
-	git rev-list master
+	(cd bots/$1
+		mv git .git
+		git rev-list master
+		mv .git git
+	)
 }
 
 create_botpair() {
@@ -23,17 +26,18 @@ create_botpair() {
 	mkdir $botpair_path
 	cp -r botwrapper $botpair_path    # created botpairs/linbot-23d4c/botwrapper
 	cp -r bots/$bot $botpair_path/bot # created botpairs/linbot-23d4c/bot
-	cd $botpair_path
-	(cd bot;
-		mv git .git;
-		git checkout $(rev_from_botpair $1);
-		rm -rf .git;
+	(cd $botpair_path
+		(cd bot
+			mv git .git
+			git checkout -q $(rev_from_botpair $1)
+			rm -rf .git
+		)
+		(cd botwrapper
+			cargo build
+			mv target/debug/botwrapper ../bot
+		)
+		ls | grep -v bot | xargs rm -rf
 	)
-	(cd botwrapper;
-		cargo build;
-		mv target/debug/botwrapper ../bot;
-	)
-	ls | grep -v bot | xargs rm -rf
 }
 
 create_missing_botpairs() {
@@ -61,17 +65,19 @@ rev_from_botpair() {
 
 # $1 = botpair
 exec_botpair() {
-	echo "executing botpair '$1'"
+	echo "TODO executing botpair '$1'"
 }
 
 get_bots() {
-	cd bots
-	ls
+	(cd bots
+		ls
+	)
 }
 
 get_botpairs() {
-	cd botpairs
-	ls
+	(cd botpairs
+		ls
+	)
 }
 
 get_botpair_with_highest_prio() {
