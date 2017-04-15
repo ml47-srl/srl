@@ -1,5 +1,5 @@
 use std::path::Path;
-use std::fs::{create_dir, remove_file, read_dir, ReadDir, File};
+use std::fs::{remove_dir, create_dir, remove_file, read_dir, ReadDir, File};
 use std::io::{Write, Read};
 use libsrl::error::SRLError;
 
@@ -9,6 +9,15 @@ pub fn assert_dir(path : &Path) {
 	}
 	if !path.exists() {
 		create_dir(path).unwrap();
+	}
+}
+
+pub fn assert_file(path : &Path) {
+	if path.is_dir() {
+		remove_dir(path).unwrap();
+	}
+	if !path.exists() {
+		File::create(path).unwrap();
 	}
 }
 
@@ -29,6 +38,11 @@ pub fn ls(path : &Path) -> Result<Vec<String>, SRLError> {
 		}
 	}
 	Ok(vec)
+}
+
+pub fn force_file(path : &Path, content : &str) -> Result<(), SRLError> {
+	assert_file(path);
+	write_file(path, content)
 }
 
 pub fn write_file(path : &Path, content : &str) -> Result<(), SRLError> {

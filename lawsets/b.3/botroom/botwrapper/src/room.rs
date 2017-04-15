@@ -1,15 +1,11 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
-use fs::*;
-use bot::Bot;
 use proof::Proof;
-use libsrl::error::SRLError;
 
 fn get_proof(proofspath : &Path, i : i32) -> Option<Proof> {
 	let pbuf = proofspath.join("p".to_string() + &i.to_string());
-	let string = read_file(pbuf.as_path()).unwrap();
-	match Proof::from_string(string) {
-		Ok(x) => return Some(x),
+	match Proof::from_dir(pbuf.as_path()) {
+		Ok(x) => Some(x),
 		Err(_) => None
 	}
 }

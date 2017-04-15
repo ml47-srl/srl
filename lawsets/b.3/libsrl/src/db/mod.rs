@@ -25,6 +25,15 @@ impl Database {
 		Ok(Database { rules : rules, src_rules_count : len })
 	}
 
+	pub fn to_string(&self) -> String {
+		let mut string = String::new();
+		for rule in self.get_rules() {
+			string.push_str(&rule.to_rule_string());
+			string.push('\n');
+		}
+		string
+	}
+
 	pub fn by_filename(filename : &str) -> Result<Database, SRLError> {
 		let mut file : File = match File::open(filename) {
 			Ok(file) => file,
