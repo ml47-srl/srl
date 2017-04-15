@@ -34,28 +34,12 @@ struct WeightedIdea {
 }
 
 impl Bot {
-	fn execute_idea_evaluation(&mut self, i : usize, evaluation : i32) {
-		self.ideas[i].eval(evaluation);
-		let weighted_niceness = self.ideas[i].get_weighted_niceness();
-
-		if weighted_niceness > 100 {
-			let mutation = self.ideas[i].mutate();
-			self.ideas.push(mutation); // XXX would cause too many mutations sometimes
-		} else if weighted_niceness < -100 {
-			self.remove_idea(i);
+	pub fn gen() -> Box<Bot> {
+		let mut ideas = vec![];
+		for _ in 0..MIN_IDEAS {
+			ideas.push(WeightedIdea::gen())
 		}
-		
-	}
-
-	fn remove_idea(&mut self, i : usize) {
-		self.ideas.remove(i);
-		if self.ideas.len() < MIN_IDEAS {
-			self.find_new_idea();
-		}
-	}
-
-	fn find_new_idea(&mut self) {
-		self.ideas.push(WeightedIdea::gen()); // XXX maybe use mutation of best ideas here
+		Box::new(Bot { ideas : ideas })
 	}
 
 	pub fn by_string(string : String) -> Box<Bot> {
@@ -67,15 +51,8 @@ impl Bot {
 		Box::new(Bot { ideas : ideas })
 	}
 
-	pub fn gen() -> Box<Bot> {
-		let mut ideas = vec![];
-		for _ in 0..MIN_IDEAS {
-			ideas.push(WeightedIdea::gen())
-		}
-		Box::new(Bot { ideas : ideas })
-	}
 
-	fn to_string(&self) -> String {
+	pub fn to_string(&self) -> String {
 		let mut string_vec = vec![];
 		for idea in &self.ideas {
 			string_vec.push(serde_json::to_string(&idea).expect("serde_json::to_string failed on idea"));
@@ -109,7 +86,28 @@ impl Bot {
 		worked
 	}
 
+	fn execute_idea_evaluation(&mut self, i : usize, evaluation : i32) {
+		self.ideas[i].eval(evaluation);
+		let weighted_niceness = self.ideas[i].get_weighted_niceness();
 
+		if weighted_niceness > 100 {
+			let mutation = self.ideas[i].mutate();
+			self.ideas.push(mutation); // XXX would cause too many mutations sometimes
+		} else if weighted_niceness < -100 {
+			self.remove_idea(i);
+		}
+	}
+
+	fn remove_idea(&mut self, i : usize) {
+		self.ideas.remove(i);
+		if self.ideas.len() < MIN_IDEAS {
+			self.find_new_idea();
+		}
+	}
+
+	fn find_new_idea(&mut self) {
+		self.ideas.push(WeightedIdea::gen()); // XXX maybe use mutation of best ideas here
+	}
 }
 
 

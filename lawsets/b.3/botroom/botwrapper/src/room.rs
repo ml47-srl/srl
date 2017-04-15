@@ -1,6 +1,8 @@
 use std::path::Path;
 
+use bot::Bot;
 use proof::Proof;
+use fs::force_file;
 
 fn get_proof(proofspath : &Path, i : i32) -> Option<Proof> {
 	let pbuf = proofspath.join("p".to_string() + &i.to_string());
@@ -35,5 +37,7 @@ pub fn exec(instancepath : &str, proofspath : &str) {
 
 pub fn new(instancepath : &str) {
 	let instancepath = Path::new(instancepath);
-	// TODO
+	let botpath = instancepath.join("botfile");
+	let content = Bot::gen().to_string();
+	force_file(botpath.as_path(), &content);
 }
