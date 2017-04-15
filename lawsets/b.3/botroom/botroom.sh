@@ -63,11 +63,43 @@ rev_from_botpair() {
 	echo ${1#*-}
 }
 
+# @botpair
+# $1 = instance
+instance_work() {
+	(cd i$1
+		ls | grep ^r[0-9]*$ | wc -l
+	)
+}
+
+# @botpair
+count_instances() {
+	ls | grep ^î[0-9]*$ | wc -l
+}
+
 # $1 = botpair
 exec_botpair() {
 	echo "Executing botpair: '$1'"
 	(cd botpairs/$1
-		./bin
+		local count=$(count_instances)
+		local newest=$(($count - 1))
+		local instance=$newest
+
+		if [[ $count == 0 ]] || [[ $(instance_work $newest) == 2 ]]; then
+			mkdir i$count
+			./bin "new" i$count
+			instance=$count
+		else
+			while true
+			do
+				if [ $instance == 0 ]; then
+					break
+				elif [ $((2 * ($(instance_work $instance)+1))) == $(instance_work $(( $instance - 1 ))) ]; then
+					break
+				fi
+			done
+		fi
+		proofs_path="../../proofs"
+		./bin "exec" i$instance $proofs_path
 	)
 }
 

@@ -27,7 +27,13 @@ fn add_res(botname : &str, instance : u32, data : ()) { // TODO make data useful
 	panic!("TODO")
 }
 
-pub fn execute(proofspath : &str) {
+pub fn exec(instancepath : &str, proofspath : &str) {
+	let instancepath = Path::new(instancepath);
 	let proofspath = Path::new(proofspath);
+	// TODO
+}
+
+pub fn new(instancepath : &str) {
+	let instancepath = Path::new(instancepath);
 	// TODO
 }
