@@ -1,5 +1,5 @@
 [package]
-name = "botroom"
+name = "botwrapper"
 version = "0.1.0"
 authors = ["memoryleak47 <memoryleak47@protonmail.ch>"]
 

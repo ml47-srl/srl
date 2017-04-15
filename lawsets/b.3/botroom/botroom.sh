@@ -6,6 +6,7 @@ die() {
 }
 
 [[ ! -d bots ]] && die 'missing bots folder'
+[[ ! -d botpairs ]] && mkdir botpairs
 
 # eg. botpair = "linbot-23d4c"
 
@@ -18,10 +19,10 @@ get_revs() {
 create_botpair() {
 	botpair="$1"
 	bot=$(bot_from_botpair $botpair)
-	local botpair_path="activebots/$botpair"
+	local botpair_path="botpairs/$botpair"
 	mkdir $botpair_path
-	cp -r botwrapper $botpair_path    # created activebots/linbot-23d4c/botwrapper
-	cp -r bots/$bot $botpair_path/bot # created activebots/linbot-23d4c/bot
+	cp -r botwrapper $botpair_path    # created botpairs/linbot-23d4c/botwrapper
+	cp -r bots/$bot $botpair_path/bot # created botpairs/linbot-23d4c/bot
 	cd $botpair_path
 	(cd bot;
 		mv git .git;
@@ -35,32 +36,32 @@ create_botpair() {
 	ls | grep -v bot | xargs rm -rf
 }
 
-create_missing_activebots() {
+create_missing_botpairs() {
 	for bot in $(get_bots)
 	do
 		for rev in $(get_revs $bot)
 		do
 			local botpair="$bot-$rev"
-			local botpair_path="activebots/$botpair"
+			local botpair_path="botpairs/$botpair"
 			[[ -f $botpair_path ]] && die 'Here is a file? -- snh'
 			if [ ! -d $botpair_path ]; then
-				create_activebot $botpair
+				create_botpair $botpair
 			fi
 		done
 	done
 }
 
 bot_from_botpair() {
-	${1%-*}
+	echo ${1%-*}
 }
 
 rev_from_botpair() {
-	${1#*-}
+	echo ${1#*-}
 }
 
 # $1 = botpair
 exec_botpair() {
-	echo "executing botpair $1"
+	echo "executing botpair '$1'"
 }
 
 get_bots() {
@@ -69,7 +70,7 @@ get_bots() {
 }
 
 get_botpairs() {
-	cd botspairs
+	cd botpairs
 	ls
 }
 
@@ -91,14 +92,17 @@ get_prio() { # 1/(1+number_of_execs) * 2^niceness * 1/(1+number_of_commits_behin
 	# $(()) is only int!
 }
 
-botpair=$(get_botpair_with_highest_prio)
-prio=$(get_prio $botpair)
-if [ ! $prio == 0 ]; then
-	exec_botpair $botpair
-fi
+exec_correct_botpair() {
+	local botpair=$(get_botpair_with_highest_prio)
+	local prio=$(get_prio $botpair)
+	if [ ! $prio == 0 ]; then
+		exec_botpair $botpair
+	fi
+}
 
+create_missing_botpairs
+exec_correct_botpair
 git pull origin master
-create_missing_activebots
 
 # TODO if time is right => commit
 
