@@ -73,7 +73,7 @@ instance_work() {
 
 # @botpair
 count_instances() {
-	ls | grep ^î[0-9]*$ | wc -l
+	ls | grep ^i[0-9]*$ | wc -l
 }
 
 # $1 = botpair
