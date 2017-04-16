@@ -1,4 +1,4 @@
 */test/*
 */debug
-**/target
+**/target/*
 **/Cargo.lock
