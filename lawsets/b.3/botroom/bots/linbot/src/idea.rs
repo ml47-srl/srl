@@ -47,7 +47,7 @@ impl Idea {
 	}
 
 	pub fn gen() -> Idea {
-		let n : u32 = gen_range(4, 30);
+		let n : u32 = gen_range(2, 8);
 		let mut actions = vec![];
 		for _ in 0..n {
 			actions.push(Action::gen());

@@ -26,10 +26,10 @@ impl Proof {
 		assert_dir(path);
 
 		let target_pbuf = path.join("target");
-		force_file(target_pbuf.as_path(), &self.target.to_string());
+		force_file(target_pbuf.as_path(), &self.target.to_string()).unwrap();
 
 		let db_pbuf = path.join("db");
-		force_file(db_pbuf.as_path(), &self.db.to_string());
+		force_file(db_pbuf.as_path(), &self.db.to_string()).unwrap();
 
 		Ok(())
 	}

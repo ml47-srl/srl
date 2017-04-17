@@ -28,17 +28,17 @@ pub fn exec(instancepath_str : &str, proofspath_str : &str) {
 		let (success, time) = exec_single(&mut bot, proof, ProofType::Proof);
 		result.push_str(&get_result_line(i, ProofType::Proof, success, time));
 	}
-	write_file(botfile_pbuf.as_path(), &bot.to_string());
+	write_file(botfile_pbuf.as_path(), &bot.to_string()).unwrap();
 	let id = get_free_result_id(instancepath);
 	let pbuf = instancepath.join("r".to_string() + &id.to_string());
-	force_file(pbuf.as_path(), &result);
+	force_file(pbuf.as_path(), &result).unwrap();
 }
 
 pub fn new(instancepath : &str) {
 	let instancepath = Path::new(instancepath);
 	let botfile_pbuf = instancepath.join("botfile");
 	let content = Bot::gen().to_string();
-	force_file(botfile_pbuf.as_path(), &content);
+	force_file(botfile_pbuf.as_path(), &content).unwrap();
 }
 
 fn get_proof(proofspath : &Path, i : i32) -> Option<Proof> {

@@ -46,7 +46,7 @@ pub fn force_file(path : &Path, content : &str) -> Result<(), SRLError> {
 }
 
 pub fn write_file(path : &Path, content : &str) -> Result<(), SRLError> {
-	let mut file : File = match File::open(path) {
+	let mut file : File = match File::create(path) {
 		Ok(x) => x,
 		Err(_) => return Err(SRLError("write_file".to_string(), "error opening file".to_string()))
 	};
