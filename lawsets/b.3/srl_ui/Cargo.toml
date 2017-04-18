@@ -1,8 +1,0 @@
-[package]
-name = "srl_ui"
-version = "0.1.0"
-authors = ["memoryleak47 <memoryleak47@protonmail.ch>"]
-
-[dependencies]
-libsrl = { path = "../libsrl" }
-ncurses = "*"
