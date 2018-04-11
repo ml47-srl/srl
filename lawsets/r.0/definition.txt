@@ -1,0 +1,133 @@
+# SRL r.0
+
+### Anmerkungen
+Alles, was in `[[...]]`-Klammern steht ist eine generische Angabe<br />
+und gilt f&uuml;r alles, was man dort einsetzen kann.<br />
+Dies ist kein Bestandteil von SRL sondern lediglich ein Erkl&auml;rsyntax.
+
+Wenn man die Zelle X mit der Zelle Y *ersetzen* kann,
+heißt das, dass man aus einer Regel R eine neue Regel hinzufügen kann, die gleich R ist,
+nur dass ein Vorkommnis von X mit Y ersetzt wurde.
+
+Wenn man die Zellen X und Y *umtauschen* kann, kann man
+- X mit Y *ersetzen*
+- Y mit X *ersetzen*
+
+### Zellendifferenzierung
+- Zellen sind eins von den folgenden: scope, implication, complex, simple, var<br />
+- Scope = "`{[[number]] [[cell]]}`"<br />
+- Implication = "`[=> [[cell1]] [[cell2]]]`"<br />
+- complex = "`([[cell]] [[cell]] ...)`"<br />
+- simple = Zeichenkette nur aus Buchstaben von A-Z, a-z und _
+- var = [[number]]
+- number = Zeichenkette aus 0-9
+
+### Allgemeine Informationen
+1. Die Quelldatenbank ist eine Menge an Regeln, welche die Axiome eines Systems repräsentieren.
+   Man kann mit den unten genannten Gesetzen aus der Quelldatenbank neue Informationen ableiten.
+   In der Quelldatenbank dürfen keine Implikations-Zellen enthalten sein.
+
+2. Wenn
+	- die Regel "`false.`" gilt,<br />
+	- eine Var-zelle nicht in eine Scope-zelle gleicher ID eingebettet ist
+	- Zwei Scope-zellen, aus einer Regel, die gleiche ID haben oder
+	- eine Zelle keiner der Zellenform entspricht (siehe Zellendifferenzierung)
+   ist die Datenbank paradox.
+   Alle Informationen, die man aus der Datenbank gewonnen hat sind ung&uuml;ltig.
+
+3. Bevor zwei Zellen/Regeln durch beliebige Gesetze miteinander kombiniert werden, werden alle Scope-IDs ihrer Scopes eindeutig voneinander getrennt.
+   Die Trennung kann z.B. dadurch geschehen, dass auf die IDs der einen Zelle die größte ID der anderen Zelle + 1 addiert werden.
+
+   Jede Regel muss, bevor sie der Datenbank hinzugefügt werden kann erst normalisiert werden:
+   Die Normalisierung bedeutet, dass die IDs wieder in eine gut-lesbare chronologische Form kommen, so, dass alle IDs in aufsteigender Reihenfolge stehen.
+   z.B.: normalisiert("{3 {2 (= {12 {33 (= x {44 (lel 3) })}} {234 {4 (= true 4) }})}}") = "{0 {1 (= {2 {3 (= x {4 (lel 0) })}} {5 {6 (= true 6) }})}}"
+
+4.
+	- Vars/Constants sind keine simplen Zellen<br />
+	- Scopes sind auch keine komplexen Zellen<br />
+	- Die ID einer Scope-zelle ist ihr erstes Argument<br />
+	- Die ID einer Scope-zelle dient zur Zuordnung der Vars zur Scope-zelle<br />
+
+
+### Definitionen
+1. Definition Wrapper
+   Ein Wrapper W:(Cell, Cell) ist eine Funktion.
+   Alle Wrapper bilden sich folgenderma&szlig;en rekursiv:
+	   W(c) = c, oder
+	   W(c) = {[[number]] X(c) }, oder
+	   W(c) = [=> [[cell]] X(c)], oder
+	   W(c) = (= false X(c)) (Negationsstufe)
+   wobei X(c) auch ein Wrapper ist.
+
+   Wenn die Anzahl an Negationsstufen gerade ist, zählt ein Wrapper W als positiv.
+   Wenn die Anzahl an Negationsstufen ungerade ist, zählt ein Wrapper W als negativ.
+
+   Wenn es kein Scope S gibt, mit W(x) = Y(S(x)), wobei Y ein positiver Wrapper ist, dann ist W ein nallq-Wrapper (no-all-quantor)
+   Wenn es kein Scope S gibt, mit W(x) = Y(S(x)), wobei Y ein negativer Wrapper ist, dann ist W ein nexq-Wrapper (no-existance-quantor)
+
+2. Definition bool
+   Die folgenden Zellen sind Bool-zellen:
+   - Regeln
+   - (= [[a]] [[b]]), also Gleichheits-zellen
+   - {[[number]] [[body]] }, also Scopes
+   - true
+   - false
+   Die eben aufgez&auml;hlten Zell-typen, z&auml;hlen als vollwerige Bool-zellen.
+   Zus&auml;tzlich zu den vollwertigen Bool-zellen, gibt es auch noch die positional Bool-zellen:
+   Argumente von Implikationen und Körper von Scopes zählen als (positional) Bool-zellen.
+
+### Gesetze
+1. Equals-replace
+   Wenn es eine Regel R1 = W([[a]]) gibt, wobei W der positive nexq-Wrapper um a ist,
+   darf ich,
+	- falls es eine Regel R2 = W("= [[b]] [[c]]") gibt,
+	- oder falls es W einen elementaren Implikationswrapper, dessen linke Implikationsseite "(= [[b]] [[c]])" ist, enthält
+   b und c in R1's a umtauschen.
+
+2. core-rules:
+   Jede Datenbank beginnt mit folgenden Regeln:
+   - "`{0 (= 0 0)}.`"
+
+4. Man darf c mit "`= true [[c]]`" ersetzen, wenn c eine Bool-zelle ist.
+   Man darf auch "`= true [[c]]`" mit c ersetzen,
+   solange das eingesetze c, nach der Einsetzung, eine Bool-zelle ist.
+
+5. Scope-Einsetzung
+   Sei S ein Scope "{[[number]] b}" aus der Regel R, und b eine vollwertige Bool-zelle.
+   Man kann in S eine Zelle einsetzen, wenn es einen positiven Wrapper B gibt, mit B(S) = R.
+     
+   Beim Einsetzen, wird aus {[[number]] b} ein b,
+   wobei alle Vorkommnisse von `number` mit einer beliebigen, aber festen Ersatz-zelle ersetzt werden.
+   Diese Ersatz-zelle darf keine Vars enthalten, dessen Scopes nach der Einsetzung nicht umliegen.
+   Man darf also auch beim Einsetzen in ein äußeres Scope S, die Vars von einem Scope T innerhalb des äußeren Scopes verwenden, wenn alle Vorkommnisse von der S-var innerhalb von T liegen.
+   Beispiel: {0 {1 (= 0 test)}} ==(Einsetzung von 0 = 1)==> {1 (= 1 test)} ==(Normalisierung)==> {0 (= 0 test)}
+
+6. Scope-Erstellung
+   Sei S ein Scope "{[[number]] b}", und b eine vollwertige Bool-zelle aus der Regel R.
+   Man kann mit b das Scope S erstellen, wenn
+   es einen negativen Wrapper B gibt, mit B(b) = R.
+
+   Beim Erstellen des Scopes
+   werden beliebig-viele Vorkommnisse einer beliebigen aber festen Zelle
+   mit der number von S ersetzt.
+   Die Zelle muss nicht vorkommen, in diesem Fall wird lediglich das Scope hinzugefügt.
+
+7. Implikations-ableitung
+   Sei W(x) ein positiver nexq-Wrapper.
+   Wenn
+	W("`[=> [[bool]] [[cell]]]`")
+   und
+	W("`[=> (= false [[bool]]) [[cell]]]`"), dann gilt:
+   W("`[[cell]]`")
+   [[bool]] muss dabei eine bool-zelle sein.
+
+8. Man kann anliegende Scopes austauschen
+
+9. Wenn es eine Regel R = W(a) gibt, wobei W ein positiver Wrapper und a eine Zelle ist,
+   dann darf man daraus die Regel W("[=> [[cell]] a]") ableiten, wobei [[cell]] eine beliebige Zelle ist, welche keine Vars nicht-umliegender scopes enthält.
+
+10. Existance-law
+    Sei R eine Regel, z(x) eine Zellenfunktion, x eine Zelle, W ein positiver nallq-Wrapper, und s eine bis jetzt nicht in der Datenbank vorkommende simple Zelle.
+    Es gelte z(x) = "(= false {[[number]] (= false x)})".
+    Man kann sich aus R = W(z(x)), die Regel W(x) ableiten,
+    wobei alle Vorkommnisse von [[number]] mit s vertauscht werden m&uuml;ssen.
