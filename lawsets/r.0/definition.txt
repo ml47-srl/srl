@@ -88,11 +88,11 @@ Wenn man die Zellen X und Y *umtauschen* kann, kann man
    Jede Datenbank beginnt mit folgenden Regeln:
    - "`{0 (= 0 0)}.`"
 
-4. Man darf c mit "`= true [[c]]`" ersetzen, wenn c eine Bool-zelle ist.
+3. Man darf c mit "`= true [[c]]`" ersetzen, wenn c eine Bool-zelle ist.
    Man darf auch "`= true [[c]]`" mit c ersetzen,
    solange das eingesetze c, nach der Einsetzung, eine Bool-zelle ist.
 
-5. Scope-Einsetzung
+4. Scope-Einsetzung
    Sei S ein Scope "{[[number]] b}" aus der Regel R, und b eine vollwertige Bool-zelle.
    Man kann in S eine Zelle einsetzen, wenn es einen positiven Wrapper B gibt, mit B(S) = R.
      
@@ -102,7 +102,7 @@ Wenn man die Zellen X und Y *umtauschen* kann, kann man
    Man darf also auch beim Einsetzen in ein äußeres Scope S, die Vars von einem Scope T innerhalb des äußeren Scopes verwenden, wenn alle Vorkommnisse von der S-var innerhalb von T liegen.
    Beispiel: {0 {1 (= 0 test)}} ==(Einsetzung von 0 = 1)==> {1 (= 1 test)} ==(Normalisierung)==> {0 (= 0 test)}
 
-6. Scope-Erstellung
+5. Scope-Erstellung
    Sei S ein Scope "{[[number]] b}", und b eine vollwertige Bool-zelle aus der Regel R.
    Man kann mit b das Scope S erstellen, wenn
    es einen negativen Wrapper B gibt, mit B(b) = R.
@@ -112,7 +112,7 @@ Wenn man die Zellen X und Y *umtauschen* kann, kann man
    mit der number von S ersetzt.
    Die Zelle muss nicht vorkommen, in diesem Fall wird lediglich das Scope hinzugefügt.
 
-7. Implikations-ableitung
+6. Implikations-ableitung
    Sei W(x) ein positiver nexq-Wrapper.
    Wenn
 	W("`[=> [[bool]] [[cell]]]`")
@@ -121,13 +121,13 @@ Wenn man die Zellen X und Y *umtauschen* kann, kann man
    W("`[[cell]]`")
    [[bool]] muss dabei eine bool-zelle sein.
 
-8. Man kann anliegende Scopes austauschen
+7. Man kann anliegende Scopes austauschen
 
-9. Wenn es eine Regel R = W(a) gibt, wobei W ein positiver Wrapper und a eine Zelle ist,
+8. Wenn es eine Regel R = W(a) gibt, wobei W ein positiver Wrapper und a eine Zelle ist,
    dann darf man daraus die Regel W("[=> [[cell]] a]") ableiten, wobei [[cell]] eine beliebige Zelle ist, welche keine Vars nicht-umliegender scopes enthält.
 
-10. Existance-law
-    Sei R eine Regel, z(x) eine Zellenfunktion, x eine Zelle, W ein positiver nallq-Wrapper, und s eine bis jetzt nicht in der Datenbank vorkommende simple Zelle.
-    Es gelte z(x) = "(= false {[[number]] (= false x)})".
-    Man kann sich aus R = W(z(x)), die Regel W(x) ableiten,
-    wobei alle Vorkommnisse von [[number]] mit s vertauscht werden m&uuml;ssen.
+9. Existance-law
+   Sei R eine Regel, z(x) eine Zellenfunktion, x eine Zelle, W ein positiver nallq-Wrapper, und s eine bis jetzt nicht in der Datenbank vorkommende simple Zelle.
+   Es gelte z(x) = "(= false {[[number]] (= false x)})".
+   Man kann sich aus R = W(z(x)), die Regel W(x) ableiten,
+   wobei alle Vorkommnisse von [[number]] mit s vertauscht werden m&uuml;ssen.
