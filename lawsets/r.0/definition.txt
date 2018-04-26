@@ -1,5 +1,7 @@
 # SRL r.0
 
+TODO: Es ist gerade nicht möglich, zu definieren, dass zwei Dinge ungleich sind.
+
 ### Anmerkungen
 Alles, was in `[[...]]`-Klammern steht ist eine generische Angabe<br />
 und gilt f&uuml;r alles, was man dort einsetzen kann.<br />
